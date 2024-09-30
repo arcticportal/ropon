@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# lnlib [-d]
+
+# Make a symlink from the container django library to the user's host
+# home directory for proper IDE tooling.
+
+# If -d is given, remove the symlink.
+
+
+src="$(realpath "`dirname $0`"/../wagtail/.local/lib)"
+dst=~/.local/lib
+
+if [ "$1" = -d ]; then
+# delete link
+  if [ -L $dst ]; then rm $dst
+  else echo "lnlib: $dst is not a symlink"; fi
+
+# create link
+elif [ -e $dst ]; then echo "lnlib: $dst already exists"
+else ln -s "$src" $dst; fi

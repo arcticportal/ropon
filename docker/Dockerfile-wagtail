@@ -1,0 +1,10 @@
+FROM python:slim
+
+RUN pip install -U pip;\
+    pip install ipython;\
+    useradd -mg users wagtail
+
+USER wagtail
+ENV PATH="/home/wagtail/.local/bin:$PATH"
+WORKDIR /home/wagtail
+ENTRYPOINT ["./run"]
