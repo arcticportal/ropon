@@ -1,0 +1,10 @@
+/angular/.angular/cache/
+/angular/node_modules/
+/wagtail/.bash_history
+/wagtail/.cache/
+/wagtail/.ipython/
+/wagtail/.local/
+/wagtail/**/__pycache__/
+/wagtail/static/
+/docker/.env
+/postgres/
