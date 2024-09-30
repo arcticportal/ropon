@@ -1,7 +1,7 @@
 # name and nginx port must be unique
 
 name: ropon2
-networks: {alsdev: {name: '${COMPOSE_PROJECT_NAME}'}}
+networks: {ropon2: {name: '${COMPOSE_PROJECT_NAME}'}}
 services:
 
  db:
