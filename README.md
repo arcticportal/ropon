@@ -1,2 +1,2 @@
-# ropon2
+# ropon
 Repository of Polar Observing Networks
