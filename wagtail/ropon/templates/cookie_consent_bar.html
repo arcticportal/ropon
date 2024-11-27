@@ -1,0 +1,34 @@
+{% url "cookie_consent_cookie_group_list" as url_cookies %}
+<template id="cookie-consent__cookie-bar">
+  <div class="cookie-bar">
+    This site uses cookies for better performance and user experience.
+    Do you agree to use these cookies?
+    {# Button is the more accessible role, but an anchor tag would also work #}
+    <button type="button"
+	    class="cookie-consent__accept">Accept</button>
+    <button type="button"
+	    class="cookie-consent__decline">Decline</button>
+    <a href="{{ url_cookies }}">Cookies info</a>
+  </div>
+</template>
+
+{# Set up the data and template for dynamic JS cookie bar #}
+{% all_cookie_groups 'cookie-consent__cookie-groups' %}
+{# Emits a <script type="application/json" id="cookie-consent__cookie-groups">...</script> tag #}
+
+{% load cookie_consent_tags %}
+{% static "cookie_consent/cookiebar.module.js" as cookiebar_src %}
+{% url 'cookie_consent_status' as status_url %}
+<script type="module">
+  import {showCookieBar} from '{{ cookiebar_src }}'
+  showCookieBar({
+    statusUrl: '{{ status_url|escapejs }}',
+    templateSelector: '#cookie-consent__cookie-bar',
+    cookieGroupsSelector: '#cookie-consent__cookie-groups',
+    onShow: () => document.querySelector(
+      'body').classList.add('with-cookie-bar'),
+    onAccept: () => document.querySelector(
+      'body').classList.remove('with-cookie-bar'),
+    onDecline: () => document.querySelector(
+      'body').classList.remove('with-cookie-bar')})
+</script>
