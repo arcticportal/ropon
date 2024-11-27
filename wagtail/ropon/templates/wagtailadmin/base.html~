@@ -1,0 +1,12 @@
+{% extends "wagtailadmin/base.html" %}
+
+{% comment %}
+{% extends "wagtailadmin/admin_base.html" %}
+{% endcomment %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <!-- Debug: Extrahead block is working -->
+  <script>console.log('Extrahead block is working')</script>
+  {% include "cookie_consent_bar.html" %}
+{% endblock %}

@@ -13,6 +13,8 @@ from .api import api
 from wagtail.api.v2.views import PagesAPIViewSet
 from wagtail.api.v2.router import WagtailAPIRouter
 
+#from .views import CookieConsentStatus
+
 api_router = WagtailAPIRouter("wagtailapi")
 api_router.register_endpoint("pages", PagesAPIViewSet)
 
@@ -23,7 +25,9 @@ urlpatterns = [
     path("search/", search_views.search, name="search"),
 
     path('api/v1/', api.urls),
-    path("api/v2/", api_router.urls)]
+    path('api/v2/', api_router.urls),
+    #path('api/gdpr/', CookieConsentStatus.as_view(), name='gdpr'),
+    path('api/gdpr/', include('cookie_consent.urls'))]
 
 
 if settings.DEBUG:

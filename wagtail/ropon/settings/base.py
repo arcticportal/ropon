@@ -24,6 +24,7 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 # Application definition
 
 INSTALLED_APPS = [
+    'network',
     "home",
     "search",
     "wagtail.contrib.forms",
@@ -47,7 +48,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     'wagtail.api.v2',
-    'rest_framework']
+    'rest_framework',
+    'cookie_consent']
 
 MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -70,6 +72,7 @@ TEMPLATES = [
         ],
         "APP_DIRS": True,
         "OPTIONS": {
+            'debug': True,
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
@@ -188,3 +191,8 @@ WAGTAILDOCS_EXTENSIONS = ['csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'tx
 
 # Custom
 CSRF_TRUSTED_ORIGINS = ['https://ropon.arcticportal.org']
+
+TEMPLATE_CONTEXT_PROCESSORS = [
+    'django.template.context_processors.request']
+
+DEBUG = True
