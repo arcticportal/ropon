@@ -4,6 +4,7 @@
 	"name": "Python 3 & PostgreSQL",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
+	"remoteUser": "vscode",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
@@ -15,7 +16,7 @@
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "pip install --user -r wagtail/requirements-dev.txt",
-	"postStartCommand": "sleep 10 && manage.py init_setup",
+	// "postStartCommand": "sleep 10 && manage.py init_setup",
 	
 	// Configure tool-specific properties.
 	"customizations": {

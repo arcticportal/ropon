@@ -1,5 +1,8 @@
+
+# Initial draft Docker file that should be used to build the Docker image for the project.
+
 # Use an official Python runtime based on Debian 10 "buster" as a parent image.
-FROM python:3.8.1-slim-buster
+FROM python:3.12-slim
 
 # Add user that will be used in the container.
 RUN useradd wagtail
@@ -14,7 +17,23 @@ EXPOSE 8000
 ENV PYTHONUNBUFFERED=1 \
     PORT=8000
 
+    
+# setup user permissions with ID
+# staff user has ID 1001 and staff group as ID 50 on debian 
+# adm group has ID 4
+ARG PID=1001
+ARG PGID=1001
+ARG PUSER=wagtail
+ARG DOCKERGID=1000
+
+RUN groupadd -g $PGID $PUSER && useradd -u $PID -g $PGID $PUSER
+
+# SET docker group ID, which matches with group ID of host machine
+RUN groupadd -g $DOCKERGID docker
+RUN usermod -aG docker $PUSER
+
 # Install system packages required by Wagtail and Django.
+# TODO- are these all need for prod as well ?
 RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-recommends \
     build-essential \
     libpq-dev \
@@ -43,7 +62,7 @@ RUN chown wagtail:wagtail /app
 COPY --chown=wagtail:wagtail . .
 
 # Use user "wagtail" to run the build commands below and the server itself.
-USER wagtail
+USER ${PUSER}
 
 # Collect static files.
 RUN python manage.py collectstatic --noinput --clear
@@ -57,4 +76,7 @@ RUN python manage.py collectstatic --noinput --clear
 #   PRACTICE. The database should be migrated manually or using the release
 #   phase facilities of your hosting platform. This is used only so the
 #   Wagtail instance can be started with a simple "docker run" command.
-CMD set -xe; python manage.py migrate --noinput; gunicorn ropon.wsgi:application
+
+# CMD set -xe; python manage.py migrate --noinput; gunicorn ropon.wsgi:application
+
+# TODO : CMD or entry point

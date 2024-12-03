@@ -1,5 +1,5 @@
 FROM mcr.microsoft.com/devcontainers/python:3.12-bookworm
-
+# FROM mcr.microsoft.com/devcontainers/python:3.11-bookworm
 ENV PYTHONUNBUFFERED 1
 
 # [Optional] If your requirements rarely change, uncomment this section to add them to the image.
@@ -10,6 +10,23 @@ ENV PYTHONUNBUFFERED 1
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 #     && apt-get -y install --no-install-recommends <your-package-list-here>
+
+
+# ARG USER=vscode
+# ARG DEBIAN_FRONTEND=noninteractive
+# RUN useradd -m -s /usr/bin/bash ${USER} 
+
+# RUN mkdir /data
+# # set permisssion to USER:USER for /data
+# RUN chown -R ${USER}:${USER} /data
+
+
+# VOLUME ["/data"]
+
+
+
+# #Update PATH variable
+# ENV PATH="/home/${USER}/.local/bin:${PATH}"
 
 
 

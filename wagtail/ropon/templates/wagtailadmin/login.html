@@ -1,0 +1,10 @@
+{% extends "wagtailadmin/login.html" %}
+{% load static %}
+
+{% block branding_logo %}
+<img class="ropon-login-logo" src="{% static 'ropon/images/ropon-text.png' %}" alt="RoPON Login" style="margin-top: 1rem"/>
+{% endblock %}
+
+{% block branding_login %}Sign in to RoPON Dashboard{% endblock %}
+
+{% block above_login %} If you are new user read <a href="https://polarobservingregistry.org/faq">FAQ</a> before continuing <br></br>{% endblock %}

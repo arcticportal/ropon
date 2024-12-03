@@ -23,10 +23,27 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 # Application definition
 
-INSTALLED_APPS = [
-    'network',
+LOCAL_APPS = [
     "home",
     "search",
+    "ropon_pages",
+    "ropon",
+]
+
+DJANGO_APPS = [
+    "taggit",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",
+    'corsheaders',
+]
+
+WAGTAIL_APPS = [
+    
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     "wagtail.embeds",
@@ -39,17 +56,15 @@ INSTALLED_APPS = [
     "wagtail.admin",
     "wagtail",
     "modelcluster",
-    "taggit",
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-
     'wagtail.api.v2',
-    'rest_framework',
-    'cookie_consent']
+
+    ]
+
+THIRD_PARTY_APPS = [
+        # 'cookie_consent'
+]
+
+INSTALLED_APPS = LOCAL_APPS + DJANGO_APPS + WAGTAIL_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -60,6 +75,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = "ropon.urls"
@@ -92,11 +108,11 @@ WSGI_APPLICATION = "ropon.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': '1qazXSW"1qazXSW"',
-        'HOST': 'db',
-        'PORT': 5432,
+        'NAME': os.environ.get('POSTGRES_DB', 'postgres'),
+        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'db'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
     }
 }
 
@@ -168,7 +184,10 @@ STORAGES = {
 
 # Wagtail settings
 
-WAGTAIL_SITE_NAME = "ropon"
+WAGTAIL_SITE_NAME = "Registry of Polar Networks"
+
+# diable commenting in page editors
+WAGTAILADMIN_COMMENTS_ENABLED = False
 
 # Search
 # https://docs.wagtail.org/en/stable/topics/search/backends.html
@@ -180,7 +199,7 @@ WAGTAILSEARCH_BACKENDS = {
 
 # Base URL to use when referring to full URLs within the Wagtail admin backend -
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
-WAGTAILADMIN_BASE_URL = "http://example.com"
+WAGTAILADMIN_BASE_URL = os.environ.get("WAGTAILADMIN_BASE_URL", "http://localhost:8000")
 
 # Allowed file extensions for documents in the document library.
 # This can be omitted to allow all files, but note that this may present a security risk
@@ -191,6 +210,11 @@ WAGTAILDOCS_EXTENSIONS = ['csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'tx
 
 # Custom
 CSRF_TRUSTED_ORIGINS = ['https://ropon.arcticportal.org']
+
+# CORS
+CORS_ALLOWED_ORIGINS = [
+    "https://ropon.arcticportal.org",
+]
 
 TEMPLATE_CONTEXT_PROCESSORS = [
     'django.template.context_processors.request']

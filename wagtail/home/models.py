@@ -4,4 +4,4 @@ from wagtail.models import Page
 
 
 class HomePage(Page):
-    pass
+    is_creatable = False

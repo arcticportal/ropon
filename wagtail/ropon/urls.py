@@ -8,7 +8,6 @@ from wagtail.documents import urls as wagtaildocs_urls
 
 from search import views as search_views
 
-from .api import api
 
 from wagtail.api.v2.views import PagesAPIViewSet
 from wagtail.api.v2.router import WagtailAPIRouter
@@ -24,10 +23,10 @@ urlpatterns = [
     path("documents/", include(wagtaildocs_urls)),
     path("search/", search_views.search, name="search"),
 
-    path('api/v1/', api.urls),
     path('api/v2/', api_router.urls),
     #path('api/gdpr/', CookieConsentStatus.as_view(), name='gdpr'),
-    path('api/gdpr/', include('cookie_consent.urls'))]
+    # path('api/gdpr/', include('cookie_consent.urls'))
+    ]
 
 
 if settings.DEBUG:
