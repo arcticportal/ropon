@@ -15,7 +15,7 @@
 	"forwardPorts": [8000, 5432],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip install --user -r wagtail/requirements-dev.txt",
+	"postCreateCommand": "pip install --user -r deploy/wagtail/requirements-dev.txt",
 	// "postStartCommand": "sleep 10 && manage.py init_setup",
 	
 	// Configure tool-specific properties.

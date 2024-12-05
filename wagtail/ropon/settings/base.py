@@ -184,7 +184,7 @@ STORAGES = {
 
 # Wagtail settings
 
-WAGTAIL_SITE_NAME = "Registry of Polar Networks"
+WAGTAIL_SITE_NAME = os.environ.get('WAGTAIL_SITE_NAME','Registry of Polar Networks')
 
 # diable commenting in page editors
 WAGTAILADMIN_COMMENTS_ENABLED = False
@@ -199,7 +199,7 @@ WAGTAILSEARCH_BACKENDS = {
 
 # Base URL to use when referring to full URLs within the Wagtail admin backend -
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
-WAGTAILADMIN_BASE_URL = os.environ.get("WAGTAILADMIN_BASE_URL", "http://localhost:8000")
+WAGTAILADMIN_BASE_URL = os.getenv("WAGTAILADMIN_BASE_URL", "http://localhost:8000")
 
 # Allowed file extensions for documents in the document library.
 # This can be omitted to allow all files, but note that this may present a security risk
@@ -207,14 +207,17 @@ WAGTAILADMIN_BASE_URL = os.environ.get("WAGTAILADMIN_BASE_URL", "http://localhos
 # see https://docs.wagtail.org/en/stable/advanced_topics/deploying.html#user-uploaded-files
 WAGTAILDOCS_EXTENSIONS = ['csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xlsx', 'zip']
 
+# SECURITY WARNING: define the correct hosts in production!
+
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost'] + list(filter(None, os.getenv('ALLOWED_HOSTS', '').split(',')))
+
 
 # Custom
-CSRF_TRUSTED_ORIGINS = ['https://ropon.arcticportal.org']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000'] + list(filter(None, os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')))
 
 # CORS
-CORS_ALLOWED_ORIGINS = [
-    "https://ropon.arcticportal.org",
-]
+CORS_ALLOWED_ORIGINS = ['http://localhost:8000'] + list(filter(None, os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')))
 
 TEMPLATE_CONTEXT_PROCESSORS = [
     'django.template.context_processors.request']

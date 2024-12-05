@@ -1,6 +1,0 @@
-
-wagtail>=6.2,<6.3
-psycopg2-binary==2.9.10
-django-cors-headers==4.6.0
-pytest==8.3.4
-pytest-django==4.9.0
