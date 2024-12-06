@@ -16,7 +16,7 @@
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "pip install --user -r deploy/wagtail/requirements-dev.txt",
-	// "postStartCommand": "sleep 10 && manage.py init_setup",
+	"postStartCommand": "sleep 10 && ./wagtail/manage.py init_setup",
 	
 	// Configure tool-specific properties.
 	"customizations": {

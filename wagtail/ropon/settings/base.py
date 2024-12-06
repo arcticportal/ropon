@@ -64,7 +64,7 @@ THIRD_PARTY_APPS = [
         # 'cookie_consent'
 ]
 
-INSTALLED_APPS = LOCAL_APPS + DJANGO_APPS + WAGTAIL_APPS + THIRD_PARTY_APPS
+INSTALLED_APPS = DJANGO_APPS + WAGTAIL_APPS + THIRD_PARTY_APPS + LOCAL_APPS 
 
 MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",

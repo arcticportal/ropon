@@ -1,43 +1,77 @@
 import pytest
 from django.test import Client
 from wagtail.models import Page
+from ..models import RoponPage
 from wagtail.blocks import StreamValue
-from ..models import RoponPage, RoponPageListing
+
+# test_models.py
+
 
 @pytest.mark.django_db
 def test_ropon_page_creation():
-    # Create root page
+    # Get the root page
     root_page = Page.objects.get(id=1)
-    # Create RoponPageListing
-    listing_page = RoponPageListing(title='Test RoponPageListing')
-    root_page.add_child(instance=listing_page)
-    listing_page.save_revision().publish()
-    # Create body content for RoponPage
-    body_content = StreamValue(
-        RoponPage.body.stream_block,
+
+    # Create a StreamValue for the body field
+    body_stream = StreamValue(
+        RoponPage.body.field.stream_block,
         [
             ('heading', 'Test Heading'),
-            ('paragraph', 'Test Paragraph'),
-            ('image', None),
+            ('paragraph', 'Test paragraph content'),
         ],
         is_lazy=True
     )
-    # Create RoponPage
-    ropon_page = RoponPage(title='Test RoponPage', body=body_content)
-    listing_page.add_child(instance=ropon_page)
-    ropon_page.save_revision().publish()
-    # Assert that the page exists
-    assert RoponPage.objects.filter(title='Test RoponPage').exists()
+
+    # Create an instance of RoponPage
+    page = RoponPage(
+        title='Test Ropon Page',
+        slug='test-ropon-page',
+        body=body_stream
+    )
+
+    # Add the page as a child of root and publish
+    root_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    # Assert the page exists in the database
+    assert RoponPage.objects.filter(slug='test-ropon-page').exists()
 
 @pytest.mark.django_db
 def test_ropon_page_api_access():
+    # Get the root page
+    root_page = Page.objects.get(id=1)
+
+    # Create a StreamValue for the body field
+    body_stream = StreamValue(
+        RoponPage.body.field.stream_block,
+        [
+            ('heading', 'Test Heading for API'),
+            ('paragraph', 'Test paragraph content for API'),
+        ],
+        is_lazy=True
+    )
+
+    # Create and publish the RoponPage
+    page = RoponPage(
+        title='API Test Ropon Page',
+        slug='api-test-ropon-page',
+        body=body_stream
+    )
+    root_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    # Create a test client
     client = Client()
-    # Retrieve the first RoponPage
-    ropon_page = RoponPage.objects.first()
-    # Get API URL (adjust if necessary)
-    response = client.get(f'/api/v2/pages/{ropon_page.id}/')
-    # Assert that the response is successful
+
+    # Make a GET request to the Wagtail API
+    response = client.get('/api/v2/pages/?slug=api-test-ropon-page')
+
+    # Assert the response is successful
     assert response.status_code == 200
-    # Check the content
-    data = response.json()
-    assert data['title'] == ropon_page.title
+
+    # Parse the JSON response
+    response_data = response.json()
+
+    # Assert the page is returned in the API response
+    assert response_data['meta']['total_count'] == 1
+    assert response_data['items'][0]['title'] == 'API Test Ropon Page'
