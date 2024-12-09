@@ -50,8 +50,8 @@ def create_ropon_page_listing(apps, schema_editor):
     )
 
     # Assign permissions to RoponPageListing for Moderators
-    # Moderators should have 'add', 'lock', 'publish', and 'unlock' permissions
-    permission_types = ['add', 'lock', 'publish', 'unlock']
+    # Moderators should have 'add', 'edit', 'lock', 'publish', and 'unlock' permissions
+    permission_types = ['add', 'edit', 'lock', 'publish', 'unlock']
     for perm in permission_types:
         GroupPagePermission.objects.create(
             group=moderators_group,
