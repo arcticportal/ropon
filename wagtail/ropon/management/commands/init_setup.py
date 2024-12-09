@@ -57,4 +57,9 @@ class Command(BaseCommand):
             self.stdout.write('Or setup SUPERUSER manually by executing "python manage.py createsuperuser" at terminal.')
             return
         
-       
+        # Load fixtures from ropon_data
+        try:
+            call_command('load_ropon_cvs')
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f'Error loading fixtures: {e}'))
+            return

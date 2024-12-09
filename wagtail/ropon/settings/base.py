@@ -25,9 +25,11 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 LOCAL_APPS = [
     "home",
-    "search",
-    "ropon_pages",
     "ropon",
+    "ropon_pages",
+    "ropon_data",
+    "search",
+
 ]
 
 DJANGO_APPS = [
@@ -56,6 +58,7 @@ WAGTAIL_APPS = [
     "wagtail.admin",
     "wagtail",
     "modelcluster",
+    "wagtail.contrib.modeladmin", #doesitneedto be here?
     'wagtail.api.v2',
 
     ]

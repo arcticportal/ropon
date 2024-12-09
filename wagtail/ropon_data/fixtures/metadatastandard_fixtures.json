@@ -1,0 +1,72 @@
+[
+  {
+    "model": "ropon_data.metadatastandard",
+    "pk": 1,
+    "fields": {
+      "name": "custom schema"
+    }
+  },
+  {
+    "model": "ropon_data.metadatastandard",
+    "pk": 2,
+    "fields": {
+      "name": "ISO 19115"
+    }
+  },
+  {
+    "model": "ropon_data.metadatastandard",
+    "pk": 3,
+    "fields": {
+      "name": "OGC SensorML"
+    }
+  },
+  {
+    "model": "ropon_data.metadatastandard",
+    "pk": 4,
+    "fields": {
+      "name": "OGC O&M"
+    }
+  },
+  {
+    "model": "ropon_data.metadatastandard",
+    "pk": 5,
+    "fields": {
+      "name": "INSPIRE EF"
+    }
+  },
+  {
+    "model": "ropon_data.metadatastandard",
+    "pk": 6,
+    "fields": {
+      "name": "WMO WIGOS"
+    }
+  },
+  {
+    "model": "ropon_data.metadatastandard",
+    "pk": 7,
+    "fields": {
+      "name": "EML"
+    }
+  },
+  {
+    "model": "ropon_data.metadatastandard",
+    "pk": 8,
+    "fields": {
+      "name": "schema.org"
+    }
+  },
+  {
+    "model": "ropon_data.metadatastandard",
+    "pk": 9,
+    "fields": {
+      "name": "FGDC"
+    }
+  },
+  {
+    "model": "ropon_data.metadatastandard",
+    "pk": 10,
+    "fields": {
+      "name": "DCAT-AP"
+    }
+  }
+]

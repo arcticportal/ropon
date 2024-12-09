@@ -1,0 +1,37 @@
+[
+  {
+    "model": "ropon_data.assettype",
+    "pk": 1,
+    "fields": {
+      "name": "Sites"
+    }
+  },
+  {
+    "model": "ropon_data.assettype",
+    "pk": 2,
+    "fields": {
+      "name": "Mobile Platforms"
+    }
+  },
+  {
+    "model": "ropon_data.assettype",
+    "pk": 3,
+    "fields": {
+      "name": "Projects"
+    }
+  },
+  {
+    "model": "ropon_data.assettype",
+    "pk": 4,
+    "fields": {
+      "name": "Campaigns"
+    }
+  },
+  {
+    "model": "ropon_data.assettype",
+    "pk": 5,
+    "fields": {
+      "name": "Initiatives"
+    }
+  }
+]

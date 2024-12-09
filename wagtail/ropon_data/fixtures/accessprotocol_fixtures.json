@@ -1,0 +1,93 @@
+[
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 1,
+    "fields": {
+      "name": "file download"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 2,
+    "fields": {
+      "name": "API"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 3,
+    "fields": {
+      "name": "OGC WMS"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 4,
+    "fields": {
+      "name": "OGC WFS"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 5,
+    "fields": {
+      "name": "OGC WCS"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 6,
+    "fields": {
+      "name": "OGC CSW"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 7,
+    "fields": {
+      "name": "OGC API"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 8,
+    "fields": {
+      "name": "OData"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 9,
+    "fields": {
+      "name": "OAI-PMH"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 10,
+    "fields": {
+      "name": "OpenSearch"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 11,
+    "fields": {
+      "name": "OPeNDAP"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 12,
+    "fields": {
+      "name": "ArcGIS Feature Service"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 13,
+    "fields": {
+      "name": "ArcGIS Map Service"
+    }
+  }
+]

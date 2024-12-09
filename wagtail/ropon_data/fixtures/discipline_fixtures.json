@@ -1,0 +1,72 @@
+[
+  {
+    "model": "ropon_data.discipline",
+    "pk": 1,
+    "fields": {
+      "name": "Biology"
+    }
+  },
+  {
+    "model": "ropon_data.discipline",
+    "pk": 2,
+    "fields": {
+      "name": "Cryosphere"
+    }
+  },
+  {
+    "model": "ropon_data.discipline",
+    "pk": 3,
+    "fields": {
+      "name": "Data Management"
+    }
+  },
+  {
+    "model": "ropon_data.discipline",
+    "pk": 4,
+    "fields": {
+      "name": "Education and Outreach"
+    }
+  },
+  {
+    "model": "ropon_data.discipline",
+    "pk": 5,
+    "fields": {
+      "name": "Geological Sciences"
+    }
+  },
+  {
+    "model": "ropon_data.discipline",
+    "pk": 6,
+    "fields": {
+      "name": "Instrument Development"
+    }
+  },
+  {
+    "model": "ropon_data.discipline",
+    "pk": 7,
+    "fields": {
+      "name": "Meteorology and Climate"
+    }
+  },
+  {
+    "model": "ropon_data.discipline",
+    "pk": 8,
+    "fields": {
+      "name": "Oceanography"
+    }
+  },
+  {
+    "model": "ropon_data.discipline",
+    "pk": 9,
+    "fields": {
+      "name": "Social and Human Sciences"
+    }
+  },
+  {
+    "model": "ropon_data.discipline",
+    "pk": 10,
+    "fields": {
+      "name": "Space Physics"
+    }
+  }
+]

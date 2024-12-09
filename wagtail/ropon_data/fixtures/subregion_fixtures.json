@@ -1,0 +1,202 @@
+[
+  {
+    "model": "ropon_data.subregion",
+    "pk": 1,
+    "fields": {
+      "name": "Arctic: Land",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 2,
+    "fields": {
+      "name": "Alaska",
+      "region": 2
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 3,
+    "fields": {
+      "name": "Canadian Arctic",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 4,
+    "fields": {
+      "name": "Greenland",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 5,
+    "fields": {
+      "name": "Iceland",
+      "region": 2
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 6,
+    "fields": {
+      "name": "Svalbard",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 7,
+    "fields": {
+      "name": "Scandinavia",
+      "region": 2
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 8,
+    "fields": {
+      "name": "Russian Arctic",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 9,
+    "fields": {
+      "name": "Arctic: Ocean",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 10,
+    "fields": {
+      "name": "Sea of Okhotsk",
+      "region": 2
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 11,
+    "fields": {
+      "name": "Gulf of Alaska",
+      "region": 2
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 12,
+    "fields": {
+      "name": "Bering Sea",
+      "region": 2
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 13,
+    "fields": {
+      "name": "Chukchi Sea",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 14,
+    "fields": {
+      "name": "Beaufort Sea",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 15,
+    "fields": {
+      "name": "Canadian Arctic Archipelago",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 16,
+    "fields": {
+      "name": "Hudson Bay",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 17,
+    "fields": {
+      "name": "Labrador Sea",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 18,
+    "fields": {
+      "name": "Baffin Bay",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 19,
+    "fields": {
+      "name": "Greenland Sea",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 20,
+    "fields": {
+      "name": "Norwegian Sea",
+      "region": 2
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 21,
+    "fields": {
+      "name": "Barents Sea",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 22,
+    "fields": {
+      "name": "Kara Sea",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 23,
+    "fields": {
+      "name": "Laptev Sea",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 24,
+    "fields": {
+      "name": "East Siberian Sea",
+      "region": 1
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 25,
+    "fields": {
+      "name": "Central Arctic Ocean",
+      "region": 1
+    }
+  }
+]
