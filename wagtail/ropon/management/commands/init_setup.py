@@ -65,6 +65,7 @@ class Command(BaseCommand):
             self.stdout.write('Or setup SUPERUSER manually by executing "python manage.py createsuperuser" at terminal.')
             return
         
+        # Load Ropon pages from fixtures
         if not options['skip_ropon_pages']:
             try:
               
@@ -80,7 +81,7 @@ class Command(BaseCommand):
             self.stdout.write('Skipping Ropon Pages import.')
         
         
-        # Load fixtures from ropon_data
+        # Load fixtures from ropon_data for controlled vocabiolaries
         try:
             call_command('load_ropon_cvs')
         except Exception as e:
