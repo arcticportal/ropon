@@ -73,7 +73,6 @@ class Command(BaseCommand):
                     call_command('import_ropon_pages', file=options['file'])
                 else:
                     call_command('import_ropon_pages')
-                self.stdout.write('Ropon Pages imported successfully.')
             except Exception as e:
                 self.stdout.write(f'Error importing Ropon Pages: {e}')
                 return

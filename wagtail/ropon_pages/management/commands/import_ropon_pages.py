@@ -24,6 +24,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        
+        if RoponPage.objects.exists():
+            self.stdout.write(self.style.SUCCESS('Ropon Pages already exist. Existing data will be kept.'))
+
+            return
+        
         if not options['file']:
             file_name =  FILE_NAME
         
@@ -35,17 +41,14 @@ class Command(BaseCommand):
             logging.error(f'File does not exist: {file_name}')
             return
 
-        logging.info(f'Output will be stored in : {file_name}')
+        logging.info(f'Ropon page fixtures will be imported from : {file_name}')
 
-        if not RoponPage.objects.exists():
-            try:
-                call_command('loaddata', file_name)
-            except Exception as e:
-                self.stdout.write(f'Error loading initial Ropon Page data: {e}')
-                return
+        try:
+            call_command('loaddata', file_name)
+        except Exception as e:
+            self.stdout.write(f'Error loading initial Ropon Page data: {e}')
+            return
 
-            self.stdout.write(self.style.SUCCESS('Successfully uploaded initial content for Ropon Pages.'))
-        else:
-            self.stdout.write(self.style.SUCCESS('Ropon Pages already exist.'))
+        self.stdout.write(self.style.SUCCESS('Successfully uploaded initial content for Ropon Pages.'))
 
         return
