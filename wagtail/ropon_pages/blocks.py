@@ -31,7 +31,7 @@ class RoponImageChooserBlock(ImageChooserBlock):
 class RoponRichTextBlock(blocks.RichTextBlock):
     
     def __init__(self, **kwargs):
-        features = ['h2', 'h3', 'h4',
+        features = [
                     'bold', 'italic', 
                     'ol', 'ul', 'hr', 
                     'link', 
