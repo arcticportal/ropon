@@ -95,7 +95,7 @@ class ObservingNetwork( WorkflowMixin,DraftStateMixin, RevisionMixin, models.Mod
             ('under_development', 'Under Development')
         ],
         verbose_name='Asset Metadata Catalog',
-        help_text='Does the network have a catalog, spreadsheet, list, or other means of tracking details about individual observing assets such as observing sites, mobile platforms, research projects, field campaigns, cruises, programs, etc.?  (This field pertains to observing assets, not scientific datasets). ',
+        help_text='Does the network has a catalog, spreadsheet, list, or other means of tracking details about individual observing assets such as observing sites, mobile platforms, research projects, field campaigns, cruises, programs, etc.?  (This field pertains to observing assets, not scientific datasets). ',
     )
     metadata_access = models.CharField(
         max_length=20,
