@@ -58,7 +58,6 @@ WAGTAIL_APPS = [
     "wagtail.admin",
     "wagtail",
     "modelcluster",
-    "wagtail.contrib.modeladmin", #doesitneedto be here?
     'wagtail.api.v2',
 
     ]

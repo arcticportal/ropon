@@ -4,19 +4,28 @@ import os
 import glob
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
+from pathlib import Path
+import logging
+
+
+FIXTURES_PATTERN = '*_fixtures.json'
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = 'Load all fixtures in the ropon_data app'
 
     def handle(self, *args, **kwargs):
-        app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        fixtures_dir = os.path.join(app_dir, 'fixtures')
+        app_dir = Path(__file__).resolve().parent.parent.parent   
+        fixtures_dir = app_dir / 'fixtures'
         if not os.path.exists(fixtures_dir):
             self.stdout.write(self.style.ERROR('Fixtures directory not found.'))
             return
         
         # Find all files ending with *_fixtures.json
-        fixture_files = glob.glob(os.path.join(fixtures_dir, '*_fixtures.json'))
+        fixture_files = glob.glob(os.path.join(fixtures_dir, FIXTURES_PATTERN))
         if not fixture_files:
             self.stdout.write(self.style.WARNING('No fixture files found.'))
             return

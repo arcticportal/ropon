@@ -1,9 +1,12 @@
 
 # ropon_data/wagtail_hooks.py
 
-from wagtail.snippets.views.snippets import SnippetViewSet
+from django.urls import reverse
+from wagtail.snippets.views.snippets import SnippetViewSet, SnippetViewSetGroup
+from wagtail.admin.menu import MenuItem
 from wagtail.snippets.models import register_snippet
-from wagtail.snippets.views.snippets import SnippetViewSetGroup
+from wagtail import hooks
+
 from .models import (
     ObservingNetwork, Domain, Discipline, Region,
     Subregion, AssetType, MetadataStandard, AccessProtocol
@@ -36,18 +39,18 @@ class MetadataStandardViewSet(ControlledVocabularyViewSet):
 class AccessProtocolViewSet(ControlledVocabularyViewSet):
     model = AccessProtocol
 
-class SubregionViewSet(SnippetViewSet):
+class SubregionViewSet(ControlledVocabularyViewSet):
     model = Subregion
-    menu_icon = 'list-ul'
-    list_display = ('name', 'region')
-    search_fields = ('name', 'region__name')
 
 class ObservingNetworkViewSet(SnippetViewSet):
     model = ObservingNetwork
     menu_label = 'Observing Networks'
+    menu_name = 'bbserving_networks'
     menu_icon = 'site'
     list_display = ('title', 'owner', 'network_abbreviation')
     search_fields = ('title', 'network_description', 'organization')
+    menu_order = 100  # Adjust the order as needed
+    add_to_admin_menu= True
 
 # Group controlled vocabulary snippets
 class ControlledVocabularyGroup(SnippetViewSetGroup):
@@ -67,5 +70,3 @@ class ControlledVocabularyGroup(SnippetViewSetGroup):
 # Register the group and ObservingNetwork separately
 register_snippet(ControlledVocabularyGroup)
 register_snippet(ObservingNetworkViewSet)
-
-
