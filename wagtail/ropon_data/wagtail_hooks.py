@@ -35,7 +35,8 @@ class AssetTypeViewSet(ControlledVocabularyViewSet):
 
 class MetadataStandardViewSet(ControlledVocabularyViewSet):
     model = MetadataStandard
-    list_display = ('name', 'source_url')
+    list_display = ('name', 'source_url_link')
+    search_fields = ('name', 'description')
 
 class AccessProtocolViewSet(ControlledVocabularyViewSet):
     model = AccessProtocol

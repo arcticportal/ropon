@@ -9,6 +9,8 @@ from modelcluster.fields import ParentalManyToManyField
 from wagtail.search import index
 from django import forms
 from django.core import validators
+from django.utils.html import format_html
+
 
 User = get_user_model()
 
@@ -47,6 +49,14 @@ class MetadataStandard(ControlledVocabularyModel):
     panels = ControlledVocabularyModel.panels + [
         FieldPanel('description')] + [
         FieldPanel('source_url')]
+
+    @property
+    def source_url_link(self):
+        if self.source_url:
+            return format_html('<a href="{}" target="_blank">{}</a>', self.source_url, self.source_url)
+        return ""
+
+    source_url_link.fget.short_description = 'Source URL'
 
 
 class AccessProtocol(ControlledVocabularyModel):
