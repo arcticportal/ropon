@@ -39,10 +39,15 @@ class Region(ControlledVocabularyModel):
 
 class AssetType(ControlledVocabularyModel):
     description = models.TextField(blank=True, null=True, verbose_name='Description', help_text='Description of the asset type, including examples of the types of assets that fall under this category.')
-    pass
+    panels = ControlledVocabularyModel.panels + [FieldPanel('description')]
 
 class MetadataStandard(ControlledVocabularyModel):
-    pass
+    description = models.TextField(blank=True, null=True, verbose_name='Description', help_text='Description of the metadata standard, including examples of the types of metadata that fall under this category.')
+    source_url = models.URLField(blank=True, null=True, verbose_name='Source URL', help_text='URL to the official documentation or website for the metadata standard.')
+    panels = ControlledVocabularyModel.panels + [
+        FieldPanel('description')] + [
+        FieldPanel('source_url')]
+
 
 class AccessProtocol(ControlledVocabularyModel):
     pass

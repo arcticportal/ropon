@@ -3,70 +3,89 @@
     "model": "ropon_data.metadatastandard",
     "pk": 1,
     "fields": {
-      "name": "custom schema"
+      "name": "custom schema",
+      "description": "A custom metadata schema tailored to specific needs."
     }
   },
   {
     "model": "ropon_data.metadatastandard",
     "pk": 2,
     "fields": {
-      "name": "ISO 19115"
+      "name": "ISO 19115",
+      "description": "An international standard for geographic information metadata.",
+      "source_url": "https://en.wikipedia.org/wiki/ISO_19115"
     }
   },
   {
     "model": "ropon_data.metadatastandard",
     "pk": 3,
     "fields": {
-      "name": "OGC SensorML"
+      "name": "OGC SensorML",
+      "description": "A standard for describing sensors and sensor systems.",
+      "source_url": "https://www.ogc.org/standards/sensorml"
     }
   },
   {
     "model": "ropon_data.metadatastandard",
     "pk": 4,
     "fields": {
-      "name": "OGC O&M"
+      "name": "OGC O&M",
+      "description": "Observations and Measurements (O&M) is a standard for encoding observations and measurements.",
+      "source_url": "https://www.ogc.org/standards/om"
     }
   },
   {
     "model": "ropon_data.metadatastandard",
     "pk": 5,
     "fields": {
-      "name": "INSPIRE EF"
+      "name": "INSPIRE EF",
+      "description": "The INSPIRE Environmental Monitoring Facilities (EF) data specification.",
+      "source_url": "https://inspire.ec.europa.eu/id/document/tg/ef"
     }
   },
   {
     "model": "ropon_data.metadatastandard",
     "pk": 6,
     "fields": {
-      "name": "WMO WIGOS"
+      "name": "Dublin Core",
+      "description": "A set of vocabulary terms used to describe web resources.",
+      "source_url": "https://en.wikipedia.org/wiki/Dublin_Core"
     }
   },
   {
     "model": "ropon_data.metadatastandard",
     "pk": 7,
     "fields": {
-      "name": "EML"
+      "name": "EML",
+      "description": "Ecological Metadata Language (EML) is a metadata standard developed for the ecology discipline.",
+      "source_url": "https://eml.ecoinformatics.org/"
     }
   },
   {
     "model": "ropon_data.metadatastandard",
     "pk": 8,
     "fields": {
-      "name": "schema.org"
+      "name": "schema.org",
+      "description": "A collaborative, community activity with a mission to create, maintain, and promote schemas for structured data on the Internet.",
+      "source_url": "https://schema.org/"
     }
   },
   {
     "model": "ropon_data.metadatastandard",
     "pk": 9,
     "fields": {
-      "name": "FGDC"
+      "name": "FGDC",
+      "description": "Federal Geographic Data Committee (FGDC) is responsible for coordinating the development of the National Spatial Data Infrastructure (NSDI).",
+      "source_url": "https://www.fgdc.gov/"
     }
   },
   {
     "model": "ropon_data.metadatastandard",
     "pk": 10,
     "fields": {
-      "name": "DCAT-AP"
+      "name": "DCAT-AP",
+      "description": "DCAT Application Profile for data portals in Europe (DCAT-AP) is a specification based on DCAT for describing public sector datasets in Europe.",
+      "source_url": "https://joinup.ec.europa.eu/collection/semantic-interoperability-community-semic/dcat-ap"
     }
   }
 ]

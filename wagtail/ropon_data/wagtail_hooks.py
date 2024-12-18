@@ -35,6 +35,7 @@ class AssetTypeViewSet(ControlledVocabularyViewSet):
 
 class MetadataStandardViewSet(ControlledVocabularyViewSet):
     model = MetadataStandard
+    list_display = ('name', 'source_url')
 
 class AccessProtocolViewSet(ControlledVocabularyViewSet):
     model = AccessProtocol
@@ -47,8 +48,8 @@ class ObservingNetworkViewSet(SnippetViewSet):
     menu_label = 'Observing Networks'
     menu_name = 'bbserving_networks'
     menu_icon = 'site'
-    list_display = ('title', 'owner', 'network_abbreviation')
-    search_fields = ('title', 'network_description', 'organization')
+    list_display = ('name', 'owner', 'abbreviation')
+    search_fields = ('name', 'description', 'organization_name')
     menu_order = 100  # Adjust the order as needed
     add_to_admin_menu= True
 
