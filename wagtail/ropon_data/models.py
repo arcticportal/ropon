@@ -38,6 +38,7 @@ class Region(ControlledVocabularyModel):
     pass
 
 class AssetType(ControlledVocabularyModel):
+    description = models.TextField(blank=True, null=True, verbose_name='Description', help_text='Description of the asset type, including examples of the types of assets that fall under this category.')
     pass
 
 class MetadataStandard(ControlledVocabularyModel):
