@@ -3,9 +3,11 @@
 
 from django.urls import reverse
 from wagtail.snippets.views.snippets import SnippetViewSet, SnippetViewSetGroup
+from wagtail.admin.viewsets.pages import PageListingViewSet
 from wagtail.admin.menu import MenuItem
 from wagtail.snippets.models import register_snippet
 from wagtail import hooks
+
 
 from .models import (
     ObservingNetwork, Domain, Discipline, Region,
@@ -46,7 +48,7 @@ class AccessProtocolViewSet(ControlledVocabularyViewSet):
 class SubregionViewSet(ControlledVocabularyViewSet):
     model = Subregion
 
-class ObservingNetworkViewSet(SnippetViewSet):
+class ObservingNetworkViewSet(PageListingViewSet):
     model = ObservingNetwork
     menu_label = 'Observing Networks'
     menu_name = 'bbserving_networks'
@@ -73,4 +75,17 @@ class ControlledVocabularyGroup(SnippetViewSetGroup):
 
 # Register the group and ObservingNetwork separately
 register_snippet(ControlledVocabularyGroup)
-register_snippet(ObservingNetworkViewSet)
+# register_snippet(ObservingNetworkViewSet)
+
+# Add the ObservingNetwork to the admin menu
+# hooks.register('register_admin_menu_item', MenuItem(
+#     'Observing Networks',
+#     reverse('wagtailadmin_snippets:choose', args=('ropon_data', 'observingnetwork')),
+#     classnames='icon icon-site',
+#     order=100
+# ))
+
+observingnetworks_listing_viewset = ObservingNetworkViewSet("observingnetwork")
+@hooks.register('register_admin_viewset')
+def register_observingnetwork_viewset():
+    return observingnetworks_listing_viewset

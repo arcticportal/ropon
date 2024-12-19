@@ -4,7 +4,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail.snippets.models import register_snippet
-from wagtail.models import RevisionMixin, WorkflowMixin, DraftStateMixin
+from wagtail.models import RevisionMixin, WorkflowMixin, DraftStateMixin, Page
 from modelcluster.fields import ParentalManyToManyField
 from wagtail.search import index
 from django import forms
@@ -81,15 +81,29 @@ class Subregion(ControlledVocabularyModel):
 
 # ObservingNetwork Model
 
-class ObservingNetwork( WorkflowMixin,DraftStateMixin, RevisionMixin, models.Model):
+# Ropon Page Listing model
+class ObservingNetworkListing(Page):
+    max_count = 1  # Only one instance allowed
+    parent_page_types = ['home.HomePage']
+    subpage_types = ['ropon_data.ObservingNetwork']
+
+    content_panels = Page.content_panels 
+
+# class ObservingNetwork( WorkflowMixin,DraftStateMixin, RevisionMixin, models.Model):
+class ObservingNetwork(Page):
+    # Parent page / subpage type rules
+    parent_page_types = ['ropon_data.ObservingNetworkListing']  # Allows RoponPage to be a top-level page
+    subpage_types = []
+
+
     name = models.CharField(max_length=255,verbose_name='Network Name',help_text='The full name of the observing network e.g. Svalbard Integrated Arctic Earth Observing System')
-    owner = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='observing_networks'
-    )
+    # owner = models.ForeignKey(
+    #     User,
+    #     on_delete=models.SET_NULL,
+    #     null=True,
+    #     blank=True,
+    #     related_name='observing_networks'
+    # )
     abbreviation = models.CharField(max_length=255, verbose_name='Network Abbreviation', help_text='Acronym or short name of the observing network. e.g. SIOS')
     description = models.TextField(verbose_name='Network Description', help_text='Short summary of the observing network, including geographic or thematic scope.')
     website_url = models.URLField(verbose_name='Network Website', help_text='URL to the observing network website')
@@ -202,7 +216,7 @@ class ObservingNetwork( WorkflowMixin,DraftStateMixin, RevisionMixin, models.Mod
         ], heading="Metadata Access"),
     ]
 
-    search_fields = [
+    search_fields = Page.search_fields + [
         index.SearchField('name'),
         index.SearchField('description'),
         index.SearchField('organization_name'),
