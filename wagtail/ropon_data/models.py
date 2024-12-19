@@ -60,7 +60,17 @@ class MetadataStandard(ControlledVocabularyModel):
 
 
 class AccessProtocol(ControlledVocabularyModel):
-    pass
+    description = models.TextField(blank=True, null=True, verbose_name='Description', help_text='Description of the access protocol, including examples of the types of access protocols that fall under this category.')
+    source_url = models.URLField(blank=True, null=True, verbose_name='Source URL', help_text='URL to the official documentation or website for the access protocol.')
+    panels = ControlledVocabularyModel.panels + [
+        FieldPanel('description')] + [
+        FieldPanel('source_url')]
+    @property
+    def source_url_link(self):
+        if self.source_url:
+            return format_html('<a href="{}" target="_blank">{}</a>', self.source_url, self.source_url)
+        return ""
+
 
 # Subregion is special as it has a relation
 class Subregion(ControlledVocabularyModel):

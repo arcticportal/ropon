@@ -40,6 +40,8 @@ class MetadataStandardViewSet(ControlledVocabularyViewSet):
 
 class AccessProtocolViewSet(ControlledVocabularyViewSet):
     model = AccessProtocol
+    list_display = ('name', 'source_url_link')
+    search_fields = ('name', 'description')
 
 class SubregionViewSet(ControlledVocabularyViewSet):
     model = Subregion

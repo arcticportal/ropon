@@ -13,7 +13,7 @@
       "name": "Land"
     }
   },
-  {
+  { 
     "model": "ropon_data.domain",
     "pk": 3,
     "fields": {
