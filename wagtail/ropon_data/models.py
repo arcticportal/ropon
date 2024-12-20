@@ -81,19 +81,8 @@ class Subregion(ControlledVocabularyModel):
 
 # ObservingNetwork Model
 
-# Ropon Page Listing model
-class ObservingNetworkListing(Page):
-    max_count = 1  # Only one instance allowed
-    parent_page_types = ['home.HomePage']
-    subpage_types = ['ropon_data.ObservingNetwork']
 
-    content_panels = Page.content_panels 
-
-# class ObservingNetwork( WorkflowMixin,DraftStateMixin, RevisionMixin, models.Model):
-class ObservingNetwork(Page):
-    # Parent page / subpage type rules
-    parent_page_types = ['ropon_data.ObservingNetworkListing']  # Allows RoponPage to be a top-level page
-    subpage_types = []
+class ObservingNetwork( WorkflowMixin,DraftStateMixin, RevisionMixin, models.Model):
 
 
     name = models.CharField(max_length=255,verbose_name='Network Name',help_text='The full name of the observing network e.g. Svalbard Integrated Arctic Earth Observing System')
@@ -222,5 +211,6 @@ class ObservingNetwork(Page):
         index.SearchField('organization_name'),
     ]
 
+    
     def __str__(self):
         return self.name
