@@ -72,6 +72,19 @@ register_snippet(ControlledVocabularyGroup)
 # register_snippet(ObservingNetworkViewSet)
 
 
+
+class ObservingNetworkFilterSet(PageListingViewSet.filterset_class):
+    class Meta:
+        model = ObservingNetworkPage
+        fields = [
+                  "organization_name",
+                  ]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Remove unwanted fields
+        self.filters.pop("site", None)
+        self.filters.pop("has_child_pages", None)
+
 class ObservingNetworkPageViewSet(PageListingViewSet):
     model = ObservingNetworkPage
     menu_label = 'Observing Networks'
@@ -85,6 +98,7 @@ class ObservingNetworkPageViewSet(PageListingViewSet):
         PageStatusColumn('status', label='Status', classname='status', sort_key='live'),
         DateColumn('date_last_modified', label='Last Updated', classname='date_last_modified'),
         ]
+    filterset_class = ObservingNetworkFilterSet
     search_fields = ('name', 'description', 'organization_name')
     menu_order = 150  # Adjust the order as needed
     add_to_admin_menu = True
