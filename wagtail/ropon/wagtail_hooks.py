@@ -10,3 +10,7 @@ def hide_pages_menu(request, menu_items):
     print(f"{[item.name for item in menu_items]}")
     if not request.user.is_superuser:
         menu_items[:] = [item for item in menu_items if item.name != 'explorer']
+
+    # hide the ropon pages menu item for Editors Group
+    if request.user.groups.filter(name='Editors').exists():
+        menu_items[:] = [item for item in menu_items if item.name not in[ 'ropon_pages','documents','images']]
