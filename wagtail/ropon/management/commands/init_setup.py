@@ -55,9 +55,11 @@ class Command(BaseCommand):
             return
         
      
-        # Load fixtures from ropon_data for controlled vocabiolaries
+        # Init ropon_data application
+
         try:
-            call_command('load_ropon_cvs')
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f'Error loading fixtures: {e}'))
+            call_command('init_ropon_data')
+            self.stdout.write(self.style.SUCCESS('ropon_data initialized successfully.'))
+        except CommandError as e:
+            self.stdout.write(self.style.ERROR(f'Error initializing ropon_data: {e}'))
             return

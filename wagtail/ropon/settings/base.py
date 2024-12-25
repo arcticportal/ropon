@@ -25,9 +25,9 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 LOCAL_APPS = [
     "home",
-    "ropon",
-    "ropon_pages",
     "ropon_data",
+    "ropon_pages",
+    "ropon",
     "search",
 
 ]

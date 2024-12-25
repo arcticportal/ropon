@@ -6,5 +6,4 @@ class RoponDataConfig(AppConfig):
     name = "ropon_data"
     verbose_name = 'ROPON Data'
 
-    def ready(self):
-        import ropon_data.wagtail_hooks  # Ensures wagtail_hooks.py is loaded
+   
