@@ -10,7 +10,7 @@ from wagtail import hooks
 
 
 from .models import (
-    ObservingNetwork, Domain, Discipline, Region,
+     Domain, Discipline, ObservingNetworkPage, Region,
     Subregion, AssetType, MetadataStandard, AccessProtocol
 )
 
@@ -48,19 +48,20 @@ class AccessProtocolViewSet(ControlledVocabularyViewSet):
 class SubregionViewSet(ControlledVocabularyViewSet):
     model = Subregion
 
-class ObservingNetworkViewSet(PageListingViewSet):
-    model = ObservingNetwork
-    menu_label = 'Observing Networks'
-    menu_name = 'bbserving_networks'
-    menu_icon = 'site'
-    list_display = ('name', 'owner', 'abbreviation')
-    search_fields = ('name', 'description', 'organization_name')
-    menu_order = 100  # Adjust the order as needed
-    add_to_admin_menu= True
+# class ObservingNetworkViewSet(SnippetViewSet):
+#     model = ObservingNetwork
+#     menu_label = 'Observing Networks'
+#     menu_name = 'bbserving_networks'
+#     menu_icon = 'site'
+#     list_display = ('abbreviation','name', 'owner', 'status')
+#     search_fields = ('name', 'description', 'organization_name')
+#     menu_order = 100  # Adjust the order as needed
+#     add_to_admin_menu= True
 
 # Group controlled vocabulary snippets
 class ControlledVocabularyGroup(SnippetViewSetGroup):
     menu_label = 'Controlled Vocabulary'
+    menu_name = 'controlled_vocabulary'
     menu_icon = 'tag'
     menu_order = 200
     items = (
@@ -77,15 +78,17 @@ class ControlledVocabularyGroup(SnippetViewSetGroup):
 register_snippet(ControlledVocabularyGroup)
 # register_snippet(ObservingNetworkViewSet)
 
-# Add the ObservingNetwork to the admin menu
-# hooks.register('register_admin_menu_item', MenuItem(
-#     'Observing Networks',
-#     reverse('wagtailadmin_snippets:choose', args=('ropon_data', 'observingnetwork')),
-#     classnames='icon icon-site',
-#     order=100
-# ))
 
-observingnetworks_listing_viewset = ObservingNetworkViewSet("observingnetwork")
+class ObservingNetworkPageViewSet(PageListingViewSet):
+    model = ObservingNetworkPage
+    menu_label = 'Observing Networks'
+    menu_name = 'observing_network_pages'
+    menu_icon = 'doc-full'
+    list_display = ('name', 'owner', 'status', 'last_modified_by')
+    search_fields = ('name', 'description', 'organization_name')
+    menu_order = 150  # Adjust the order as needed
+    add_to_admin_menu = True
+
 @hooks.register('register_admin_viewset')
-def register_observingnetwork_viewset():
-    return observingnetworks_listing_viewset
+def register_observing_network_page_viewset():
+    return ObservingNetworkPageViewSet("observing_networks")
