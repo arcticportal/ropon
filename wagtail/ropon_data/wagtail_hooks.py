@@ -6,6 +6,9 @@ from wagtail.snippets.views.snippets import SnippetViewSet, SnippetViewSetGroup
 from wagtail.admin.viewsets.pages import PageListingViewSet
 from wagtail.admin.menu import MenuItem
 from wagtail.snippets.models import register_snippet
+from wagtail.admin.ui.tables import Column, DateColumn
+
+from wagtail.admin.ui.tables.pages import BulkActionsColumn, PageTitleColumn, PageStatusColumn
 from wagtail import hooks
 
 
@@ -48,16 +51,6 @@ class AccessProtocolViewSet(ControlledVocabularyViewSet):
 class SubregionViewSet(ControlledVocabularyViewSet):
     model = Subregion
 
-# class ObservingNetworkViewSet(SnippetViewSet):
-#     model = ObservingNetwork
-#     menu_label = 'Observing Networks'
-#     menu_name = 'bbserving_networks'
-#     menu_icon = 'site'
-#     list_display = ('abbreviation','name', 'owner', 'status')
-#     search_fields = ('name', 'description', 'organization_name')
-#     menu_order = 100  # Adjust the order as needed
-#     add_to_admin_menu= True
-
 # Group controlled vocabulary snippets
 class ControlledVocabularyGroup(SnippetViewSetGroup):
     menu_label = 'Controlled Vocabulary'
@@ -84,7 +77,14 @@ class ObservingNetworkPageViewSet(PageListingViewSet):
     menu_label = 'Observing Networks'
     menu_name = 'observing_network_pages'
     menu_icon = 'doc-full'
-    list_display = ('name', 'owner', 'status', 'last_modified_by')
+    # list_display = ('name', 'organization_name', 'owner', 'last_modified_by')
+    columns =  [
+        BulkActionsColumn("bulk_actions"),
+        PageTitleColumn('name', label='Name', classname='name'),
+        Column('organization_name', label='Organization', classname='organization_name',sort_key='organization_name'),
+        PageStatusColumn('status', label='Status', classname='status', sort_key='live'),
+        DateColumn('date_last_modified', label='Last Updated', classname='date_last_modified'),
+        ]
     search_fields = ('name', 'description', 'organization_name')
     menu_order = 150  # Adjust the order as needed
     add_to_admin_menu = True
