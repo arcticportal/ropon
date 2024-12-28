@@ -29,6 +29,8 @@ class Command(BaseCommand):
             roponadmin_user.save()
             roponadmin_user.groups.add(moderators_group)
             self.stdout.write(self.style.SUCCESS('Created user roponadmin'))
+        else:
+            self.stdout.write(self.style.WARNING('User roponadmin already exists'))
 
         # Create networkrep user
         networkrep_user, created = User.objects.get_or_create(
@@ -44,3 +46,5 @@ class Command(BaseCommand):
             networkrep_user.save()
             networkrep_user.groups.add(editors_group)
             self.stdout.write(self.style.SUCCESS('Created user networkrep'))
+        else:
+            self.stdout.write(self.style.WARNING('User networkrep already exists'))
