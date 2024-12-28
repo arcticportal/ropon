@@ -43,7 +43,7 @@ class Command(BaseCommand):
         logger.info(f'Created Observing Network Index page with slug {ON_INDEX_SLUG}.')
 
         # Stop inheriting permissions from the parent page
-        on_index.permissions_inheritance_from = None
+        # on_index.permissions_inheritance_from = None
         on_index.save()
         logger.info('Stopped inheriting permissions from the parent page.')
 
@@ -69,12 +69,12 @@ class Command(BaseCommand):
 
         # Assign permissions to Observing Network Index page for Editors
         # Editors should have 'add' permission
-        GroupPagePermission.objects.create(
-            group=editors_group,
-            page=on_index,
-            permission_type='add',
-        )
-        logger.info('Assigned "add" permission to Editors group for the Observing Network Index page.')
+        # GroupPagePermission.objects.create(
+        #     group=editors_group,
+        #     page=on_index,
+        #     permission_type='add',
+        # )
+        # logger.info('Assigned "add" permission to Editors group for the Observing Network Index page.')
 
         # Assign permissions to Observing Network Index page for Moderators
         # Moderators should have 'add', 'edit', 'lock', 'publish', and 'unlock' permissions
@@ -85,7 +85,18 @@ class Command(BaseCommand):
             logger.info(f'Adding permission {permission_type} to Moderators group.')
             try:
                 GroupPagePermission.objects.create(
-                    group=moderators_group,
+                    group =moderators_group,
+                    page=on_index,
+                    permission_type=permission_type,
+                )
+                logger.info(f'Successfully added permission {permission_type} to Moderators group.')
+            except Permission.DoesNotExist:
+                self.stdout.write(f"Permission {permission_type} does not exist")
+                logger.warning(f'Permission {permission_type} does not exist.')
+
+            try:
+                GroupPagePermission.objects.create(
+                    group = editors_group,
                     page=on_index,
                     permission_type=permission_type,
                 )

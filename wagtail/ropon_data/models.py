@@ -90,6 +90,7 @@ class ObservingNetworkPage(Page):
         blank=True,
         related_name='observing_network_pages'
     )
+    is_owner_authorized = models.BooleanField(default=False, editable=False)
     abbreviation = models.CharField(max_length=255, verbose_name='Network Abbreviation', help_text='Acronym or short name of the observing network. e.g. SIOS')
     description = models.TextField(verbose_name='Network Description', help_text='Short summary of the observing network, including geographic or thematic scope.')
     website_url = models.URLField(verbose_name='Network Website', help_text='URL to the observing network website')

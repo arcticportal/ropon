@@ -11,6 +11,8 @@ from wagtail.admin.ui.tables import Column, DateColumn
 from wagtail.admin.ui.tables.pages import BulkActionsColumn, PageTitleColumn, PageStatusColumn
 from wagtail import hooks
 
+from .permissions import can_publish
+
 
 from .models import (
      Domain, Discipline, ObservingNetworkPage, Region,
@@ -106,3 +108,19 @@ class ObservingNetworkPageViewSet(PageListingViewSet):
 @hooks.register('register_admin_viewset')
 def register_observing_network_page_viewset():
     return ObservingNetworkPageViewSet("observing_networks")
+
+
+# On approval and publish of ObservingNetworkPage, update is_owner_authorized field
+@hooks.register('after_publish_page')
+def update_is_owner_authorized_on_publish(request,page):
+    
+    if isinstance(page, ObservingNetworkPage):
+        page.is_owner_authorized = True
+        page.save()
+
+# If ObservingNetworkPage is edited by Editors group and is_owner_authorized is True, and request.user is not owner then remove publish from the page_action_menu
+@hooks.register('construct_page_action_menu')
+def remove_publish_from_page_action_menu( menu_items, request, context):
+    if not can_publish(request.user, context):
+        menu_items[:] = [item for item in menu_items if item.name not in[ 'action-publish', 'action-unpublish']]
+        
