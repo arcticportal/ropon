@@ -30,22 +30,25 @@ class Command(BaseCommand):
         logger.info(f'Fetched home page with slug {HOMEPAGE_SLUG}.')
 
         # Create the Observing Networks Index page as a child of the home page
-        if not ObservingNetworkIndexPage.objects.filter(slug=ON_INDEX_SLUG).exists():
-            on_index = ObservingNetworkIndexPage(
-                title='Observing Networks',
-                intro='Index page for all Observing Networks',
-                slug=ON_INDEX_SLUG,
-            )
-            home_page.add_child(instance=on_index)
-            logger.info(f'Created Observing Network Index page with slug {ON_INDEX_SLUG}.')
+        if ObservingNetworkIndexPage.objects.filter(slug=ON_INDEX_SLUG).exists():
+            logger.info(f'Observing Network Index page with slug {ON_INDEX_SLUG} already exists.')
+            return
+            
+        on_index = ObservingNetworkIndexPage(
+            title='Observing Networks',
+            intro='Index page for all Observing Networks',
+            slug=ON_INDEX_SLUG,
+        )
+        home_page.add_child(instance=on_index)
+        logger.info(f'Created Observing Network Index page with slug {ON_INDEX_SLUG}.')
 
-            # Stop inheriting permissions from the parent page
-            on_index.permissions_inheritance_from = None
-            on_index.save()
-            logger.info('Stopped inheriting permissions from the parent page.')
+        # Stop inheriting permissions from the parent page
+        on_index.permissions_inheritance_from = None
+        on_index.save()
+        logger.info('Stopped inheriting permissions from the parent page.')
 
-            on_index.save_revision().publish()
-            logger.info('Published the Observing Network Index page.')
+        on_index.save_revision().publish()
+        logger.info('Published the Observing Network Index page.')
 
         # Remove all group permissions for on_index page
         GroupPagePermission.objects.filter(page=on_index).delete()
@@ -64,7 +67,7 @@ class Command(BaseCommand):
         ).delete()
         logger.info('Removed access to Root page for Editors and Moderators.')
 
-        # Assign permissions to RoponPageListing for Editors
+        # Assign permissions to Observing Network Index page for Editors
         # Editors should have 'add' permission
         GroupPagePermission.objects.create(
             group=editors_group,
@@ -73,7 +76,7 @@ class Command(BaseCommand):
         )
         logger.info('Assigned "add" permission to Editors group for the Observing Network Index page.')
 
-        # Assign permissions to RoponPageListing for Moderators
+        # Assign permissions to Observing Network Index page for Moderators
         # Moderators should have 'add', 'edit', 'lock', 'publish', and 'unlock' permissions
         permission_types = ['add', 'change', 'lock', 'publish', 'unlock']
 
