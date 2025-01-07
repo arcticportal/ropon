@@ -49,8 +49,8 @@ RUN pip install "gunicorn==20.0.4"
 WORKDIR /app
 
 # Install the project requirements.
-COPY deploy/backend/requirements-dev.txt .
-RUN pip install -r requirements-dev.txt
+COPY deploy/backend/requirements.dev.txt .
+RUN pip install -r requirements.dev.txt
 
 # Set this directory to be owned by the "wagtail" user. This Wagtail project
 # uses SQLite, the folder needs to be owned by the user that

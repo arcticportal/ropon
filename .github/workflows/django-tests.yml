@@ -1,0 +1,59 @@
+name: Run Django Tests
+
+on:
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - backend/**
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17.2
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test_user -d test_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install python dependencies
+        run: |
+          cd deploy/backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.dev.txt
+
+      - name: Run Django tests
+        env:
+          DJANGO_SETTINGS_MODULE: ropon.settings.dev
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+
+        run: |
+          cd backend/ropon
+          python manage,py migrate
+          python manage.py collectstatic --noinput
+          python manage.py test
+
+  
