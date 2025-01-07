@@ -1,0 +1,23 @@
+[
+  {
+    "model": "ropon_data.domain",
+    "pk": 1,
+    "fields": {
+      "name": "Atmosphere"
+    }
+  },
+  {
+    "model": "ropon_data.domain",
+    "pk": 2,
+    "fields": {
+      "name": "Land"
+    }
+  },
+  { 
+    "model": "ropon_data.domain",
+    "pk": 3,
+    "fields": {
+      "name": "Ocean"
+    }
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "model": "ropon_data.assettype",
+    "pk": 1,
+    "fields": {
+      "name": "Sites",
+      "description": "fixed stations, facilities, plots, moorings, observatories, stationary platforms, supersites, community-based observations, or locations wherever repeat measurements have been made."
+    }
+  },
+  {
+    "model": "ropon_data.assettype",
+    "pk": 2,
+    "fields": {
+      "name": "Mobile Platforms",
+      "description": "buoys, vessels, aircraft, floats, gliders, UAVs, AUVs, animal-borne sensors, and other mobile platforms."
+    }
+  },
+  {
+    "model": "ropon_data.assettype",
+    "pk": 3,
+    "fields": {
+      "name": "Projects",
+      "description": "Research projects, studies, and other activities typically funded or coordinated by an agency or program within a defined timeframe."
+    }
+  },
+  {
+    "model": "ropon_data.assettype",
+    "pk": 4,
+    "fields": {
+      "name": "Campaigns",
+      "description": "Scientific cruises, aircraft operations, fieldwork, and other planned routes or completed activities."
+    }
+  },
+  {
+    "model": "ropon_data.assettype",
+    "pk": 5,
+    "fields": {
+      "name": "Initiatives",
+      "description": "Coordinated ongoing efforts including organizations, networks, observing systems, and programs."
+    }
+  }
+]

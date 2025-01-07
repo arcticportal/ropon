@@ -1,0 +1,261 @@
+[
+  {
+    "model": "ropon_data.subregion",
+    "pk": 1,
+    "fields": {
+      "name": "Alaska"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 2,
+    "fields": {
+      "name": "Canadian Arctic"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 3,
+    "fields": {
+      "name": "Greenland"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 4,
+    "fields": {
+      "name": "Iceland"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 5,
+    "fields": {
+      "name": "Svalbard"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 6,
+    "fields": {
+      "name": "Scandinavia"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 7,
+    "fields": {
+      "name": "Russian Arctic"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 8,
+    "fields": {
+      "name": "Sea of Okhotsk"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 9,
+    "fields": {
+      "name": "Gulf of Alaska"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 10,
+    "fields": {
+      "name": "Bering Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 11,
+    "fields": {
+      "name": "Chukchi Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 12,
+    "fields": {
+      "name": "Beaufort Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 13,
+    "fields": {
+      "name": "Canadian Arctic Archipelago"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 14,
+    "fields": {
+      "name": "Hudson Bay"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 15,
+    "fields": {
+      "name": "Labrador Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 16,
+    "fields": {
+      "name": "Baffin Bay"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 17,
+    "fields": {
+      "name": "Greenland Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 18,
+    "fields": {
+      "name": "Norwegian Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 19,
+    "fields": {
+      "name": "Barents Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 20,
+    "fields": {
+      "name": "Kara Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 21,
+    "fields": {
+      "name": "Laptev Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 22,
+    "fields": {
+      "name": "East Siberian Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 23,
+    "fields": {
+      "name": "Central Arctic Ocean"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 24,
+    "fields": {
+      "name": "Canadian Subarctic"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 25,
+    "fields": {
+      "name": "European Subarctic"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 26,
+    "fields": {
+      "name": "Russian Subarctic"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 27,
+    "fields": {
+      "name": "Antarctic Peninsula"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 28,
+    "fields": {
+      "name": "East Antarctica"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 29,
+    "fields": {
+      "name": "Transantarctic Mountains"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 30,
+    "fields": {
+      "name": "West Antarctica"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 31,
+    "fields": {
+      "name": "Dronning Maud Land"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 32,
+    "fields": {
+      "name": "Ross Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 33,
+    "fields": {
+      "name": "Amundsen Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 34,
+    "fields": {
+      "name": "Bellinghausen Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 35,
+    "fields": {
+      "name": "Scotia Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 36,
+    "fields": {
+      "name": "Weddell Sea"
+    }
+  },
+  {
+    "model": "ropon_data.subregion",
+    "pk": 37,
+    "fields": {
+      "name": "East Antarctic Seas"
+    }
+  }
+]

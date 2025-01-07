@@ -1,0 +1,13 @@
+.bounding-box-block {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.bounding-box-block > div {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.bounding-box-block > div:last-child {
+    margin-right: 0;
+}

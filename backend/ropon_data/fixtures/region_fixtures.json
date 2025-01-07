@@ -1,0 +1,44 @@
+[
+  {
+    "model": "ropon_data.region",
+    "pk": 1,
+    "fields": {
+      "name": "Arctic"
+    }
+  },
+  {
+    "model": "ropon_data.region",
+    "pk": 2,
+    "fields": {
+      "name": "Subarctic"
+    }
+  },
+  {
+    "model": "ropon_data.region",
+    "pk": 3,
+    "fields": {
+      "name": "Antarctic"
+    }
+  },
+  {
+    "model": "ropon_data.region",
+    "pk": 4,
+    "fields": {
+      "name": "Southern Ocean"
+    }
+  },
+  {
+    "model": "ropon_data.region",
+    "pk": 5,
+    "fields": {
+      "name": "Global"
+    }
+  },
+  {
+    "model": "ropon_data.region",
+    "pk": 6,
+    "fields": {
+      "name": "Other"
+    }
+  }
+]

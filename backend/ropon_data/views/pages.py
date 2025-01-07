@@ -1,0 +1,48 @@
+
+# Define custom PageViewSet, PageIndex and PageViews classes for Ropon data
+
+
+from wagtail.admin.viewsets.pages import PageListingViewSet
+from wagtail.admin.ui.tables import Column, DateColumn
+from wagtail.admin.ui.tables.pages import BulkActionsColumn, PageTitleColumn, PageStatusColumn
+from wagtail.admin.views.pages.listing import IndexView
+from ropon_data.models import ObservingNetworkPage
+
+
+class ObservingNetworkPageIndexView(IndexView):
+    def get_base_queryset(self):
+        queryset = super().get_base_queryset()
+        if self.request.user.groups.filter(name='Editors').exists():
+            queryset = queryset.filter(owner=self.request.user)
+        return queryset
+
+class ObservingNetworkFilterSet(PageListingViewSet.filterset_class):
+    class Meta:
+        model = ObservingNetworkPage
+        fields = [
+                  "organization_name",
+                  ]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Remove unwanted fields
+        self.filters.pop("site", None)
+        self.filters.pop("has_child_pages", None)
+
+class ObservingNetworkPageViewSet(PageListingViewSet):
+    model = ObservingNetworkPage
+    menu_label = 'Observing Networks'
+    menu_name = 'observing_network_pages'
+    menu_icon = 'doc-full'
+    # list_display = ('name', 'organization_name', 'owner', 'last_modified_by')
+    columns =  [
+        BulkActionsColumn("bulk_actions"),
+        PageTitleColumn('name', label='Name', classname='name'),
+        Column('organization_name', label='Organization', classname='organization_name',sort_key='organization_name'),
+        PageStatusColumn('status', label='Status', classname='status', sort_key='live'),
+        DateColumn('date_last_modified', label='Last Updated', classname='date_last_modified'),
+        ]
+    filterset_class = ObservingNetworkFilterSet
+    index_view_class = ObservingNetworkPageIndexView
+    search_fields = ('name', 'description', 'organization_name')
+    menu_order = 150  # Adjust the order as needed
+    add_to_admin_menu = True
