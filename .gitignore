@@ -8,4 +8,6 @@
 /backend/static/
 /docker/.env
 /postgres/
-**/*.pyc
+*.pyc
+__pycache__/
+*.py[cod]
