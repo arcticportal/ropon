@@ -1,7 +1,6 @@
 name: Build and Push Docker Image
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches:
       - dev
     paths:
@@ -10,7 +9,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
+
 
     steps:
       - name: Checkout code
