@@ -15,20 +15,20 @@
 	"forwardPorts": [8000, 5432],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip install --user -r deploy/wagtail/requirements-dev.txt",
-	"postStartCommand": "sleep 10 && ./wagtail/manage.py init_setup --create-test-users",
+	"postCreateCommand": "pip install --user -r deploy/backend/requirements-dev.txt",
+	"postStartCommand": "sleep 10 && ./backend/manage.py init_setup --create-test-users",
 	
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
 			"extensions": [
 				"ms-python.python",
-				"AMiner.codegeex",
 				"ms-azuretools.vscode-docker",
 				"GitHub.vscode-pull-request-github",
 				"batisteo.vscode-django",
 				"GitHub.copilot",
-				"github.vscode-github-actions"
+				"github.vscode-github-actions",
+				"github.copilot-workspace"
 			]
 		}
 	}

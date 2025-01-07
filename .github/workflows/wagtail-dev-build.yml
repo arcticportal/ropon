@@ -28,8 +28,9 @@ jobs:
         with:
           images: arcticportal.azurecr.io/ropon/wagtail
           tags: |
+            type=raw,value=${{ github.ref_name }}-{{date 'YYYY-MM-DD'}}
             type=ref,event=branch
-            type=sha
+              
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
