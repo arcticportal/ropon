@@ -27,7 +27,7 @@ class ObservingNetworkPageTests(TestCase):
             ropon_id='12345',
             organization_name='Test Organization',
             contact='contact@example.com',
-            geometry='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
+            geometry_string='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
             has_catalog='yes'
         )
         self.index_page.add_child(instance=page)
@@ -62,7 +62,7 @@ class ObservingNetworkPageTests(TestCase):
             ropon_id='12345',
             organization_name='Test Organization',
             contact='contact@example.com',
-            geometry='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
+            geometry_string='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
             has_catalog='yes'
   
         )
@@ -81,7 +81,7 @@ class ObservingNetworkPageTests(TestCase):
             ropon_id='12345',
             organization_name='Test Organization',
             contact='contact@example.com',
-            geometry='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
+            geometry_string='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
             has_catalog='yes'
   
         )
@@ -101,7 +101,7 @@ class ObservingNetworkPageTests(TestCase):
             organization_name='Test Organization',
             contact='contact@example.com',
             start_year=0,  # Assuming 0 is a boundary value
-            geometry='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
+            geometry_string='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
             has_catalog='yes'
         )
         self.index_page.add_child(instance=page)
@@ -120,7 +120,7 @@ class ObservingNetworkPageTests(TestCase):
             organization_name='Test Organization',
             contact='contact@example.com',
             start_year=2026,  # Assuming 0 is a boundary value
-            geometry='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
+            geometry_string='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
             has_catalog='yes'
         )
         with self.assertRaises(ValidationError):
@@ -138,7 +138,7 @@ class ObservingNetworkPageTests(TestCase):
             ropon_id='12345',
             organization_name='Test Organization',
             contact='contact@example.com',
-            geometry='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
+            geometry_string='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
             has_catalog='yes',
             
         )
@@ -157,7 +157,7 @@ class ObservingNetworkPageTests(TestCase):
                 ropon_id='12345',  # Duplicate ropon_id
                 organization_name='Test Organization',
                 contact='contact2@example.com',
-                geometry='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
+                geometry_string='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
                 has_catalog='yes',
                 
             )
@@ -175,7 +175,7 @@ class ObservingNetworkPageTests(TestCase):
             ropon_id='12345',
             organization_name='Test Organization',
             contact='contact@example.com',
-            geometry='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
+            geometry_string='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
             has_catalog='yes'
         )
         self.index_page.add_child(instance=page)
@@ -195,7 +195,7 @@ class ObservingNetworkPageTests(TestCase):
             ropon_id='12345',
             organization_name='Test Organization',
             contact='contact@example.com',
-            geometry='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
+            geometry_string='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
             has_catalog='yes',
             
         )
@@ -215,7 +215,7 @@ class ObservingNetworkPageTests(TestCase):
             ropon_id='12345',
             organization_name='Test Organization',
             contact='contact@example.com',
-            geometry='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
+            geometry_string='67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773',
             has_catalog='yes',
             
         )

@@ -34,14 +34,14 @@ jobs:
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
+            org.opencontai```ners.image.created=${{ github.event.head_commit.timestamp }}
             org.opencontainers.image.branch=${{ github.ref_name }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: deploy/wagtail/Dockerfile-dev
+          file: deploy/backend/Dockerfile-dev
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

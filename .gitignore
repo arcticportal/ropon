@@ -1,10 +1,11 @@
 /angular/.angular/cache/
 /angular/node_modules/
-/wagtail/.bash_history
-/wagtail/.cache/
-/wagtail/.ipython/
-/wagtail/.local/
-/wagtail/**/__pycache__/
-/wagtail/static/
+/backend/.bash_history
+/backend/.cache/
+/backend/.ipython/
+/backend/.local/
+/backend/**/__pycache__/
+/backend/static/
 /docker/.env
 /postgres/
+**/*.pyc
