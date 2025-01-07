@@ -1,15 +1,16 @@
 name: Build and Push Docker Image
-
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - dev
     paths:
-      - 'wagtail/**'
+      - 'backend/**'
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
 
     steps:
       - name: Checkout code
