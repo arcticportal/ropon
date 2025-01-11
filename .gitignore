@@ -1,13 +1,24 @@
+# Python bytecode
+__pycache__/
+*/__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
+
+# Angular
 /angular/.angular/cache/
 /angular/node_modules/
+
+# Backend
 /backend/.bash_history
 /backend/.cache/
 /backend/.ipython/
 /backend/.local/
 /backend/**/__pycache__/
 /backend/static/
+
 /docker/.env
 /postgres/
-*.pyc
-__pycache__/
-*.py[cod]
