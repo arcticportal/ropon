@@ -229,7 +229,7 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         saved_page = ObservingNetworkPage.objects.get(slug=page.slug)
         response = self.client.get(f'/api/v2/networks/{saved_page.id}/')
         response_data = response.json()
-        print(response_data)
+    
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_data['name'], 'Test Network')
         
