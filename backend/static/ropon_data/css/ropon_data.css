@@ -1,3 +1,6 @@
+
+
+/* bounding box setup in 1 line */
 .bounding-box-block {
     display: flex;
     flex-wrap: wrap;
@@ -13,27 +16,62 @@
     margin-right: 0;
 }
 
+/* GeoPoint block shown in 1 line */
+.geopoint-block {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.geopoint-block > div {
+    flex: 1;
+    margin-right: 10px;
+    position: relative; /* Ensure the error message is positioned relative to its container */
+}
+
+.geopoint-block > div:last-child {
+    margin-right: 0;
+}
+
+
+/* SOSO bounding box shown in 1 line */
+.soso-bounding-box-block {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.soso-bounding-box-block > div {
+    flex: 1;
+    margin-right: 10px;
+    position: relative; 
+}
+
+.soso-bounding-box-block > div:last-child {
+    margin-right: 0;
+}
+
+
 /* validation error message */
 .help-block.help-critical {
-    background-color: #f8d7da;
+    /* background-color: #f8d7da;
     color: #721c24;
     padding: 10px;
     border: 1px solid #f5c6cb;
     border-radius: 4px;
     margin-bottom: 20px;
-    display: block;
+    display: block; */
     width: 100%;
 }
 
 /* validation error message */
-.bounding-box-block .w-field__errors:has(.error-message) {
+.bounding-box-block .w-field__errors:has(.error-message),
+.geopoint-block .w-field__errors:has(.error-message) {
     position: absolute;
     top: 3rem; 
     z-index: 1;
- 
 }
 
-/* .w-field__errors .error-message {
-    margin: 0;
-    padding: 0;
-} */
+
+/* set class w-field__label text to be centered when it is inside sosoboundingbox block */
+.soso-bounding-box-block .w-field__label {
+    text-align: center;
+}
