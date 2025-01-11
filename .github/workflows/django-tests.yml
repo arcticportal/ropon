@@ -9,6 +9,7 @@ on:
       - backend/**
     branches-ignore:
       - "dependabot/**"
+      - "arundeep78/**"
 
   workflow_dispatch:
       
