@@ -5,6 +5,7 @@ on:
     types: [synchronize, opened, reopened]
     paths:
       - backend/**
+      - .github/workflows/**
 
     branches-ignore:
       - "dependabot/**"
