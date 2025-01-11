@@ -1,13 +1,17 @@
 name: Run Django Tests
 
 on:
-  pull_request_target:
-    branches:
-      - dev
-    types: [opened, synchronize]
+  pull_request:
     paths:
       - backend/**
+  push:
+    paths:
+      - backend/**
+    branches-ignore:
+      - "dependabot/**"
 
+  workflow_dispatch:
+      
 jobs:
   wagatail_test:
     runs-on: ubuntu-latest
