@@ -2,14 +2,13 @@ name: Run Django Tests
 
 on:
   pull_request:
+    types: [synchronize, opened, reopened]
     paths:
       - backend/**
-  push:
-    paths:
-      - backend/**
+
     branches-ignore:
       - "dependabot/**"
-      - "arundeep78/**"
+      
 
   workflow_dispatch:
       
