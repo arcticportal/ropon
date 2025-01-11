@@ -1,5 +1,6 @@
 # ropon_data/wagtail_hooks.py
 
+from django.dispatch import receiver
 from django.shortcuts import redirect
 from django.urls import reverse
 from wagtail.snippets.models import register_snippet
@@ -22,15 +23,6 @@ def register_observing_network_page_viewset():
     return ObservingNetworkPageViewSet("observing_networks")
 
 
-# On approval and publish of ObservingNetworkPage, update is_owner_authorized field
-@hooks.register('after_publish_page')
-def update_is_owner_authorized_on_publish(request, page):
-    """
-    Updates 'is_owner_authorized' field to True when an ObservingNetworkPage is published.
-    """
-    if isinstance(page, ObservingNetworkPage):
-        page.is_owner_authorized = True
-        page.save()
 
 # If ObservingNetworkPage is edited by Editors group and is_owner_authorized is True, and request.user is not owner then remove publish from the page_action_menu
 @hooks.register('construct_page_action_menu')

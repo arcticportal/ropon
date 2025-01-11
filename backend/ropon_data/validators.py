@@ -32,3 +32,16 @@ def validate_longitude(value):
     if not -180 <= value <= 180:
         raise ValidationError('Longitude must be between -180 and 180 degrees')
 
+def validate_soso_bounding_box(value):
+    sw = value['southwest']
+    ne = value['northeast']
+    if sw['latitude'] >= ne['latitude']:
+        raise ValidationError('Northern latitude must be greater than southern latitude')
+    if sw['longitude'] == ne['longitude']:
+        raise ValidationError('Bounding Box cannot be a line. Eastern longitude cannot be same as western longitude')
+    
+def validate_bounding_box(value):
+    if value['north'] <= value['south']:
+        raise ValidationError('Northern latitude must be greater than southern latitude')
+    if value['east'] == value['west']:
+        raise ValidationError('Bounding Box cannot be a line. Eastern longitude cannot be same as western longitude')

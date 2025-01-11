@@ -4,7 +4,7 @@ from wagtail.images.blocks import ImageChooserBlock
 
 class HeadingBlock(blocks.StructBlock):
     heading_text = blocks.CharBlock(required=True)
-    header_level = blocks.ChoiceBlock(choices=[
+    heading_level = blocks.ChoiceBlock(choices=[
         ('h1', 'H1'),
         ('h2', 'H2'),
         ('h3', 'H3'),

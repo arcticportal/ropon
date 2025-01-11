@@ -1,2 +1,2 @@
-# ropon
-Repository of Polar Observing Networks
+# RoPON : Registry of Polar Observing Networks
+

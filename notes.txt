@@ -1,4 +1,0 @@
--*- mode: org -*-
-
-* angular
- + In src/app/app.config.ts change domain.

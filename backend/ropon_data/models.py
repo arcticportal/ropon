@@ -1,6 +1,8 @@
 # ropon_data/models.py
 
 from re import S
+from tokenize import group
+from wsgiref.validate import validator
 from django.db import models
 from django.contrib.auth import get_user_model
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
@@ -13,8 +15,9 @@ from django import forms
 from wagtail.api import APIField
 
 
-from ropon_data.blocks import BoundingBoxBlock
+from ropon_data.blocks import BoundingBoxBlock, SOSOBoundingBoxBlock, GeoPointBlock
 from .validators import (
+    validate_bounding_box,
     validate_email_or_url,
     validate_start_year
 )
@@ -158,19 +161,15 @@ class ObservingNetworkPage(Page):
     )
 
     # Spatial data
-    geometry_string = models.TextField(
-        verbose_name='Spatial Extent',
-        help_text='Spatial coverage of the network as delineated by one or more polygons, each as a series of four or more points in latitude and longitude (decimal degrees), where the first and final points are identical (e.g., "polygon": "67.6199 -42.3773 67.6199 17.1685 57.7191 17.1685 57.7191 -42.3773 67.6199 -42.3773"). Separate polygons with the pipe ("|") symbol.'
-    )
     geometry_field = StreamField(
         [
-            ('polygon', blocks.CharBlock()),
-            ('bounding_box', BoundingBoxBlock()),
+            # ('polygon', blocks.CharBlock()),
+            ('bounding_box', BoundingBoxBlock(label='Bounding Box')),
+            ('soso_bounding_box', SOSOBoundingBoxBlock(label='SOSO Bounding Box')),
+            
         ],
         verbose_name='Spatial Extent',
-        null=True,
-        blank=True,
-        help_text='Spatial coverage of the network as delineated by one or more polygons, each as a series of four or more points in latitude and longitude (decimal degrees), where the first and final points are identical.'
+        help_text='Spatial coverage of the network as delineated by one or more bounding boxes. Each box is defined as a pair of latitude and longitude coordinates for the southwest and northeast corners.'
     )
     start_year = models.PositiveIntegerField(
         blank=True, 
@@ -266,7 +265,6 @@ class ObservingNetworkPage(Page):
         MultiFieldPanel([
             FieldPanel('regions', widget=forms.CheckboxSelectMultiple),
             FieldPanel('subregions', widget=forms.CheckboxSelectMultiple),
-            FieldPanel('geometry_string'),
             FieldPanel('geometry_field'),
             FieldPanel('start_year'),
         ], heading="Spatial and Temporal Coverage"),
@@ -294,7 +292,6 @@ class ObservingNetworkPage(Page):
         APIField('disciplines',serializers.StringRelatedField(many=True, read_only=True)), 
         APIField('regions',serializers.StringRelatedField(many=True, read_only=True)),
         APIField('subregions',serializers.StringRelatedField(many=True, read_only=True)),
-        APIField('geometry_string'),
         APIField('geometry_field'),
         APIField('start_year'),
         APIField('contact'),
