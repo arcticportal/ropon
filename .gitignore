@@ -3,6 +3,7 @@ __pycache__/
 */__pycache__/
 **/__pycache__/
 *.py[cod]
+*.py[co]
 *$py.class
 *.so
 .Python
@@ -19,6 +20,11 @@ __pycache__/
 /backend/.local/
 /backend/**/__pycache__/
 /backend/static/
+/backend/media/
 
+#docker
 /docker/.env
+
+# Postgres
+/docker/postgres.tar*
 /postgres/
