@@ -1,8 +1,0 @@
-.bounding-box-block .row {
-    display: flex;
-    justify-content: space-between;
-}
-.bounding-box-block .col {
-    flex: 1;
-    margin-right: 10px;
-}
