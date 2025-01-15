@@ -16,27 +16,9 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         self.index_page.save_revision().publish()
 
 
-    def get_bbox_geometry_field(self,valid=True):
-        return [
-                ('bounding_box', {
-                    'south': -60.0,
-                    'west': -180.0,
-                    'north': 60.0,
-                    'east': 180.0,
-                })
-            ] if valid else [
-                ('bounding_box', {
-                    'south': 60.0, # invalid
-                    'west': 180.0,
-                    'north': -60.0,
-                    'east': -180.0,
-                })
-            ]
-        
-      
     def get_soso_geometry_field(self,valid=True):
         return  [
-                ('soso_bounding_box', {
+                ('bounding_box', {
                     'southwest': {
                         'latitude': -60.0,
                         'longitude': -180.0
@@ -47,7 +29,7 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
                     }
                 })
             ] if valid else [
-                ('soso_bounding_box', {
+                ('bounding_box', {
                     'southwest': {
                         'latitude': 60.0, # invalid
                         'longitude': 180.0
@@ -62,9 +44,6 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
     def to_lazy_stream_data_format(self, data):
         return [{'type': block_name, 'value': block_value} for block_name, block_value in data]
 
-    def get_combined_geometry_field(self,valid=True):
-        return self.get_soso_geometry_field(valid) + \
-            self.get_bbox_geometry_field(valid)
             
     def get_base_page_data(self):
         return {
@@ -81,14 +60,9 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         }
     
     
-    def get_page_data(self,valid=True, geometry_field='combined',lazy_stream_data=False):
+    def get_page_data(self, valid=True, lazy_stream_data=False):
         page_data = self.get_base_page_data().copy()
-        if geometry_field == 'combined':
-            geometry_field_data = self.get_combined_geometry_field(valid)
-        elif geometry_field == 'soso':
-            geometry_field_data = self.get_soso_geometry_field(valid)
-        elif geometry_field == 'bbox':
-            geometry_field_data = self.get_bbox_geometry_field(valid)
+        geometry_field_data = self.get_soso_geometry_field(valid)
         
         if lazy_stream_data:
             geometry_field_data = self.to_lazy_stream_data_format(geometry_field_data)
@@ -114,7 +88,7 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
             'contact': 'contact@example.com',
             'has_catalog': 'yes',
             'geometry_field': streamfield([
-                 ('soso_bounding_box', {
+                 ('bounding_box', {
                     'southwest': {
                         'latitude': -60.0,
                         'longitude': -180.0
@@ -232,6 +206,3 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
     
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_data['name'], 'Test Network')
-        
-
-        

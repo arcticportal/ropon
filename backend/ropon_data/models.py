@@ -1,8 +1,6 @@
 # ropon_data/models.py
 
 from re import S
-from tokenize import group
-from wsgiref.validate import validator
 from django.db import models
 from django.contrib.auth import get_user_model
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
@@ -15,7 +13,7 @@ from django import forms
 from wagtail.api import APIField
 
 
-from ropon_data.blocks import BoundingBoxBlock, SOSOBoundingBoxBlock, GeoPointBlock
+from ropon_data.blocks import SOSOBoundingBoxBlock, GeoPointBlock
 from .validators import (
     validate_bounding_box,
     validate_email_or_url,
@@ -163,10 +161,7 @@ class ObservingNetworkPage(Page):
     # Spatial data
     geometry_field = StreamField(
         [
-            # ('polygon', blocks.CharBlock()),
-            ('bounding_box', BoundingBoxBlock(label='Bounding Box')),
-            ('soso_bounding_box', SOSOBoundingBoxBlock(label='SOSO Bounding Box')),
-            
+            ('bounding_box', SOSOBoundingBoxBlock(label='Bounding Box')),
         ],
         verbose_name='Spatial Extent',
         help_text='Spatial coverage of the network as delineated by one or more bounding boxes. Each box is defined as a pair of latitude and longitude coordinates for the southwest and northeast corners.'
