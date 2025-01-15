@@ -7,25 +7,8 @@ from .validators import (
     validate_soso_bounding_box,
     validate_latitude,
     validate_longitude,
-    validate_bounding_box
+
 )
-
-
-class BoundingBoxBlock(StructBlock):
-    south = FloatBlock(validators=[validate_latitude], label='Southern Latitude')
-    west = FloatBlock(validators=[validate_longitude],  label='Western Longitude')
-    north = FloatBlock(validators=[validate_latitude], label='Northern Latitude')
-    east = FloatBlock(validators=[validate_longitude], label='Eastern Longitude')
-    
-    class Meta:
-        icon = 'site'
-        label = 'Bounding Box Coordinates'
-        form_classname = 'bounding-box-block struct-block'
-        
-    def clean(self, value):
-        cleaned_data = super().clean(value)
-        validate_bounding_box(cleaned_data)
-        return cleaned_data
 
 
 class GeoPointBlock(StructBlock):
@@ -44,9 +27,9 @@ class SOSOBoundingBoxBlock(StructBlock):
     
     class Meta:
         icon = 'site'
-        label = 'SOSO Bounding Box'
+        label = 'Bounding Box'
         form_classname = 'soso-bounding-box-block struct-block'
-        label_format = 'SOSO box - {southwest} ; {northeast}'
+        label_format = 'BBox - {southwest} ; {northeast}'
 
     def clean(self, value):
         cleaned_data = super().clean(value)
