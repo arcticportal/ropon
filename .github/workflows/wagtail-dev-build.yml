@@ -9,20 +9,20 @@ on:
       - main
 
 jobs:
-  debug-workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Debug workflow context
-        env:
-          GITHUB_CONTEXT: ${{ toJSON(github) }}
-          WORKFLOW_CONTEXT: ${{ toJSON(github.event.workflow_run) }}
-        run: |
-          echo "GitHub Context:"
-          echo "$GITHUB_CONTEXT"
-          echo "Workflow Run Context:"
-          echo "$WORKFLOW_CONTEXT"
-          echo "Conclusion: ${{ github.event.workflow_run.conclusion }}"
-          echo "Event Type: ${{ github.event.workflow_run.event }}"
+  # debug-workflow:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Debug workflow context
+  #       env:
+  #         GITHUB_CONTEXT: ${{ toJSON(github) }}
+  #         WORKFLOW_CONTEXT: ${{ toJSON(github.event.workflow_run) }}
+  #       run: |
+  #         echo "GitHub Context:"
+  #         echo "$GITHUB_CONTEXT"
+  #         echo "Workflow Run Context:"
+  #         echo "$WORKFLOW_CONTEXT"
+  #         echo "Conclusion: ${{ github.event.workflow_run.conclusion }}"
+  #         echo "Event Type: ${{ github.event.workflow_run.event }}"
           
 
 
