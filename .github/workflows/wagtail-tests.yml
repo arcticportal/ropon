@@ -10,8 +10,6 @@ on:
     paths:
       - backend/**
       - .github/workflows/**
-    branches-ignore:
-      - "dependabot/**"
     branches:
       - dev
       - main
