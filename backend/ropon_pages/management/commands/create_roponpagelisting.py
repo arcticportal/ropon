@@ -45,7 +45,8 @@ class Command(BaseCommand):
             logger.info('RoponPageListing page created and published.')
         else:
             ropon_listing = RoponPageListing.objects.get(slug=ROPON_LISTING_SLUG)
-            logger.info('RoponPageListing page already exists.')
+            logger.info('RoponPageListing page already exists. Exiting without changes.')
+            return  # Skip the permission changes if the page already exists
 
         # Remove all group permissions for ropon_listing page
         GroupPagePermission.objects.filter(page=ropon_listing).delete()
