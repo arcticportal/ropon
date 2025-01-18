@@ -1,20 +1,25 @@
-name: Build and Push Docker Image
+name: Build and Push Wagtail Docker Image
 on:
-  push:
-    branches:
-      - dev
-    paths:
-      - backend/**
-      - .github/workflows/**
+  workflow_run:
+    workflows: ["Run Wagtail Tests"]
+    types:
+      - completed
 
 jobs:
   build-and-push:
+    if: |
+      github.event.workflow_run.conclusion == 'success' && 
+      github.event.workflow_run.event.pull_request.base.ref == github.event.workflow_run.head_branch
+    
     runs-on: ubuntu-latest
 
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to Azure Container Registry
         uses: docker/login-action@v2
@@ -35,14 +40,16 @@ jobs:
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontai```ners.image.created=${{ github.event.head_commit.timestamp }}
+            org.opencontainers.image.created=${{ github.event.workflow_run.updated_at }}
             org.opencontainers.image.branch=${{ github.ref_name }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: deploy/backend/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,4 +1,4 @@
-name: Run Django Tests
+name: Run Wagtail Tests
 
 on:
   pull_request:
@@ -6,7 +6,10 @@ on:
     paths:
       - backend/**
       - .github/workflows/**
-
+  push:
+    paths:
+      - backend/**
+      - .github/workflows/**
     branches-ignore:
       - "dependabot/**"
       
@@ -40,6 +43,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
+          cache: 'pip'
 
       - name: Install python dependencies
         run: |
