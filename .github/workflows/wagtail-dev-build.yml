@@ -6,6 +6,25 @@ on:
       - completed
 
 jobs:
+  debug-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug workflow context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+          WORKFLOW_CONTEXT: ${{ toJSON(github.event.workflow_run) }}
+        run: |
+          echo "GitHub Context:"
+          echo "$GITHUB_CONTEXT"
+          echo "Workflow Run Context:"
+          echo "$WORKFLOW_CONTEXT"
+          echo "Conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "Event Type: ${{ github.event.workflow_run.event }}"
+          echo "Base Ref: ${{ github.event.workflow_run.event.pull_request.base.ref }}"
+          echo "Head Branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Event: ${{ toJson(github.event) }}"
+          
+
   build-and-push:
     if: |
       github.event.workflow_run.conclusion == 'success' && 
