@@ -51,7 +51,20 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         ] if valid else [
             ('url', 'invalid-url')
         ]
-            
+    def get_data_repository_url_field(self, valid=True):
+        data_repository_url_data= [
+            ('url', 'http://example.com/repository1'),
+            ('url', 'http://example.com/repository2')
+        ] if valid else [
+            ('url', 'invalid-url')
+        ]
+
+        return StreamValue(
+            ObservingNetworkPage.data_repository_url.field.stream_block,
+            data_repository_url_data,
+            is_lazy=False
+        )
+
     def get_base_page_data(self):
         return {
             'title': 'Test Network',
@@ -274,3 +287,86 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         with self.assertRaises(ValidationError):
           url_block.block.clean(url_block)
       
+    
+    def test_create_multiple_data_repository_urls(self):
+        page_data = self.get_page_data(valid=True)
+        
+        page_data["data_repository_url"] = self.get_data_repository_url_field(valid=True)
+
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+        
+        saved_page = ObservingNetworkPage.objects.get(slug=page.slug)
+        self.assertEqual(len(saved_page.data_repository_url), 2)
+
+    def test_update_data_repository_urls(self):
+        page_data = self.get_page_data(valid=True)
+        page_data["data_repository_url"] = self.get_data_repository_url_field(valid=True)
+        
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+        
+        new_page = ObservingNetworkPage.objects.get(slug=page.slug)
+        new_data_repository_url_data = [
+            ('url', 'http://example.com/repository3'),
+            ('url', 'http://example.com/repository4')
+        ]
+        new_page.data_repository_url = StreamValue(
+            ObservingNetworkPage.data_repository_url.field.stream_block,
+            new_data_repository_url_data,
+            is_lazy=False
+        )
+        new_page.save_revision().publish()
+        
+        updated_page = ObservingNetworkPage.objects.get(slug=new_page.slug)
+        self.assertEqual(len(updated_page.data_repository_url), 2)
+        self.assertEqual(updated_page.data_repository_url[0].value, 'http://example.com/repository3')
+        self.assertEqual(updated_page.data_repository_url[1].value, 'http://example.com/repository4')
+
+    def test_delete_data_repository_urls(self):
+        page_data = self.get_page_data(valid=True)
+        page_data["data_repository_url"] = self.get_data_repository_url_field(valid=True)
+        
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+        
+        new_page = ObservingNetworkPage.objects.get(slug=page.slug)
+        new_page.data_repository_url = StreamValue(
+            ObservingNetworkPage.data_repository_url.field.stream_block,
+            [],
+            is_lazy=False
+        )
+        new_page.save_revision().publish()
+        
+        updated_page = ObservingNetworkPage.objects.get(slug=new_page.slug)
+        self.assertEqual(len(updated_page.data_repository_url), 0)
+
+    def test_invalid_data_repository_url(self):
+        page_data = self.get_page_data(valid=True)
+        page_data["data_repository_url"] = self.get_data_repository_url_field(valid=False)
+        
+        page = ObservingNetworkPage(**page_data)
+        
+        url_block = page.data_repository_url[0]
+      
+        with self.assertRaises(ValidationError):
+          url_block.block.clean(url_block)
+
+    def test_observing_network_api_access_with_multiple_data_repository_urls(self):
+        page_data = self.get_page_data(valid=True)
+        page_data["data_repository_url"] = self.get_data_repository_url_field(valid=True)
+        
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+        
+        saved_page = ObservingNetworkPage.objects.get(slug=page.slug)
+        response = self.client.get(f'/api/v2/networks/{saved_page.id}/')
+        response_data = response.json()
+    
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_data['name'], 'Test Network')
+        self.assertEqual(len(response_data['data_repository_url']), 2)

@@ -177,7 +177,15 @@ class ObservingNetworkPage(Page):
         help_text='Email address or URL for contacting the observing network.',
         validators=[validate_email_or_url]
     )
-    data_repository_url = models.URLField(blank=True, null=True, verbose_name='Data Repository', help_text='One or more links to data repositories hosting scientific data from the network (such as the Polar Data Catalogue, NSF Arctic Data Center, or PANGAEA).  (This field pertains to scientific datasets, not observing assets).')
+    data_repository_url = StreamField(
+        [
+            ('url', blocks.URLBlock(label='Data Repository URL')),
+        ],
+        blank=True,
+        null=True,
+        verbose_name='Data Repository',
+        help_text='One or more links to data repositories hosting scientific data from the network (such as the Polar Data Catalogue, NSF Arctic Data Center, or PANGAEA).  (This field pertains to scientific datasets, not observing assets).'
+    )
     asset_types = ParentalManyToManyField(AssetType, verbose_name='Asset Types', help_text='Categorization of discrete infrastructure or coordinated activities for observing such as sites, mobile platforms, projects, campaigns, and initiatives.')
     has_catalog = models.CharField(
         max_length=20,
