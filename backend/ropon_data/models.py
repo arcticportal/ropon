@@ -1,6 +1,5 @@
 # ropon_data/models.py
 
-from re import S
 from django.db import models
 from django.contrib.auth import get_user_model
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
@@ -13,9 +12,8 @@ from django import forms
 from wagtail.api import APIField
 
 
-from ropon_data.blocks import SOSOBoundingBoxBlock, GeoPointBlock
+from ropon_data.blocks import SOSOBoundingBoxBlock
 from .validators import (
-    validate_bounding_box,
     validate_email_or_url,
     validate_start_year
 )
@@ -126,7 +124,7 @@ class ObservingNetworkPage(Page):
     ropon_id = models.CharField(
         max_length=255,
         unique=True,
-        verbose_name='ROPO ID',
+        verbose_name='ROPON ID',
         help_text='Unique identifier for the observing network in the ROPO database.',
         default=uuid.uuid4
     )
@@ -227,7 +225,15 @@ class ObservingNetworkPage(Page):
         verbose_name='Access Protocols',
         help_text="Transfer protocols or web service formats in use for public access to a network's structured information about observing assets (such as file download, custom API, OGC WMS, or OAI-PMH)."
     )
-    metadata_catalog_url = models.URLField(blank=True, null=True, verbose_name='Metadata Catalog Links', help_text="Link to one or more webpages presenting a network's catalog, spreadsheet, list, or other documentation about observing assets.")
+    metadata_catalog_url = StreamField(
+        [
+            ('url', blocks.URLBlock(label='Metadata Catalog URL')),
+        ],
+        blank=True,
+        null=True,
+        verbose_name='Metadata Catalog Links',
+        help_text="Link to one or more webpages presenting a network's catalog, spreadsheet, list, or other documentation about observing assets."
+    )
     
     @property
     @admin.display(description='Last Modified By')
