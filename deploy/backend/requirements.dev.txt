@@ -1,1 +1,2 @@
 -r requirements.base.txt
+selenium==4.28.0

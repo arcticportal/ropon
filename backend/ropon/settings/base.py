@@ -13,8 +13,12 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
+from .utils import build_urls_from_hosts
+
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
+
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -69,6 +73,7 @@ THIRD_PARTY_APPS = [
 INSTALLED_APPS = DJANGO_APPS + WAGTAIL_APPS + THIRD_PARTY_APPS + LOCAL_APPS 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -77,7 +82,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
-    'corsheaders.middleware.CorsMiddleware',
+  
 ]
 
 ROOT_URLCONF = "ropon.urls"
@@ -215,13 +220,28 @@ WAGTAILDOCS_EXTENSIONS = ['csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'tx
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost'] + list(filter(None, os.getenv('ALLOWED_HOSTS', '').split(',')))
 
 
-# Custom
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000'] + list(filter(None, os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')))
+# CSRF
 
+
+CSRF_TRUSTED_ORIGINS = build_urls_from_hosts( 
+    os.getenv('CSRF_TRUSTED_ORIGINS',None),
+        ['http://localhost:8000'] 
+        )
+                
 # CORS
-CORS_ALLOWED_ORIGINS = ['http://localhost:8000'] + list(filter(None, os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')))
+CORS_ALLOWED_ORIGINS = build_urls_from_hosts(
+    os.getenv('CORS_ALLOWED_ORIGINS',
+               None),
+               ['http://localhost:8000'] )
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'OPTIONS',
+]
+
 
 TEMPLATE_CONTEXT_PROCESSORS = [
     'django.template.context_processors.request']
 
 DEBUG = True
+

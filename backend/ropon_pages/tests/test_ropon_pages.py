@@ -1,11 +1,10 @@
-from turtle import update
+from django.test import override_settings
 from wagtail.test.utils import WagtailPageTestCase
 from django.core.exceptions import ValidationError
 from home.models import HomePage
 from wagtail.rich_text import RichText
 from ropon_pages.models import RoponPage, RoponPageListing
 from wagtail.models import Page
-from wagtail.test.utils.form_data import nested_form_data, streamfield
 from wagtail.blocks import StreamValue
 
 
@@ -126,3 +125,49 @@ class RoponPageTests(WagtailPageTestCase):
         search_results = Page.objects.search('Unique search title')
 
         self.assertEqual( search_results._do_count(), 1)
+
+
+    # test for cors_allowed_origins
+    @override_settings(CORS_ALLOWED_ORIGINS=['http://ropon.arcticportal.org'])
+    def test_cors_allowed_origin(self):
+        page = RoponPage(**self.get_valid_page_data(title='CORS Test Page')) 
+        self.listing_page.add_child(instance=page)
+        page.save_revision().publish()
+        response = self.client.get(f'/api/v2/ropon_pages/{page.id}/', HTTP_ORIGIN='http://ropon.arcticportal.org')
+        print(response.headers)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['Access-Control-Allow-Origin'], 'http://ropon.arcticportal.org')
+
+    # @override_settings(CORS_ALLOWED_ORIGINS=['http://ropon.arcticportal.org'])
+    # def test_cors_disallowed_origin(self):
+    #     page = RoponPage(**self.get_valid_page_data(title='CORS Test Page')) 
+    #     self.listing_page.add_child(instance=page)
+    #     page.save_revision().publish()
+    #     user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
+    #     response = self.client.get(f'/api/v2/ropon_pages/{page.id}/', HTTP_ORIGIN='https://notallowed.com', HTTP_USER_AGENT=user_agent)
+    #     print(response.headers)
+    #     print(response.request)
+    #     print(response.json())
+    #     self.assertEqual(response.status_code, 403)
+    #     self.assertNotIn('Access-Control-Allow-Origin', response)
+
+    @override_settings(CORS_ALLOWED_ORIGINS=['http://ropon.arcticportal.org'])
+    def test_cors_allowed_methods(self):
+        page = RoponPage(**self.get_valid_page_data(title='CORS Test Page')) 
+        self.listing_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        response = self.client.options(f'/api/v2/ropon_pages/{page.id}/', HTTP_ORIGIN='http://ropon.arcticportal.org')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['Access-Control-Allow-Methods'], 'GET, OPTIONS')
+
+    def test_cors_disallowed_methods(self):
+        page = RoponPage(**self.get_valid_page_data(title='CORS Test Page')) 
+        self.listing_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        response = self.client.post(f'/api/v2/ropon_pages/{page.id}/')
+        self.assertEqual(response.status_code, 405)
+        self.assertNotIn('Access-Control-Allow-Methods', response)
+
