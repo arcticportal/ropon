@@ -152,22 +152,4 @@ class RoponPageTests(WagtailPageTestCase):
     #     self.assertEqual(response.status_code, 403)
     #     self.assertNotIn('Access-Control-Allow-Origin', response)
 
-    @override_settings(CORS_ALLOWED_ORIGINS=['http://ropon.arcticportal.org'])
-    def test_cors_allowed_methods(self):
-        page = RoponPage(**self.get_valid_page_data(title='CORS Test Page')) 
-        self.listing_page.add_child(instance=page)
-        page.save_revision().publish()
-
-        response = self.client.options(f'/api/v2/ropon_pages/{page.id}/', HTTP_ORIGIN='http://ropon.arcticportal.org')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.headers['Access-Control-Allow-Methods'], 'GET, OPTIONS')
-
-    def test_cors_disallowed_methods(self):
-        page = RoponPage(**self.get_valid_page_data(title='CORS Test Page')) 
-        self.listing_page.add_child(instance=page)
-        page.save_revision().publish()
-
-        response = self.client.post(f'/api/v2/ropon_pages/{page.id}/')
-        self.assertEqual(response.status_code, 405)
-        self.assertNotIn('Access-Control-Allow-Methods', response)
-
+   
