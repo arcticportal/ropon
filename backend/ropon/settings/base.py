@@ -234,11 +234,6 @@ CORS_ALLOWED_ORIGINS = build_urls_from_hosts(
                None),
                ['http://localhost:8000'] )
 
-CORS_ALLOW_METHODS = [
-    'GET',
-    'OPTIONS',
-]
-
 
 TEMPLATE_CONTEXT_PROCESSORS = [
     'django.template.context_processors.request']
