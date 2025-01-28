@@ -1,6 +1,5 @@
 # ropon_data/wagtail_hooks.py
 
-from django.dispatch import receiver
 from django.shortcuts import redirect
 from django.urls import reverse
 from wagtail.snippets.models import register_snippet
@@ -11,6 +10,7 @@ from .views.pages import ObservingNetworkPageViewSet
 from .views.snippets import ControlledVocabularyGroup
 
 from .models import ObservingNetworkPage
+
 
 
 # Register the Ropon Controlled Vocabulary group 

@@ -1,6 +1,5 @@
 
 from django.contrib.auth.models import User
-from wagtail.models import Page
 from .models import ObservingNetworkPage, ObservingNetworkIndexPage
 
 

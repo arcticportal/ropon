@@ -2,7 +2,7 @@
 
 from django.db import models
 from django.contrib.auth import get_user_model
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TabbedInterface, ObjectList
 from wagtail.models import  Page
 from modelcluster.fields import ParentalManyToManyField
 from wagtail.search import index
@@ -243,6 +243,10 @@ class ObservingNetworkPage(Page):
         help_text="Link to one or more webpages presenting a network's catalog, spreadsheet, list, or other documentation about observing assets."
     )
     
+    class Meta:
+        verbose_name = 'Observing Network'
+
+        
     @property
     @admin.display(description='Last Modified By')
     def last_modified_by(self):
@@ -289,6 +293,16 @@ class ObservingNetworkPage(Page):
             FieldPanel('metadata_catalog_url'),
         ], heading="Metadata Access"),
     ]
+
+    admin_panel = [
+        FieldPanel('owner', help_text='The user who is responsible for this Observing Network'),
+    ]
+
+    edit_handler = TabbedInterface([
+        ObjectList(content_panels, heading='Content'),  
+        ObjectList(admin_panel, heading='Admin area', permission='ropon_data.change_owner_observingnetworkpage'),
+    ])
+
     api_fields = [
         APIField('name'),
         APIField('abbreviation'),

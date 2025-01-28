@@ -4,6 +4,9 @@ from wagtail.models import Page, GroupPagePermission
 from django.contrib.auth.models import Group
 from ropon_data.models import ObservingNetworkIndexPage
 from django.contrib.auth.models import Permission
+from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
+
 
 APP_LABEL = ObservingNetworkIndexPage._meta.app_label
 
@@ -21,6 +24,9 @@ class Command(BaseCommand):
         logger.info('Starting the creation of the Observing Network Index page.')
         self.create_observingnetwork_index()
         logger.info('Finished the creation of the Observing Network Index page.')
+        logger.info('Assigning change_owner permission to the Moderators group for ObservingNetworkPage.')
+        self.assign_change_owner_permissions()
+        logger.info('Finished assigning change_owner permission to the Moderators group for ObservingNetworkPage.')
 
     def create_observingnetwork_index(self):
         """Creates the ROPON Observing Network Index page if it doesn't exist."""
@@ -104,3 +110,28 @@ class Command(BaseCommand):
             except Permission.DoesNotExist:
                 self.stdout.write(f"Permission {permission_type} does not exist")
                 logger.warning(f'Permission {permission_type} does not exist.')
+
+    def assign_change_owner_permissions(self):
+        """Assigns change_owner permission to the Moderators group."""
+        moderators_group = Group.objects.get(name='Moderators')
+        MODEL_NAME = 'ObservingNetworkPage'
+
+        model  = apps.get_model(APP_LABEL, MODEL_NAME)
+        content_type = ContentType.objects.get_for_model(model)
+        
+        permission_codename ='change_owner_observingnetworkpage'
+        permission,created = Permission.objects.get_or_create(codename=permission_codename,
+                                                  name='Can change owner of Observing Network',
+                                             content_type = content_type)
+
+        if created:
+            logger.info(f'New permission {permission_codename} successfully created')
+        else:
+            logger.info(f'Permission {permission_codename} already exists')
+
+        try:
+            moderators_group.permissions.add(permission)
+            logger.info(f'Assigned {permission_codename} permission to the Moderators group.')
+        except Exception as e:
+            logger.error(f'Error assigning {permission_codename} permission to the Moderators group: {e}')
+            self.stderr.write(self.style.ERROR(f'Error assigning change_owner permission to the Moderators group: {e}'))
