@@ -1,12 +1,11 @@
 import os
 import sqlite3
 from django.core.management.base import BaseCommand, CommandError
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.management import call_command
 
 import logging
 
-from ropon import settings
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +42,7 @@ class Command(BaseCommand):
 
         if username and email and password:
             # Check if username already exists
+            User = get_user_model()
             if not User.objects.filter(username=username).exists():
                 try:
                     User.objects.create_superuser(username, email, password)
