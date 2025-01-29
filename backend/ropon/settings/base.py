@@ -30,6 +30,7 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 LOCAL_APPS = [
     "home",
+    "ropon_auth",
     "ropon_data",
     "ropon_pages",
     "ropon",
@@ -244,3 +245,5 @@ TEMPLATE_CONTEXT_PROCESSORS = [
 
 DEBUG = True
 
+# Set custom user model
+AUTH_USER_MODEL = 'ropon_auth.RoponUser'
