@@ -1,4 +1,8 @@
 # Helper functions for settings
+import errno
+import os
+
+
 def build_urls_from_hosts(hostnames, existing_urls=None, add_http=True):
     """
     Build a list of URLs from hostnames, optionally adding http/https prefix.
@@ -32,3 +36,27 @@ def build_urls_from_hosts(hostnames, existing_urls=None, add_http=True):
         urls.extend(existing_urls)
             
     return list(set(urls))  # Remove any duplicates
+
+
+def set_os_path(path:str):
+    """
+    Set the path to a directory, creating it if it doesn't exist.
+    Check if the  path exists and has write permissions
+    
+    Args:
+        path (str): Path to the directory
+    
+    Returns:
+        bool: Return True If the path exists and is writable
+    """
+
+    if not os.path.exists(path):
+        try:
+            os.makedirs(path, exist_ok=True)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+    if not os.access(path, os.W_OK):
+        raise PermissionError(f"Media path {path} is not writable")
+
+    return True
