@@ -1,10 +1,9 @@
-
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from .models import ObservingNetworkPage, ObservingNetworkIndexPage
 
 
 # check if user can publish a ObservingNetworkPage
-def can_publish(user: User, context:dict) -> bool:
+def can_publish(user, context:dict) -> bool:
     view = context.get('view')
     page = context.get('page',None)
     parent_page = context.get('parent_page',None)
@@ -20,4 +19,3 @@ def can_publish(user: User, context:dict) -> bool:
             return page.is_owner_authorized and page.owner == user
             
     return True
-

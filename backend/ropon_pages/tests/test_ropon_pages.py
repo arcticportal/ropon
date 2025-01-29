@@ -134,7 +134,6 @@ class RoponPageTests(WagtailPageTestCase):
         self.listing_page.add_child(instance=page)
         page.save_revision().publish()
         response = self.client.get(f'/api/v2/ropon_pages/{page.id}/', HTTP_ORIGIN='http://ropon.arcticportal.org')
-        print(response.headers)
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers['Access-Control-Allow-Origin'], 'http://ropon.arcticportal.org')
