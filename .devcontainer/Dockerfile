@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/devcontainers/python:3.12-bookworm
 # FROM mcr.microsoft.com/devcontainers/python:3.11-bookworm
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 
 # [Optional] If your requirements rarely change, uncomment this section to add them to the image.
 # COPY requirements.txt /tmp/pip-tmp/
@@ -10,19 +10,15 @@ ENV PYTHONUNBUFFERED 1
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 #     && apt-get -y install --no-install-recommends <your-package-list-here>
+ARG USER=vscode
 
+# Set default MEDIA_ROOT if not provided
+ENV MEDIA_ROOT=/srv/media
 
-# ARG USER=vscode
-# ARG DEBIAN_FRONTEND=noninteractive
-# RUN useradd -m -s /usr/bin/bash ${USER} 
+RUN mkdir -p ${MEDIA_ROOT}
+RUN chown -R ${USER}:${USER} ${MEDIA_ROOT}
 
-# RUN mkdir /data
-# # set permisssion to USER:USER for /data
-# RUN chown -R ${USER}:${USER} /data
-
-
-# VOLUME ["/data"]
-
+VOLUME ["${MEDIA_ROOT}"]
 
 
 # #Update PATH variable

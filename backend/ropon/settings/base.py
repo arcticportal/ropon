@@ -13,12 +13,13 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
-from .utils import build_urls_from_hosts
+
+from .utils import ( build_urls_from_hosts,
+                     set_os_path
+    )
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
-
-
 
 
 # Quick-start development settings - unsuitable for production
@@ -170,8 +171,11 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATIC_URL = "/static/"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/media/"
+# Media files (user-uploaded files)
+MEDIA_ROOT = os.getenv('MEDIA_ROOT', os.path.join(BASE_DIR, "media"))
+MEDIA_URL = os.getenv('MEDIA_URL', "/media/")
+
+r= set_os_path(MEDIA_ROOT)
 
 # Default storage settings, with the staticfiles storage updated.
 # See https://docs.djangoproject.com/en/5.1/ref/settings/#std-setting-STORAGES

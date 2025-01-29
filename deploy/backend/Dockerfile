@@ -44,6 +44,14 @@ RUN usermod -aG docker $PUSER
 # RUN pip install "gunicorn==20.0.4"
 
 
+# Set default MEDIA_ROOT if not provided
+ENV MEDIA_ROOT=/srv/media
+
+RUN mkdir -p ${MEDIA_ROOT}
+RUN chown -R ${PUSER}:${PUSER} ${MEDIA_ROOT}
+
+VOLUME ["${MEDIA_ROOT}"]
+
 
 # Use /app folder as a directory where the source code is stored.
 WORKDIR /app
@@ -51,15 +59,14 @@ WORKDIR /app
 # Install the project requirements.
 COPY deploy/backend/requirements.prd.txt .
 RUN pip install --no-cache-dir -r requirements.prd.txt \
-&& rm -rf  requirements.txt
+&& rm -rf  requirements.prd.txt
 
-# Set this directory to be owned by the "wagtail" user. This Wagtail project
-# uses SQLite, the folder needs to be owned by the user that
-# will be writing to the database file.
-RUN chown wagtail:wagtail /app
+# Set this directory to be owned by the "$PUSER=wagtail " user. This Wagtail project
+#  the folder needs to be owned by the user that
+RUN chown ${PUSER}:${PUSER} /app
 
 # Copy the source code of the project into the container.
-COPY --chown=wagtail:wagtail backend/ .
+COPY --chown=${PUSER}:${PUSER} backend/ .
 
 # Use user "wagtail" to run the build commands below and the server itself.
 USER ${PUSER}
