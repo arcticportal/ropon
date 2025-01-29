@@ -1,6 +1,6 @@
-
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User, Group
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import  Group
 
 
 PASSWORD = "changeme123"
@@ -15,6 +15,7 @@ class Command(BaseCommand):
         # Get Editors group if it doesn't exist
         editors_group = Group.objects.get(name='Editors')
         
+        User = get_user_model()
         # Create roponadmin user
         roponadmin_user, created = User.objects.get_or_create(
             username='roponadmin',
