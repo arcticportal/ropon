@@ -9,6 +9,7 @@ class Command(BaseCommand):
         logger = logging.getLogger(__name__)
         commands_to_run = [
             'assign_cv_permissions',
+            'assign_snippet_permissions',
             'create_observingnetwork_index',
             'load_ropon_cvs'
         ]

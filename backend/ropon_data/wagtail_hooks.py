@@ -7,10 +7,17 @@ from wagtail import hooks
 
 from .permissions import can_publish
 from .views.pages import ObservingNetworkPageViewSet
-from .views.snippets import ControlledVocabularyGroup
+from .views.snippets import ControlledVocabularyGroup, org_chooser_viewset, OrganizationViewSet
 
 from .models import ObservingNetworkPage
 
+
+@hooks.register("register_admin_viewset")
+def register_viewset():
+    return org_chooser_viewset
+
+
+register_snippet(OrganizationViewSet)
 
 
 # Register the Ropon Controlled Vocabulary group 

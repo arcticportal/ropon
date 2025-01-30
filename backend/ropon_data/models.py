@@ -1,28 +1,25 @@
 # ropon_data/models.py
 
-from django.db import models
-from django.contrib.auth import get_user_model
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TabbedInterface, ObjectList
-from wagtail.models import  Page
-from modelcluster.fields import ParentalManyToManyField
-from wagtail.search import index
-from wagtail.fields import StreamField
-from wagtail import blocks
-from django import forms
-from wagtail.api import APIField
-
-
-from ropon_data.blocks import SOSOBoundingBoxBlock
-from .validators import (
-    validate_email_or_url,
-    validate_start_year
-)
-from django.utils.html import format_html
 import uuid
-from django.contrib import admin
-from wagtail.models import Page
 
+from django import forms
+from django.contrib import admin
+from django.contrib.auth import get_user_model
+from django.db import models
+from django.utils.html import format_html
+from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from rest_framework import serializers
+from ropon_data.blocks import SOSOBoundingBoxBlock
+from wagtail import blocks
+from wagtail.admin.panels import (FieldPanel, MultiFieldPanel,
+                                  MultipleChooserPanel, ObjectList,
+                                  TabbedInterface)
+from wagtail.api import APIField
+from wagtail.fields import StreamField
+from wagtail.models import Orderable, Page
+from wagtail.search import index
+
+from .validators import validate_email_or_url, validate_start_year
 
 User = get_user_model()
 
@@ -93,6 +90,52 @@ class AccessProtocol(ControlledVocabularyModel):
 
 # ------ Observing Network Page Models --------
 
+
+class Organization(index.Indexed, models.Model):
+    name = models.CharField("Organization name", max_length=255)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Organization'
+        verbose_name_plural = 'Organizations'
+
+    api_fields = [
+        APIField('name'),
+    ]
+
+    panels = [FieldPanel('name')]
+    search_fields = [
+        index.SearchField('name'),
+        index.AutocompleteField('name'),
+        ]
+
+class ObservingNetworkOrganization(Orderable,models.Model):
+    observingnetwork = ParentalKey('ObservingNetworkPage', 
+                                   related_name='network_organizations',
+                                   on_delete=models.CASCADE)
+    organization = models.ForeignKey(
+        'ropon_data.Organization',
+        on_delete=models.CASCADE,
+        related_name='organizations_networks'
+    )
+
+    panels = [FieldPanel('organization')]
+
+    api_fields = [
+        APIField('organization'),
+    ]
+
+    def __str__(self):
+        return self.organization.name
+
+    class Meta:
+        verbose_name = 'Observing Network Organization'
+        verbose_name_plural = 'Observing Network Organizations'
+
+    
+
 class ObservingNetworkPage(Page):
     # Network information
     name = models.CharField(
@@ -128,12 +171,8 @@ class ObservingNetworkPage(Page):
         help_text='Unique identifier for the observing network in the ROPO database.',
         default=uuid.uuid4
     )
-    organization_name = models.CharField(
-        max_length=255,
-        verbose_name='Organization Name',
-        help_text='One or more entities responsible for funding or operation of the observing network.'
-    )
-
+   
+    
     # Network scope and coverage
     domains = ParentalManyToManyField(
         Domain,
@@ -270,16 +309,23 @@ class ObservingNetworkPage(Page):
         FieldPanel('description'),
         FieldPanel('website_url'),
         FieldPanel('logo_url'),
-        FieldPanel('organization_name'),
+         MultipleChooserPanel('network_organizations',
+                             chooser_field_name='organization',
+                             heading='Organizations',
+                             label="Organization",
+                             panels=None,
+                             min_num=1,
+                         ),
         MultiFieldPanel([
             FieldPanel('domains', widget=forms.CheckboxSelectMultiple),
             FieldPanel('disciplines', widget=forms.CheckboxSelectMultiple),
         ], heading="Observational Scope"),
         MultiFieldPanel([
-            FieldPanel('regions', widget=forms.CheckboxSelectMultiple),
-            FieldPanel('subregions', widget=forms.CheckboxSelectMultiple),
-            FieldPanel('geometry_field'),
             FieldPanel('start_year'),
+            FieldPanel('regions', widget=forms.CheckboxSelectMultiple),
+            FieldPanel('subregions', widget=forms.CheckboxSelectMultiple),                     
+            FieldPanel('geometry_field'),
+            
         ], heading="Spatial and Temporal Coverage"),
         FieldPanel('contact'),
         FieldPanel('data_repository_url'),
@@ -292,6 +338,7 @@ class ObservingNetworkPage(Page):
             FieldPanel('access_protocols', widget=forms.CheckboxSelectMultiple),
             FieldPanel('metadata_catalog_url'),
         ], heading="Metadata Access"),
+       
     ]
 
     admin_panel = [
@@ -310,7 +357,7 @@ class ObservingNetworkPage(Page):
         APIField('website_url'),
         APIField('logo_url'),
         APIField('ropon_id'),
-        APIField('organization_name'),
+        APIField('organization_name', serializers.StringRelatedField(many=True, read_only=True, source = "network_organizations"),),
         APIField('domains',serializers.StringRelatedField(many=True, read_only=True)),
         APIField('disciplines',serializers.StringRelatedField(many=True, read_only=True)), 
         APIField('regions',serializers.StringRelatedField(many=True, read_only=True)),
@@ -331,7 +378,8 @@ class ObservingNetworkPage(Page):
     search_fields = Page.search_fields + [
         index.SearchField('name'),
         index.SearchField('description'),
-        index.SearchField('organization_name'),
+        index.SearchField('abbreviation'),
+
     ]
 
     def __str__(self):

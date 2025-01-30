@@ -3,7 +3,7 @@ from wagtail.test.utils import WagtailPageTestCase
 from wagtail.blocks import StreamValue
 from django.core.exceptions import ValidationError
 from home.models import HomePage
-from ropon_data.models import ObservingNetworkPage, ObservingNetworkIndexPage
+from ropon_data.models import ObservingNetworkPage, ObservingNetworkIndexPage, Organization, ObservingNetworkOrganization
 from wagtail.models import Page
 from wagtail.test.utils.form_data import nested_form_data, streamfield
 
@@ -74,7 +74,6 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
             'website_url': 'http://example.com',
             'logo_url': 'http://example.com/logo.png',
             'ropon_id': '12345',
-            'organization_name': 'Test Organization',
             'contact': 'contact@example.com',
             'has_catalog': 'yes'
         }
@@ -111,7 +110,6 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
             'website_url': 'http://example.com',
             'logo_url': 'http://example.com/logo.png',
             'ropon_id': '12345',
-            'organization_name': 'Test Organization',
             'contact': 'contact@example.com',
             'has_catalog': 'yes',
             'geometry_field': streamfield([
@@ -216,9 +214,17 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         self.assertTrue(ObservingNetworkPage.objects.filter(title='Updated Name').exists())
 
     def test_observing_network_api_access(self):
-        page = ObservingNetworkPage(**self.get_page_data())
+        organization = Organization.objects.create(name='Test Organization')
+        
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
         self.index_page.add_child(instance=page)
         page.save_revision().publish()
+        
+        ObservingNetworkOrganization.objects.create(
+            observingnetwork=page,
+            organization=organization
+        )
         
         saved_page = ObservingNetworkPage.objects.get(slug=page.slug)
         response = self.client.get(f'/api/v2/networks/{saved_page.id}/')
@@ -227,7 +233,8 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_data['name'], 'Test Network')
         self.assertEqual(len(response_data['metadata_catalog_url']), 2)
-
+        self.assertEqual(len(response_data['organization_name']), 1)
+        self.assertEqual(response_data['organization_name'][0], 'Test Organization')
 
     def test_create_multiple_metadata_catalog_urls(self):
         page_data = self.get_page_data(valid=True)
@@ -370,3 +377,23 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_data['name'], 'Test Network')
         self.assertEqual(len(response_data['data_repository_url']), 2)
+
+    def test_network_organizations_creation(self):
+        # Create organization first
+        organization = Organization.objects.create(name='Test Organization')
+        
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+        
+        # Add organization to network
+        ObservingNetworkOrganization.objects.create(
+            observingnetwork=page,
+            organization=organization
+        )
+        
+        # Test retrieval
+        saved_page = ObservingNetworkPage.objects.get(slug=page.slug)
+        self.assertEqual(saved_page.network_organizations.count(), 1)
+        self.assertEqual(saved_page.network_organizations.first().organization.name, 'Test Organization')

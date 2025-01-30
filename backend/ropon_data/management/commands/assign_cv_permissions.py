@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group, Permission
 from django.apps import apps
 import logging
 from ropon_data.models import ControlledVocabularyModel
+from django.contrib.contenttypes.models import ContentType
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,17 +23,20 @@ class Command(BaseCommand):
         for model in apps.get_models():
             if model is not ControlledVocabularyModel and issubclass(model, ControlledVocabularyModel):
                 model_name = model._meta.model_name
-                app_label = model._meta.app_label
-                codenames = [f'add_{model_name}', f'change_{model_name}', f'delete_{model_name}']
-                
-                perms = Permission.objects.filter(
-                    content_type__app_label=app_label,
-                    content_type__model=model_name,
-                    codename__in=codenames
-                )
+                # get content type for the model
+                content_type = ContentType.objects.get_for_model(model)
+
+                # get all permissions for the model
+                permissions = Permission.objects.filter(content_type=content_type)
+
+                # check if group already has permissions
+                moderator_perms = moderators.permissions.filter(content_type=content_type)
+                if moderator_perms.exists():
+                    logger.warning(self.style.WARNING('Permissions already exist for Moderators group. No changes made.'))
+                    return
                 
                 try:
-                    moderators.permissions.add(*perms)
-                    logger.info(f"Assigned permissions for model {model_name}")
+                    moderators.permissions.add(*permissions)
+                    logger.info(self.style.SUCCESS(f"Successfully assigned {permissions.count()} permissions for model {model_name}"))
                 except Exception as e:
-                    logger.error(f"Error adding permissions for model {model_name}: {e}")
+                    logger.error(self.style.ERROR(f"Error adding permissions for model {model_name}: {e}"))
