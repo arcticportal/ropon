@@ -2,9 +2,12 @@
 
 from django.db import models
 from django.contrib.auth import get_user_model
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TabbedInterface, ObjectList
-from wagtail.models import  Page
-from modelcluster.fields import ParentalManyToManyField
+from wagtail.admin.panels import (FieldPanel, 
+                                MultiFieldPanel,
+                                TabbedInterface,
+                                ObjectList)
+from wagtail.models import  Page, Orderable
+from modelcluster.fields import ParentalManyToManyField, ParentalKey
 from wagtail.search import index
 from wagtail.fields import StreamField
 from wagtail import blocks
@@ -93,6 +96,48 @@ class AccessProtocol(ControlledVocabularyModel):
 
 # ------ Observing Network Page Models --------
 
+
+class Organization(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Organization'
+        verbose_name_plural = 'Organizations'
+
+    api_fields = [
+        APIField('name'),
+    ]
+
+    panels = [FieldPanel('name')]
+
+class ObservingNetworkPageOrganization(Orderable,models.Model):
+    observingnetwork = ParentalKey('ObservingNetworkPage', 
+                                   related_name='network_organizations',
+                                   on_delete=models.CASCADE)
+    organization = models.ForeignKey(
+        'ropon_data.Organization',
+        on_delete=models.CASCADE,
+        related_name='organizations_networks'
+    )
+
+    panels = [FieldPanel('organization')]
+
+    api_fields = [
+        APIField('organization'),
+    ]
+
+    def __str__(self):
+        return self.organization.name
+
+    class Meta:
+        verbose_name = 'Observing Network Organization'
+        verbose_name_plural = 'Observing Network Organizations'
+
+    
+
 class ObservingNetworkPage(Page):
     # Network information
     name = models.CharField(
@@ -134,6 +179,7 @@ class ObservingNetworkPage(Page):
         help_text='One or more entities responsible for funding or operation of the observing network.'
     )
 
+    
     # Network scope and coverage
     domains = ParentalManyToManyField(
         Domain,
@@ -292,6 +338,14 @@ class ObservingNetworkPage(Page):
             FieldPanel('access_protocols', widget=forms.CheckboxSelectMultiple),
             FieldPanel('metadata_catalog_url'),
         ], heading="Metadata Access"),
+        # MultipleChooserPanel('network_organizations',
+        #                      chooser_field_name='organization',
+        #                      heading='Organizations',
+        #                      label="Organization",
+        #                      panels=None,
+        #                      min_num=1,
+        #                      help_text='One or more entities responsible for funding or operation of the observing network.'
+        #                      ),
     ]
 
     admin_panel = [

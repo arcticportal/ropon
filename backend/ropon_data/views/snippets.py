@@ -7,8 +7,30 @@ from wagtail.snippets.views.snippets import SnippetViewSet, SnippetViewSetGroup
 from ropon_data.models import (
      Domain, Discipline,  Region,
     Subregion, AssetType, MetadataStandard,
-    AccessProtocol
+    AccessProtocol, Organization
 )
+
+from wagtail.admin.viewsets.chooser import ChooserViewSet
+
+class OrganizationViewSet(SnippetViewSet):
+    model = Organization
+    icon = "group"
+    list_display = ("name",)
+   
+
+class OrganizationChooserViewSet(ChooserViewSet):
+    # The model can be specified as either the model class or an "app_label.model_name" string;
+    # using a string avoids circular imports when accessing the StreamField block class (see below)
+    model = "ropon_data.Organization"
+
+    icon = "organization"
+    choose_one_text = "Choose an organization"
+    choose_another_text = "Choose another organization"
+    edit_item_text = "Edit this organization"
+    form_fields = ["name",]  # fields to show in the "Create" tab
+
+
+org_chooser_viewset = OrganizationChooserViewSet("org_chooser")
 
 class ControlledVocabularyViewSet(SnippetViewSet):
     """Base viewset for controlled vocabulary models"""
