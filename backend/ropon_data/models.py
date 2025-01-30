@@ -91,8 +91,8 @@ class AccessProtocol(ControlledVocabularyModel):
 # ------ Observing Network Page Models --------
 
 
-class Organization(models.Model):
-    name = models.CharField(max_length=255)
+class Organization(index.Indexed, models.Model):
+    name = models.CharField("Organization name", max_length=255)
 
     def __str__(self):
         return self.name
@@ -106,6 +106,10 @@ class Organization(models.Model):
     ]
 
     panels = [FieldPanel('name')]
+    search_fields = [
+        index.SearchField('name'),
+        index.AutocompleteField('name'),
+        ]
 
 class ObservingNetworkOrganization(Orderable,models.Model):
     observingnetwork = ParentalKey('ObservingNetworkPage', 
