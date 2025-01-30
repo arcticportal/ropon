@@ -7,7 +7,7 @@ from wagtail import hooks
 
 from .permissions import can_publish
 from .views.pages import ObservingNetworkPageViewSet
-from .views.snippets import ControlledVocabularyGroup, OrganizationViewSet, org_chooser_viewset
+from .views.snippets import ControlledVocabularyGroup, org_chooser_viewset, OrganizationViewSet
 
 from .models import ObservingNetworkPage
 

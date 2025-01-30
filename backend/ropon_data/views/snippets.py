@@ -16,6 +16,11 @@ class OrganizationViewSet(SnippetViewSet):
     model = Organization
     icon = "group"
     list_display = ("name",)
+    add_to_admin_menu = True
+    menu_order =210
+    url_prefix = "organizations"
+    
+    
    
 
 class OrganizationChooserViewSet(ChooserViewSet):
@@ -23,7 +28,7 @@ class OrganizationChooserViewSet(ChooserViewSet):
     # using a string avoids circular imports when accessing the StreamField block class (see below)
     model = "ropon_data.Organization"
 
-    icon = "organization"
+    icon = "group"
     choose_one_text = "Choose an organization"
     choose_another_text = "Choose another organization"
     edit_item_text = "Edit this organization"
@@ -77,4 +82,5 @@ class ControlledVocabularyGroup(SnippetViewSetGroup):
         AssetTypeViewSet,
         MetadataStandardViewSet,
         AccessProtocolViewSet,
+
     )
