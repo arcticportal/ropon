@@ -397,3 +397,78 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         saved_page = ObservingNetworkPage.objects.get(slug=page.slug)
         self.assertEqual(saved_page.network_organizations.count(), 1)
         self.assertEqual(saved_page.network_organizations.first().organization.name, 'Test Organization')
+
+    def test_networks_endpoint_returns_required_meta_fields(self):
+        REQUIRED_META_FIELDS =["date_last_modified"]
+
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        response = self.client.get('/api/v2/networks/')
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('items', response_data)
+        self.assertGreater(len(response_data['items']), 0)
+        
+        for field in REQUIRED_META_FIELDS:
+            self.assertIn(field, response_data['items'][0]['meta'])
+        
+    def test_networks_endpoint_returns_required_fields(self):
+        REQUIRED_FIELDS = ["ropon_id"]
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        response = self.client.get('/api/v2/networks/')
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('items', response_data)
+        self.assertGreater(len(response_data['items']), 0)
+        
+        for field in REQUIRED_FIELDS:
+            self.assertIn(field, response_data['items'][0])
+
+
+
+    def test_networks_endpoint_excludes_unnecessary_meta_fields(self):
+        EXCLUDED_META_FIELDS = ['html_url', 'type']
+        
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        response = self.client.get('/api/v2/networks/')
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('items', response_data)
+        self.assertGreater(len(response_data['items']), 0)
+        
+        for field in EXCLUDED_META_FIELDS:
+            self.assertNotIn(field, response_data['items'][0]['meta'])
+
+    def test_network_detail_endpoint_excludes_unnecessary_fields(self):
+        EXCLUDED_META_FIELDS = [
+            'seo_title',
+            'html_url',
+            'search_description',
+            'parent'
+        ]
+
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        response = self.client.get(f'/api/v2/networks/{page.id}/')
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        for field in EXCLUDED_META_FIELDS:
+            self.assertNotIn(field, response_data['meta'])
