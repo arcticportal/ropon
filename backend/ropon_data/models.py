@@ -375,6 +375,13 @@ class ObservingNetworkPage(Page):
         APIField('metadata_catalog_url'),
 
     ]
+
+    # api_meta_fields = ["detail_url",
+    #                    "slug",
+    #                    "first_published_at",
+    #                    "date_last_modified",
+    #                    "alias_of"
+    # ]
     search_fields = Page.search_fields + [
         index.SearchField('name'),
         index.SearchField('description'),
