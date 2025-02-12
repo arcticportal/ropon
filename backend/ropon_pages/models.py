@@ -1,11 +1,8 @@
-from django.db import models
 
 from wagtail.models import Page
 from wagtail.fields import StreamField
-from wagtail import blocks
 from wagtail.admin.panels import FieldPanel
-from wagtail.images.blocks import ImageChooserBlock
-from .blocks import HeadingBlock, RoponImageChooserBlock, RoponRichTextBlock
+from .blocks import RoponPageHeadingBlock, RoponPageImageChooserBlock, RoponPageRichTextBlock
 from wagtail.api import APIField
 from wagtail.search import index
 # Ropon Page models.
@@ -13,9 +10,9 @@ from wagtail.search import index
 
 class RoponPage(Page):
     body = StreamField([
-        ('heading', HeadingBlock()),
-        ('paragraph', RoponRichTextBlock()),
-        ('image', RoponImageChooserBlock()),
+        ('heading', RoponPageHeadingBlock()),
+        ('paragraph', RoponPageRichTextBlock()),
+        ('image', RoponPageImageChooserBlock()),
     ], use_json_field=True)
 
     content_panels = Page.content_panels + [
