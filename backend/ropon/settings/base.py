@@ -30,6 +30,7 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 LOCAL_APPS = [
     "home",
+    "base",
     "ropon_auth",
     "ropon_data",
     "ropon_pages",
