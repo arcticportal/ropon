@@ -15,15 +15,33 @@ class HeadingBlock(blocks.StructBlock):
         icon = 'title'
         label = 'Heading'
 
-class RoponImageChooserBlock(ImageChooserBlock):
+class RoponImageChooserBlock(blocks.StructBlock):
+    image = ImageChooserBlock(required=True)
+    caption = blocks.CharBlock(
+        required=False,
+        help_text="Add a caption to describe the image",
+        # label="Caption"
+    )
+    attribution = blocks.CharBlock(
+        required=False,
+        help_text="Credit the image source or photographer",
+        # label="Attribution"
+    )
+    class Meta:
+        icon = 'image'
+        label = 'Image'
+
     def get_api_representation(self, value, context=None):
         if value:
+            image = value.get('image')
             return {
-                'id': value.id,
-                'title': value.title,
-                'url': value.file.url,
-                'width': value.width,
-                'height': value.height,
+                'id': image.id,
+                'title': image.title,
+                'url': image.file.url,
+                'width': image.width,
+                'height': image.height,
+                'caption': value.get('caption', ''),
+                'attribution': value.get('attribution', '')
             }
         else:
             return None
