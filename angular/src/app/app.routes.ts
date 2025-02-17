@@ -1,11 +1,14 @@
 import { Routes } from '@angular/router';
 
-import {AboutComponent} from './about/about.component'
 import {HomeComponent} from './home/home.component'
+import {NetworksComponent} from './networks/networks.component'
+import {PagesComponent} from './pages/pages.component'
 
-const suf = ' | RoPON'
+export const suf = ' | RoPON'
 
 export const routes: Routes = [
-  {path: '', component: HomeComponent},
-  {path: 'about', component: AboutComponent, title: 'About' + suf}
+  {path: '', component: HomeComponent,
+   title: 'Registry of Polar Observing Networks'},
+  {path: 'networks/:ropon_id', component: NetworksComponent},
+  {path: 'ropon-pages/:slug', component: PagesComponent}
 ];

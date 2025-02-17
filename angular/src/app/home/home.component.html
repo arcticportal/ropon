@@ -1,1 +1,34 @@
-<p>Under construction.</p>
+<div class="row">
+  <div class="col-12">
+    <p class="lead mt-3">Systems and related organizations that coordinate or
+      track observing activities &amp; infrastructure in the polar
+      regions.</p>
+    <div class="alert alert-warning">
+      <i class="bi-info-circle-fill me-1"></i>
+      This registry has been released as a phase 1 version for
+      demonstration purposes.  Plans are underway for improvements in
+      scope, functionality, and interoperability.  Feedback is
+      appreciated.
+    </div>
+  </div>
+  <!--<app-home-filter></app-home-filter>-->
+  <app-home-filter class="col-12 col-sm-4 col-md-3"></app-home-filter>
+  <div class="col position-relative">
+    <input type="text" aria-label="Search" placeholder="Search &hellip;"
+	   [formControl]="ctrl" class="form-control form-control-sm" />
+    <i class="bi-x" (click)="ctrl.setValue('')"></i>
+    <app-home-result></app-home-result>
+  </div>
+  <div class="col-12 mt-4 small text-secondary">
+    RoPON was created as a collaborative effort by the Sustaining Arctic
+    Observing Networks initiative (SAON), the Arctic Portal, and the
+    SAON Polar Observing Assets Working Group (POAwg), and is funded by
+    the NOAA GOMO Arctic Research Program.
+  </div>
+  <div class="col-12 d-flex justify-content-center">
+    <div>
+      <img ngSrc="https://globalocean.noaa.gov/wp-content/uploads/2023/02/GOMO_Lockup_Outlines-2.svg"
+	   fill />
+    </div>
+  </div>
+</div>

@@ -1,0 +1,12 @@
+.bi-x
+{ font-size: xx-large;
+  position: relative;
+  top: 5px;
+  cursor: pointer;
+  color: var(--bs-gray-500) }
+
+.bi-x:hover
+{ color: var(--bs-gray-600) }
+
+.ms-4>li
+{ text-indent: -12px }

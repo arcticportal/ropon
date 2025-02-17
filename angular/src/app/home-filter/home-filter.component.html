@@ -1,0 +1,16 @@
+<h4>Filter<i class="bi-x" (click)="clear()"></i></h4>
+<ul class="list-unstyled user-select-none">
+  <li *ngFor="let d of order">
+    <span role="button" (click)="toggle(d.name)"
+	  [ngStyle]="stylGroup(d.name)">
+      {{d.label}} <i [ngClass]="caret(d.name)"></i>
+    </span>
+    <ul *ngIf="filters[d.name].show" class="list-unstyled ms-4">
+      <li *ngFor="let s of filters[d.name].list">
+	<a class="text-decoration-none text-reset"
+	   [ngStyle]="styl(d.name, s)" [routerLink]="[]"
+	   [queryParams]="changedQuery(d.name, s)">{{s}}</a>
+      </li>
+    </ul>
+  </li>
+</ul>

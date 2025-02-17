@@ -1,0 +1,56 @@
+:host
+{ display: block }
+
+nav
+{ position: relative }
+
+nav a
+{ position: relative;
+  top: -1.5em;
+  color: var(--ropon-blue);
+  font-size: large;
+  font-weight: bolder;
+  cursor: pointer }
+
+img
+{ height: 50px;
+  position: relative;
+  top: -0.8em }
+
+dt,section i,div.small
+{ color: var(--bs-gray) }
+
+dt
+{ font-weight: normal;
+  margin-bottom: 8px }
+
+#domain>.badge
+{ background-color: var(--badge-domain) }
+
+#discipline>.badge
+{ background-color: var(--badge-discipline) }
+
+#asset-type>.badge
+{ background-color: var(--badge-asset-type) }
+
+section>div
+{ background-color: var(--bs-gray-200);
+  border-radius: var(--bs-border-radius-xl) }
+
+section .col-auto
+{ color: var(--ropon-blue) }
+
+app-map
+{ height: var(--ropon-map-size) }
+
+@media (min-width: 768px)
+{ app-map
+  { position: absolute;
+    padding: 0;
+    width: var(--ropon-map-size);
+    top: -12px;
+    left: calc(100% - var(--ropon-map-size) - 12px) } }
+
+@media (max-width: 767.98px)
+{ app-map
+  { width: 100% } }

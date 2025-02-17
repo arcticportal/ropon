@@ -1,0 +1,23 @@
+:host
+{ display: block }
+
+.alert
+{ text-indent: -13px;
+  padding-left: 39px }
+
+.bi-x
+{ position: absolute;
+  font-size: xx-large;
+  top: -7px;
+  right: 12px;
+  cursor: pointer;
+  z-index: 5;
+  color: var(--bs-gray-500) }
+
+.bi-x:hover
+{ color: var(--bs-gray-600) }
+
+.d-flex>div
+{ position: relative;
+  width: 150px;
+  aspect-ratio: 461 / 171 }

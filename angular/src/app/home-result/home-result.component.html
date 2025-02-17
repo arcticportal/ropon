@@ -1,0 +1,56 @@
+<div class="row"><div class="ms-auto col-auto">{{count()}}</div></div>
+<div class="row">
+  <div *ngFor="let network of networks" class="col-12 mt-3">
+    <div class="card">
+      <div class="card-body">
+	<div class="row">
+	  <div *ngIf="network.logo_url" class="col-auto">
+	    <img [src]="util.formatImg(network.logo_url)" />
+	  </div>
+	  <h5 class="card-title col">
+	    <a [routerLink]="['/networks', network.ropon_id]">{{
+	      network.name}}</a>
+	  </h5>
+	</div>
+	<div class="row">
+	  <div class="col-md-5 row">
+	    <div class="col-auto">Region</div>
+	    <div class="col">{{network.regions.join(', ')}}</div>
+	  </div>
+	  <div class="col-md-7 row">
+	    <div class="col-auto">Subregion</div>
+	    <div class="col">{{network.subregions.join(', ')}}</div>
+	  </div>
+	</div>
+	<div class="row">
+	  <div class="col-auto">Domain</div>
+	  <div class="col" id="domain">
+	    <span *ngFor="let domain of network.domains"
+		  class="badge me-1">{{domain}}</span>
+	  </div>
+	</div>
+	<div class="row">
+	  <div class="col-auto">Disciplines</div>
+	  <div class="col" id="discipline">
+	    <span *ngFor="let discipline of network.disciplines"
+		  class="badge me-1">{{discipline}}</span>
+	  </div>
+	</div>
+	<div class="row">
+	  <div class="col-auto">Asset Types</div>
+	  <div class="col" id="asset-type">
+	    <span *ngFor="let assetType of network.asset_types"
+		  class="badge me-1">{{assetType}}</span>
+	  </div>
+	</div>
+	<div class="row">
+	  <div class="col-auto">Website</div>
+	  <div class="col">
+	    <a [href]="network.website_url"
+	       target="_blank">{{util.formatUrl(network.website_url)}}</a>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+</div>

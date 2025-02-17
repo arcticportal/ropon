@@ -1,0 +1,142 @@
+<nav class="row mt-5">
+  <div class="col-12 col-md-7 col-lg-8 col-xl-9">
+    <div class="row">
+      <div class="col-12"><a (click)="location.back()">Back</a></div>
+      <div *ngIf="network.logo_url" class="col-auto">
+	<img [src]="util.formatImg(network.logo_url)" />
+      </div>
+      <h4 class="col">{{network.name}}</h4>
+      <div class="col-12 mt-3">{{network.description}}</div>
+      <app-map [boxes]="network.geometry_field"></app-map>
+    </div>
+  </div>
+</nav>
+<dl class="row mt-3">
+  <dt class="col-12 col-sm-3 col-lg-2">Abbreviation</dt>
+  <dd class="col-12 col-sm-9 col-lg-10">{{network.abbreviation}}</dd>
+  <dt class="col-12 col-sm-3 col-lg-2">Website</dt>
+  <dd class="col-12 col-sm-9 col-lg-10">
+    <a [href]="network.website_url"
+       target="_blank">{{util.formatUrl(network.website_url)}}</a>
+  </dd>
+  <dt class="col-12 col-sm-3 col-lg-2">Region</dt>
+  <dd class="col-12 col-sm-9 col-lg-10">
+    {{network.regions?.join(', ')}}
+  </dd>
+  <dt class="col-12 col-sm-3 col-lg-2">Subregion</dt>
+  <dd class="col-12 col-sm-9 col-lg-10">
+    {{network.subregions?.join(', ')}}
+  </dd>
+  <dt class="col-12 col-sm-3 col-lg-2">Domain</dt>
+  <dd class="col-12 col-sm-9 col-lg-10" id="domain">
+    <span *ngFor="let domain of network.domains"
+	  class="badge me-1">{{domain}}</span>
+  </dd>
+  <dt class="col-12 col-sm-3 col-lg-2">Disciplines</dt>
+  <dd class="col-12 col-sm-9 col-lg-10" id="discipline">
+    <span *ngFor="let discipline of network.disciplines"
+	  class="badge me-1">{{discipline}}</span>
+  </dd>
+  <dt class="col-12 col-sm-3 col-lg-2">Organization</dt>
+  <dd class="col-12 col-sm-9 col-lg-10">
+    {{network.organization_name?.join(', ')}}
+  </dd>
+  <dt class="col-12 col-sm-3 col-lg-2">Year Started</dt>
+  <dd class="col-12 col-sm-9 col-lg-10">{{network.start_year}}</dd>
+  <dt class="col-12 col-sm-3 col-lg-2">Contact</dt>
+  <dd class="col-12 col-sm-9 col-lg-10">
+    <a [href]="contactHref()" target="_blank">{{contactText()}}</a>
+  </dd>
+  <dt class="col-12 col-sm-3 col-lg-2">Data Repository</dt>
+  <dd class="col-12 col-sm-9 col-lg-10">
+    <ul class="list-unstyled">
+      <li *ngFor="let d of network.data_repository_url">
+	<a [href]="d.value"
+	   target="_blank">{{util.formatUrl(d.value)}}</a>
+      </li>
+    </ul>
+  </dd>
+</dl>
+<section class="row m-0">
+  <div class="col">
+    <div class="row justify-content-center mt-3">
+      <div class="col-auto">
+	Observing Assets
+	<button
+	  id="info" class="btn btn-link p-0" data-bs-toggle="popover"
+	  type="button" data-bs-placement="top" data-bs-html="true"
+	  data-bs-content='Many organizations compile structured
+	    information about “observing assets”: Components of <i>in
+	    situ</i> infrastructure such as monitoring sites or mobile
+	    platforms, as well as activities such as projects,
+	    campaigns, or initiatives.  This section conveys the level
+	    of interoperability for such “asset-level” metadata –
+	    whether details are tracked, if they are publicly available,
+	    and if so how.  <a href="/faq#what">Learn more</a>.'>
+	  <i class="bi-info-circle-fill"></i>
+	</button>
+      </div>
+    </div>
+    <dl class="row small mt-1 ms-2">
+      <dt class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
+	Asset Types
+      </dt>
+      <dd class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9" id="asset-type">
+	<span *ngFor="let assetType of network.asset_types"
+	      class="badge me-1">
+	  {{assetType}}
+	</span>
+      </dd>
+      <dt class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
+	Asset-Level Metadata Catalog?
+      </dt>
+      <dd class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+	{{network.has_catalog}}
+      </dd>
+      <dt class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
+	Metadata Access?
+      </dt>
+      <dd class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+	{{network.metadata_access}}
+      </dd>
+      <dt class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
+	Machine-Readable Access?
+      </dt>
+      <dd class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+	{{network.machine_readable}}
+      </dd>
+      <dt class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
+	Metadata Standards
+      </dt>
+      <dd class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+	{{network.metadata_standards?.join(', ')}}
+      </dd>
+      <dt class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
+	Access Protocols
+      </dt>
+      <dd class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+	{{network.access_protocols?.join(', ')}}
+      </dd>
+      <dt class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
+	Metadata Catalog
+      </dt>
+      <dd class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-9">
+	<ul class="list-unstyled">
+	  <li *ngFor="let d of network.metadata_catalog_url">
+	    <a [href]="d.value"
+	       target="_blank">{{util.formatUrl(d.value)}}</a>
+	  </li>
+	</ul>
+      </dd>
+    </dl>
+  </div>
+</section>
+<div class="row mt-3 mb-5 small">
+  <div class="col-12">
+    RoPON ID:
+    <a [routerLink]="['/networks', network.ropon_id]">{{frontendDomain}}/networks/{{network.ropon_id}}</a>
+  </div>
+  <div *ngIf="network.meta?.first_published_at" class="col-12">
+    Last Modified: {{modDate()}}
+  </div>
+</div>

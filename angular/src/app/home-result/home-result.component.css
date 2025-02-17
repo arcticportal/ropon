@@ -1,0 +1,31 @@
+.ms-auto
+{ position: relative;
+  top: 8px }
+
+img
+{ max-height: 26px }
+
+.card-title>a
+{ color: var(--ropon-blue);
+  text-decoration: none }
+
+.card-body:hover .card-title>a
+{ text-decoration: underline }
+
+.card-body .col-auto
+{ color: var(--bs-gray) }
+
+#domain>.badge
+{ background-color: var(--badge-domain) }
+
+#discipline>.badge
+{ background-color: var(--badge-discipline) }
+
+#asset-type>.badge
+{ background-color: var(--badge-asset-type) }
+
+div>a
+{ text-decoration: none }
+
+div>a:hover
+{ text-decoration: underline }
