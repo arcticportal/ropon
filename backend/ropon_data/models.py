@@ -27,12 +27,13 @@ User = get_user_model()
 
 
 # Base class for all controlled vocabulary models
+
 class ControlledVocabularyModel(models.Model):
     """Base class for all controlled vocabulary models"""
     name = models.CharField(max_length=255)
 
-    class Meta:
-        abstract = True
+    # class Meta:
+    #     abstract = True
 
     panels = [FieldPanel('name')]
 
@@ -59,6 +60,9 @@ class AssetType(ControlledVocabularyModel):
     description = models.TextField(blank=True, null=True, verbose_name='Description', help_text='Description of the asset type, including examples of the types of assets that fall under this category.')
     panels = ControlledVocabularyModel.panels + [FieldPanel('description')]
 
+    api_fields = ControlledVocabularyModel.api_fields + [
+        APIField('description'),
+    ]
 class MetadataStandard(ControlledVocabularyModel):
     description = models.TextField(blank=True, null=True, verbose_name='Description', help_text='Description of the metadata standard, including examples of the types of metadata that fall under this category.')
     source_url = models.URLField(blank=True, null=True, verbose_name='Source URL', help_text='URL to the official documentation or website for the metadata standard.')
@@ -74,6 +78,10 @@ class MetadataStandard(ControlledVocabularyModel):
 
     source_url_link.fget.short_description = 'Source URL'
 
+    api_fields = ControlledVocabularyModel.api_fields + [
+        APIField('description'),
+        APIField('source_url'),
+    ]
 
 class AccessProtocol(ControlledVocabularyModel):
     description = models.TextField(blank=True, null=True, verbose_name='Description', help_text='Description of the access protocol, including examples of the types of access protocols that fall under this category.')
@@ -87,6 +95,10 @@ class AccessProtocol(ControlledVocabularyModel):
             return format_html('<a href="{}" target="_blank">{}</a>', self.source_url, self.source_url)
         return ""
 
+    api_fields = ControlledVocabularyModel.api_fields + [
+        APIField('description'),
+        APIField('source_url'),
+    ]
 
 # ------ Observing Network Page Models --------
 
