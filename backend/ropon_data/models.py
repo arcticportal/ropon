@@ -32,8 +32,8 @@ class ControlledVocabularyModel(models.Model):
     """Base class for all controlled vocabulary models"""
     name = models.CharField(max_length=255)
 
-    # class Meta:
-    #     abstract = True
+    class Meta:
+        abstract = True
 
     panels = [FieldPanel('name')]
 
