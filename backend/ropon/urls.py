@@ -3,15 +3,15 @@ from django.urls import include, path
 from django.contrib import admin
 
 from wagtail.admin import urls as wagtailadmin_urls
-from wagtail import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
 from search import views as search_views
 
 
-from wagtail.api.v2.views import PagesAPIViewSet
 from wagtail.api.v2.router import WagtailAPIRouter
-from ropon_data.api import ObservingNetworkPageViewSet
+from ropon_data.api import (ObservingNetworkPageViewSet, 
+                            ControlledVocabularyAPIViewSet
+                            )
 from ropon_pages.api import RoponPagesAPIViewSet
 
 
@@ -19,7 +19,9 @@ api_router = WagtailAPIRouter("wagtailapi")
 # api_router.register_endpoint("pages", PagesAPIViewSet)
 api_router.register_endpoint("ropon_pages", RoponPagesAPIViewSet)
 api_router.register_endpoint("networks", ObservingNetworkPageViewSet)
+api_router.register_endpoint("cv", ControlledVocabularyAPIViewSet)
 
+# api_router.register_endpoint("cv/<str:cv_type>/<int:pk>/", ControlledVocabularyAPIViewSet.as_view({'get': 'detail_view'},name="cv-detail"))
 urlpatterns = [
     path("django-admin/", admin.site.urls),
     path("admin/", include(wagtailadmin_urls)),
