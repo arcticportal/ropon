@@ -325,8 +325,7 @@ class ObservingNetworkPage(Page):
                              chooser_field_name='organization',
                              heading='Organizations',
                              label="Organization",
-                             panels=None,
-                             min_num=1,
+                             panels=None
                          ),
         MultiFieldPanel([
             FieldPanel('domains', widget=forms.CheckboxSelectMultiple),
