@@ -3,10 +3,13 @@ from wagtail.api.v2.views import BaseAPIViewSet
 from django.apps import apps
 from django.http import Http404
 from django.urls import path, reverse
+from django.db.models import Q
 from rest_framework.response import Response
+from uuid import UUID
+from rest_framework.request import Request  # Import Request from rest_framework
+from functools import singledispatch  # Import singledispatch from functools
 
-from .models import ( ControlledVocabularyModel, ObservingNetworkPage,
-)
+from .models import (ControlledVocabularyModel, ObservingNetworkPage)
 
 class ObservingNetworkPageViewSet(PagesAPIViewSet):
     """
@@ -14,25 +17,56 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
 
     List all Observing Networks are available on the root URL.
 
-    Retrieve a specific Observing Network by ID at /<id>/
+    Retrieve a specific Observing Network by either:
+    - Page ID at /api/v2/networks/<id>/
+    - RoPON ID at /api/v2/networks/<ropon_id>/
 
+    Both methods will return identical responses.
     """
-
     model = ObservingNetworkPage
 
     listing_default_fields = PagesAPIViewSet.listing_default_fields + [
         'date_last_modified',
         'ropon_id'
-        ]
-    meta_fields =  ["locale",
-                    "detail_url",
-                    "slug",
-                    "first_published_at",
-                    "date_last_modified",
-                    "alias_of"
     ]
+    meta_fields = ["locale",
+                  "detail_url",
+                  "slug",
+                  "first_published_at",
+                  "date_last_modified",
+                  "alias_of"
+                  ]
 
+    @classmethod
+    def get_urlpatterns(cls):
+        '''
+        Override the default URL patterns to include the ropon_id pattern.
+        '''
 
+        ropon_id_pattern = "<uuid:ropon_id>/"
+        ropon_id_path = path(ropon_id_pattern, cls.as_view({"get": "detail_view"}), name="detail")
+        return [ropon_id_path,] + super().get_urlpatterns()
+    
+    def detail_view(self, request,*args, **kwargs):
+        """
+        Retrieve a specific Observing Network by either:
+        - Page ID at /api/v2/networks/<id>/
+        - RoPON ID at /api/v2/networks/<ropon_id>/
+
+        Both methods will return identical responses.
+        """
+        # Check if the lookup value is a UUID
+        
+        uuid_value = kwargs.get('ropon_id', False)
+        if uuid_value:
+            self.lookup_field = 'ropon_id'
+            pk_value = uuid_value
+        else:
+            pk_value = kwargs.get(self.lookup_field, False)    
+        
+        return super().detail_view(request, pk_value)
+    
+   
 class ControlledVocabularyAPIViewSet(BaseAPIViewSet):
     """
     Common API to serve up RoPON controlled vocabulary models
