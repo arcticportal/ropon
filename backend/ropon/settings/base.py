@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from environs import Env
+
+env = Env()
+env.read_env()  
 
 
 from .utils import ( build_urls_from_hosts,
@@ -49,6 +53,7 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     'corsheaders',
+    'flags'
 ]
 
 WAGTAIL_APPS = [
@@ -104,10 +109,12 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.request",
             ],
         },
     },
 ]
+
 
 WSGI_APPLICATION = "ropon.wsgi.application"
 
@@ -118,11 +125,11 @@ WSGI_APPLICATION = "ropon.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        'NAME': os.environ.get('POSTGRES_DB', 'postgres'),
-        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
-        'HOST': os.environ.get('POSTGRES_HOST', 'db'),
-        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        'NAME': env.str('POSTGRES_DB', default='postgres'),
+        'USER': env.str('POSTGRES_USER', default='postgres'),
+        'PASSWORD': env.str('POSTGRES_PASSWORD', default='postgres'), 
+        'HOST': env.str('POSTGRES_HOST', default='db'),
+        'PORT': env.str('POSTGRES_PORT', default='5432'),
     }
 }
 
@@ -174,8 +181,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATIC_URL = "/static/"
 
 # Media files (user-uploaded files)
-MEDIA_ROOT = os.getenv('MEDIA_ROOT', os.path.join(BASE_DIR, "media"))
-MEDIA_URL = os.getenv('MEDIA_URL', "/media/")
+MEDIA_ROOT = env.str('MEDIA_ROOT', os.path.join(BASE_DIR, "media"))
+MEDIA_URL = env.str('MEDIA_URL', "/media/")
 
 r= set_os_path(MEDIA_ROOT)
 
@@ -197,7 +204,7 @@ STORAGES = {
 
 # Wagtail settings
 
-WAGTAIL_SITE_NAME = os.environ.get('WAGTAIL_SITE_NAME','Registry of Polar Networks')
+WAGTAIL_SITE_NAME = env.str('WAGTAIL_SITE_NAME','Registry of Polar Networks')
 
 # diable commenting in page editors
 WAGTAILADMIN_COMMENTS_ENABLED = False
@@ -212,7 +219,7 @@ WAGTAILSEARCH_BACKENDS = {
 
 # Base URL to use when referring to full URLs within the Wagtail admin backend -
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
-WAGTAILADMIN_BASE_URL = os.getenv("WAGTAILADMIN_BASE_URL", "http://localhost:8000")
+WAGTAILADMIN_BASE_URL = env.str("WAGTAILADMIN_BASE_URL", "http://localhost:8000")
 
 # Allowed file extensions for documents in the document library.
 # This can be omitted to allow all files, but note that this may present a security risk
@@ -223,28 +230,36 @@ WAGTAILDOCS_EXTENSIONS = ['csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'tx
 # SECURITY WARNING: define the correct hosts in production!
 
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost'] + list(filter(None, os.getenv('ALLOWED_HOSTS', '').split(',')))
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost'] + list(filter(None, env.str('ALLOWED_HOSTS', '').split(',')))
 
 
 # CSRF
 
 
 CSRF_TRUSTED_ORIGINS = build_urls_from_hosts( 
-    os.getenv('CSRF_TRUSTED_ORIGINS',None),
+    env('CSRF_TRUSTED_ORIGINS',None),
         ['http://localhost:8000'] 
         )
                 
 # CORS
 CORS_ALLOWED_ORIGINS = build_urls_from_hosts(
-    os.getenv('CORS_ALLOWED_ORIGINS',
+    env('CORS_ALLOWED_ORIGINS',
                None),
                ['http://localhost:8000'] )
 
-
-TEMPLATE_CONTEXT_PROCESSORS = [
-    'django.template.context_processors.request']
 
 DEBUG = True
 
 # Set custom user model
 AUTH_USER_MODEL = 'ropon_auth.RoponUser'
+
+# Add feature flag settings
+FLAGS = {
+    # Add feature flag so that ropon_id can be used in the API to get ObservingNetworkPage(ON) details
+    'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS': [
+        {"condition": "boolean",
+         "value": env.bool('ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS', False),
+        
+        }
+    ]
+}

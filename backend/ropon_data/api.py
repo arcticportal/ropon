@@ -3,13 +3,14 @@ from wagtail.api.v2.views import BaseAPIViewSet
 from django.apps import apps
 from django.http import Http404
 from django.urls import path, reverse
-from django.db.models import Q
 from rest_framework.response import Response
-from uuid import UUID
-from rest_framework.request import Request  # Import Request from rest_framework
-from functools import singledispatch  # Import singledispatch from functools
+from flags.state import flag_enabled
+import sys
+from ropon_data.models import (ControlledVocabularyModel, ObservingNetworkPage)
 
-from .models import (ControlledVocabularyModel, ObservingNetworkPage)
+from flags.urls import flagged_path
+
+ROPON_ID_FLAG = 'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS'
 
 class ObservingNetworkPageViewSet(PagesAPIViewSet):
     """
@@ -43,8 +44,13 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
         Override the default URL patterns to include the ropon_id pattern.
         '''
 
+        # if not flag_enabled(ROPON_ID_FLAG):
+        #     return super().get_urlpatterns()
+        
         ropon_id_pattern = "<uuid:ropon_id>/"
-        ropon_id_path = path(ropon_id_pattern, cls.as_view({"get": "detail_view"}), name="detail")
+        # ropon_id_path = path(ropon_id_pattern, cls.as_view({"get": "detail_view"}), name="detail")
+        ropon_id_path = flagged_path( ROPON_ID_FLAG , ropon_id_pattern, cls.as_view({"get": "detail_view"}), name="detail", )
+        
         return [ropon_id_path,] + super().get_urlpatterns()
     
     def detail_view(self, request,*args, **kwargs):
@@ -57,8 +63,10 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
         """
         # Check if the lookup value is a UUID
         
+      
         uuid_value = kwargs.get('ropon_id', False)
-        if uuid_value:
+        if uuid_value and flag_enabled(ROPON_ID_FLAG):
+            sys.stderr.write(f"Using RoPON ID: {uuid_value}\n")
             self.lookup_field = 'ropon_id'
             pk_value = uuid_value
         else:
