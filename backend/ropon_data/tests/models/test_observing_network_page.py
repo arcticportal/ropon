@@ -1,4 +1,5 @@
 import datetime
+from django.test import override_settings
 from wagtail.test.utils import WagtailPageTestCase
 from wagtail.blocks import StreamValue
 from django.core.exceptions import ValidationError
@@ -10,6 +11,7 @@ from uuid import UUID
 
 class ObservingNetworkPageTests(WagtailPageTestCase):
     def setUp(self):
+        self.ROPON_ID_FLAG = 'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS'
 
         self.home_page = Page.objects.get(slug='home')
         self.index_page = ObservingNetworkIndexPage(title='Observing Networks')
@@ -490,53 +492,13 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         self.assertEqual(response.json()['name'], page.name)
         self.assertEqual(response.json()['ropon_id'], str(page.ropon_id))
 
-    def test_api_access_by_ropon_id(self):
-        """Test that the API endpoint can be accessed using the ropon_id"""
-        # Create test page with specific ropon_id
-        page_data = self.get_page_data(valid=True)
-        page = ObservingNetworkPage(**page_data)
-        self.index_page.add_child(instance=page)
-        page.save_revision().publish()
-        
-        # Retrieve the generated ropon_id
-        saved_page = ObservingNetworkPage.objects.get(pk=page.pk)
-        ropon_id = saved_page.ropon_id
-        
-        # Test access using ropon_id
-        response = self.client.get(f'/api/v2/networks/{ropon_id}/')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()['name'], saved_page.name)
-        self.assertEqual(response.json()['ropon_id'], str(ropon_id))
-
+    
     def test_api_access_invalid_ropon_id(self):
         """Test that the API returns 404 for invalid ropon_id"""
         invalid_uuid = '12345678-1234-4321-abcd-12345678abcd'
         response = self.client.get(f'/api/v2/networks/{invalid_uuid}/')
         self.assertEqual(response.status_code, 404)
-
-    def test_api_access_both_lookup_methods_same_response(self):
-        """Test that both lookup methods return the same response data"""
-        page_data = self.get_page_data(valid=True)
-       
-        page = ObservingNetworkPage(**page_data)
-        self.index_page.add_child(instance=page)
-        page.save_revision().publish()
-        
-        # Retrieve the generated ropon_id
-        saved_page = ObservingNetworkPage.objects.get(pk=page.pk)
-        ropon_id = saved_page.ropon_id
-        
-        # Get responses using both methods
-        response_by_pk = self.client.get(f'/api/v2/networks/{page.pk}/')
-        response_by_ropon_id = self.client.get(f'/api/v2/networks/{ropon_id}/')
-        response_by_pk = self.client.get(f'/api/v2/networks/{page.pk}/')
-        response_by_ropon_id = self.client.get(f'/api/v2/networks/{ropon_id}/')
-        
-        # Compare responses
-        self.assertEqual(response_by_pk.status_code, 200)
-        self.assertEqual(response_by_ropon_id.status_code, 200)
-        self.assertEqual(response_by_pk.json(), response_by_ropon_id.json())
-
+ 
     def test_api_access_with_invalid_pk(self):
         """Test that the API returns 404 for invalid pk"""
         invalid_pk = 99999  # Assuming this pk doesn't exist
@@ -574,28 +536,6 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         response = self.client.get(f'/api/v2/networks/{ropon_id}/')
         self.assertEqual(response.status_code, 404)
 
-    def test_api_access_case_sensitivity_ropon_id(self):
-        """Test that UUID lookup is case-insensitive"""
-        # Create test page
-        page_data = self.get_page_data(valid=True)
-        page = ObservingNetworkPage(**page_data)
-        self.index_page.add_child(instance=page)
-        page.save_revision().publish()
-
-        # Retrieve the generated ropon_id
-        saved_page = ObservingNetworkPage.objects.get(pk=page.pk)
-        ropon_id = saved_page.ropon_id
-        
-        # Test with lowercase UUID
-        lowercase_uuid = str(ropon_id).lower()
-        response = self.client.get(f'/api/v2/networks/{lowercase_uuid}/')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()['ropon_id'], str(ropon_id))
-
-        # Test with uppercase UUID
-        uppercase_uuid = str(ropon_id).upper()
-        response = self.client.get(f'/api/v2/networks/{uppercase_uuid}/')
-        self.assertEqual(response.status_code, 404)
         
     def test_api_response_structure_consistency(self):
         page_data = self.get_page_data(valid=True)
@@ -606,7 +546,6 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         
         # Retrieve the generated ropon_id
         saved_page = ObservingNetworkPage.objects.get(pk=page.pk)
-        ropon_id = saved_page.ropon_id
         
         # Add organization to network
         # Create organization and add to network
@@ -618,25 +557,17 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
 
         # Get responses using both methods
         response_by_pk = self.client.get(f'/api/v2/networks/{page.pk}/')
-        response_by_ropon_id = self.client.get(f'/api/v2/networks/{ropon_id}/')
-
+       
         
         pk_data = response_by_pk.json()
-        ropon_data = response_by_ropon_id.json()
-
-        # Test exact structure matching
-        self.assertEqual(set(pk_data.keys()), set(ropon_data.keys()))
-        self.assertEqual(set(pk_data['meta'].keys()), set(ropon_data['meta'].keys()))
+       
         
         # Test specific field values
         fields_to_check = [
             'name', 'abbreviation', 'description', 'website_url', 
             'logo_url', 'ropon_id', 'organization_name'
         ]
-        
-        for field in fields_to_check:
-            self.assertEqual(pk_data[field], ropon_data[field] )
-      
+       
         # Test field types
         self.assertIsInstance(pk_data['ropon_id'], str)
         self.assertIsInstance(pk_data['name'], str)
@@ -660,7 +591,6 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         
         # Retrieve the generated ropon_id
         saved_page = ObservingNetworkPage.objects.get(pk=page.pk)
-        ropon_id = saved_page.ropon_id
         
         # Create test organization
         organization = Organization.objects.create(name='Test Organization')
@@ -676,15 +606,84 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         
         # Get responses using both lookup methods
         response_by_pk = self.client.get(f'/api/v2/networks/{page.pk}/?{fields_param}')
-        response_by_ropon_id = self.client.get(f'/api/v2/networks/{ropon_id}/?{fields_param}')
-
+     
         # Verify both responses have exactly the same structure and content
         pk_data = response_by_pk.json()
-        ropon_data = response_by_ropon_id.json()
         
         # Verify response status codes and data structure
         self.assertEqual(response_by_pk.status_code, 200)
-        self.assertEqual(response_by_ropon_id.status_code, 200)
-        self.assertEqual(pk_data, ropon_data)
         self.assertTrue(required_fields.issubset(set(pk_data.keys())))
-        self.assertTrue(required_fields.issubset(set(ropon_data.keys())))
+     
+    @override_settings(FLAGS= {'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS': [{'condition': 'boolean','value':True}]})
+    def test_api_detail_view_roponid_flag_enabled(self):
+        """Test that the detail_view uses the ropon_id from kwargs when the feature flag is enabled"""
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+        
+        response = self.client.get(f'/api/v2/networks/{page.ropon_id}/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['ropon_id'], str(page.ropon_id))
+
+    def test_api_detail_view_roponid_flag_disabled(self):
+        """Test that the detail_view uses the default primary key from kwargs when the feature flag is disabled"""
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        # Test with feature flag disabled (default setting)
+        with self.settings(FLAGS={self.ROPON_ID_FLAG: [{'condition': 'boolean','value':False}]}):
+            response = self.client.get(f'/api/v2/networks/{page.ropon_id}/')
+            self.assertEqual(response.status_code, 404) # Access should fail when flag is disabled
+
+
+    @override_settings(FLAGS= {'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS': [{'condition': 'boolean','value':True}]})
+    def test_api_access_both_lookup_methods_same_response(self):
+        """Test that both lookup methods return the same response data"""
+        page_data = self.get_page_data(valid=True)
+       
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+        
+        # Retrieve the generated ropon_id
+        saved_page = ObservingNetworkPage.objects.get(pk=page.pk)
+        ropon_id = saved_page.ropon_id
+        
+        # Get responses using both methods
+        response_by_pk = self.client.get(f'/api/v2/networks/{page.pk}/')
+        response_by_ropon_id = self.client.get(f'/api/v2/networks/{ropon_id}/')
+        response_by_pk = self.client.get(f'/api/v2/networks/{page.pk}/')
+        response_by_ropon_id = self.client.get(f'/api/v2/networks/{ropon_id}/')
+        
+        # Compare responses
+        self.assertEqual(response_by_pk.status_code, 200)
+        self.assertEqual(response_by_ropon_id.status_code, 200)
+        self.assertEqual(response_by_pk.json(), response_by_ropon_id.json())
+
+    @override_settings(FLAGS= {'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS': [{'condition': 'boolean','value':True}]})
+    def test_api_access_case_sensitivity_ropon_id(self):
+        """Test that UUID lookup is case-insensitive"""
+        # Create test page
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        # Retrieve the generated ropon_id
+        saved_page = ObservingNetworkPage.objects.get(pk=page.pk)
+        ropon_id = saved_page.ropon_id
+        
+        # Test with lowercase UUID
+        lowercase_uuid = str(ropon_id).lower()
+        response = self.client.get(f'/api/v2/networks/{lowercase_uuid}/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['ropon_id'], str(ropon_id))
+
+        # Test with uppercase UUID
+        uppercase_uuid = str(ropon_id).upper()
+        response = self.client.get(f'/api/v2/networks/{uppercase_uuid}/')
+        self.assertEqual(response.status_code, 404)
+    
