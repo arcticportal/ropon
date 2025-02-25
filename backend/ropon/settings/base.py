@@ -261,5 +261,12 @@ FLAGS = {
          "value": env.bool('ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS', False),
         
         }
+    ],
+    # Add feature flag to remove side panel options for Moderators and Editors
+    'ROPON.REMOVE_SIDE_PANEL_OPTIONS': [
+        {"condition": "boolean",
+         "value": env.bool('ROPON.REMOVE_SIDE_PANEL_OPTIONS', False),
+        
+        }
     ]
 }
