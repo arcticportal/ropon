@@ -2,6 +2,7 @@
 
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from wagtail.snippets.models import register_snippet
 from wagtail import hooks
 
@@ -71,3 +72,4 @@ def redirect_after_edit_page(request, page):
 @hooks.register('insert_global_admin_css')
 def global_admin_css():
     return '<link rel="stylesheet" href="/static/ropon_data/css/ropon_data.css">'
+

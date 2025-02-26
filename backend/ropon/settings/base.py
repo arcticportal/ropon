@@ -259,14 +259,18 @@ FLAGS = {
     'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS': [
         {"condition": "boolean",
          "value": env.bool('ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS', False),
-        
         }
     ],
     # Add feature flag to remove side panel options for Moderators and Editors
     'ROPON.REMOVE_SIDE_PANEL_OPTIONS': [
         {"condition": "boolean",
          "value": env.bool('ROPON.REMOVE_SIDE_PANEL_OPTIONS', False),
-        
+        }
+    ],
+    # Add feature flag for aging observing networks report
+    'ROPON.REPORTS.AGING_OBSERVING_NETWORKS': [
+        {"condition": "boolean",
+         "value": env.bool('ROPON.REPORTS.AGING_OBSERVING_NETWORKS', False),
         }
     ]
 }
