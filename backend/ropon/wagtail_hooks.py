@@ -1,7 +1,7 @@
 from django.utils.translation import gettext as _
 from django.urls import path, reverse
 from wagtail import hooks
-from wagtail.admin.menu import AdminOnlyMenuItem  # Import AdminOnlyMenuItem for menu registration
+from wagtail.admin.menu import MenuItem  # Import AdminOnlyMenuItem for menu registration
 from flags.state import flag_enabled
 from ropon_data.reports.aging_networks import AgingObservingNetworksView  # Import the view class for aging networks report
 
@@ -9,10 +9,21 @@ FLAG_REMOVE_SIDE_PANEL_OPTIONS = 'ROPON.REMOVE_SIDE_PANEL_OPTIONS'
 FLAG_ENABLE_AGING_NETWORKS = 'ROPON.REPORTS.AGING_OBSERVING_NETWORKS'
 
 
+class AgingObservingNetworksMenuItem(MenuItem):
+    """
+    Custom menu item for the Aging Observing Networks report.
+    """
+    def is_shown(self, request):
+        """
+        Only show the menu item if the feature flag is enabled.
+        """
+        return flag_enabled(FLAG_ENABLE_AGING_NETWORKS)
+    
+
 @hooks.register('register_reports_menu_item')
 def register_aging_networks_report():
     """Register the aging networks report in the Reports menu"""
-    return AdminOnlyMenuItem(
+    return AgingObservingNetworksMenuItem(
         _('Aging Observing Networks'),
         reverse('aging_networks'),
         name='aging-networks',
