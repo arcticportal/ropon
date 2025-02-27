@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 import django_filters
-from django.core.exceptions import PermissionDenied
 import django_filters.fields
 from flags.state import flag_enabled
 from wagtail.admin.filters import WagtailFilterSet
@@ -9,6 +8,8 @@ from wagtail.admin.widgets import AdminDateInput
 from wagtail.admin.views.reports.aging_pages import AgingPagesView
 from ropon_data.models import ObservingNetworkPage, Organization, ObservingNetworkOrganization
 from base.filters.filters import UserModelChoiceFilter
+from wagtail.admin.auth import permission_denied
+from django.http import Http404
 
 User = get_user_model()
 
@@ -102,10 +103,10 @@ class AgingObservingNetworksView(AgingPagesView):
         """
         if not request.user.is_superuser:
             if not flag_enabled(ROPON_AGING_REPORTS_FLAG):
-                raise PermissionDenied
-            
+                raise Http404("Page not found")
+
             if not request.user.groups.filter(name='Moderators').exists():
-                raise PermissionDenied
+                return permission_denied(request)
                 
         return super().dispatch(request, *args, **kwargs)
     
