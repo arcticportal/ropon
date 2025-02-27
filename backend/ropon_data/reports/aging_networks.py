@@ -12,6 +12,8 @@ from base.filters.filters import UserModelChoiceFilter
 
 User = get_user_model()
 
+ROPON_AGING_REPORTS_FLAG = 'ROPON.REPORTS.AGING_OBSERVING_NETWORKS'
+
 
 class AgingNetworksReportFilterSet(WagtailFilterSet):
     """
@@ -75,9 +77,7 @@ class AgingObservingNetworksView(AgingPagesView):
     filterset_class = AgingNetworksReportFilterSet
     index_url_name = "aging_networks"
     index_results_url_name = "aging_networks_results"
-    # template_name = "wagtailadmin/reports/aging_networks.html"
     
-
     export_headings = {
         "status_string": _("Status"),
         "last_published_at": _("Last published at"),
@@ -92,6 +92,7 @@ class AgingObservingNetworksView(AgingPagesView):
         "owner",
     ]
 
+    
     def dispatch(self, request, *args, **kwargs):
         """
         Check if the user has permission to view the report.
@@ -100,7 +101,7 @@ class AgingObservingNetworksView(AgingPagesView):
         - Users in Moderators group when feature flag is enabled
         """
         if not request.user.is_superuser:
-            if not flag_enabled('ROPON.REPORTS.AGING_OBSERVING_NETWORKS'):
+            if not flag_enabled(ROPON_AGING_REPORTS_FLAG):
                 raise PermissionDenied
             
             if not request.user.groups.filter(name='Moderators').exists():
