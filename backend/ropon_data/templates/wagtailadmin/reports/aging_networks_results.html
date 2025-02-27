@@ -15,7 +15,9 @@
                     {% trans 'Last published' %}
                 </th>
                 <th>{% trans 'Last published by' %}</th>
-                <th>{% trans 'Owner' %}</th>
+                <th class="owner">
+                    {% trans 'Owner' %}
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -36,11 +38,16 @@
                     </td>
                     <td class="updated" valign="top">{% human_readable_date page.last_published_at %}</td>
                     <td valign="top">
-                        {% include "wagtailadmin/shared/user_avatar.html" with user=page.last_published_by username=page.last_published_by_user %}
+
+                        {% with user=page.specific.last_modified_by %}
+                            {% include "wagtailadmin/shared/user_avatar.html" with user=user username=user.get_full_name %}
+                        {% endwith %}
                     </td>
                     <td valign="top">
                         {% if page.owner %}
-                            {% include "wagtailadmin/shared/user_avatar.html" with user=page.owner %}
+                            {% with full_name=page.owner.get_full_name %}
+                                {% include "wagtailadmin/shared/user_avatar.html" with user=page.owner username=full_name %}
+                            {% endwith %}
                         {% endif %}
                     </td>
                 </tr>

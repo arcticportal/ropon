@@ -2,13 +2,16 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 import django_filters
 from django.core.exceptions import PermissionDenied
+import django_filters.fields
 from flags.state import flag_enabled
 from wagtail.admin.filters import WagtailFilterSet
 from wagtail.admin.widgets import AdminDateInput
 from wagtail.admin.views.reports.aging_pages import AgingPagesView
 from ropon_data.models import ObservingNetworkPage, Organization, ObservingNetworkOrganization
+from base.filters.filters import UserModelChoiceFilter
 
 User = get_user_model()
+
 
 class AgingNetworksReportFilterSet(WagtailFilterSet):
     """
@@ -22,10 +25,11 @@ class AgingNetworksReportFilterSet(WagtailFilterSet):
         lookup_expr="lte", 
         widget=AdminDateInput
     )
-    owner = django_filters.ModelChoiceFilter(
+    owner = UserModelChoiceFilter(
         label=_("Owner"),
         queryset=User.objects.all(),
-        empty_label=_("Any owner")
+        empty_label=_("Any owner"),
+
     )
     organization = django_filters.ModelChoiceFilter(
         label=_("Organization"),

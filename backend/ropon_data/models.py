@@ -301,7 +301,7 @@ class ObservingNetworkPage(Page):
     @property
     @admin.display(description='Last Modified By')
     def last_modified_by(self):
-        return self.latest_revision_user
+        return self.latest_revision.user
 
     @property
     @admin.display(description='Date Last Modified')
