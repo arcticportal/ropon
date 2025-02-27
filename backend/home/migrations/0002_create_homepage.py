@@ -1,5 +1,8 @@
+import sys
 from django.db import migrations
 
+from django.conf import settings
+from urllib.parse import urlparse
 
 def create_homepage(apps, schema_editor):
     # Get models
@@ -30,8 +33,30 @@ def create_homepage(apps, schema_editor):
     )
 
     # Create a site with the new homepage set as the root
-    Site.objects.create(hostname="localhost", root_page=homepage, is_default_site=True)
+    s= create_site(Site, homepage)
 
+    if s:
+        sys.stdout.write("Created default site: %s\n" % s.site_name)
+ 
+
+def create_site(Site,homepage):
+
+    
+    site_url = getattr(settings, "WAGTAILADMIN_BASE_URL", "http://localhost:8000")
+
+    # Extract hostname and port from site_url using urllib.parse
+    parsed_url = urlparse(site_url)
+    hostname = parsed_url.hostname
+    prot = parsed_url.scheme 
+    port = parsed_url.port or("443" if prot == "https" else "80") 
+    # Delete the default site (if it exists)    
+    Site.objects.filter(hostname=hostname, port=port).delete()
+   
+    site_name = getattr(settings, "WAGTAIL_SITE_NAME", "Wagtail")
+    # Create site with extracted hostname and port
+    s= Site.objects.create(hostname=hostname,port=port, root_page=homepage, is_default_site=True, site_name=site_name )
+    
+    return s
 
 def remove_homepage(apps, schema_editor):
     # Get models
