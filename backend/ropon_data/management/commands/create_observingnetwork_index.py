@@ -120,14 +120,11 @@ class Command(BaseCommand):
         content_type = ContentType.objects.get_for_model(model)
         
         permission_codename ='change_owner_observingnetworkpage'
-        permission,created = Permission.objects.get_or_create(codename=permission_codename,
-                                                  name='Can change owner of Observing Network',
-                                             content_type = content_type)
+        permission = Permission.objects.get(codename=permission_codename,
+                                                                content_type = content_type)
 
-        if created:
-            logger.info(f'New permission {permission_codename} successfully created')
-        else:
-            logger.info(f'Permission {permission_codename} already exists')
+        if permission:
+            logger.info(f'Permission {permission_codename} found')
 
         try:
             moderators_group.permissions.add(permission)

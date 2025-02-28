@@ -353,12 +353,12 @@ class ObservingNetworkPage(Page):
     ]
 
     admin_panel = [
-        FieldPanel('owner', help_text='The user who is responsible for this Observing Network'),
+        FieldPanel('owner', help_text='The user who is responsible for this Observing Network',permission='ropon_data.change_owner_observingnetworkpage'),
     ]
 
     edit_handler = TabbedInterface([
         ObjectList(content_panels, heading='Content'),  
-        ObjectList(admin_panel, heading='Admin area', permission='ropon_data.change_owner_observingnetworkpage'),
+        ObjectList(admin_panel, heading='Admin area', ),
     ])
 
     api_fields = [
@@ -412,6 +412,7 @@ class ObservingNetworkPage(Page):
         verbose_name = 'Observing Network'
         permissions = [
             ('publish_observingnetworkpage', 'Can publish observing network page'),
+            ('change_owner_observingnetworkpage', 'Can change owner of Observing Network')
         ]
 
     # Allow ObservingNetworkPage to be created at the root level

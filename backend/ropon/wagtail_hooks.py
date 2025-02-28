@@ -89,8 +89,10 @@ def hide_pages_menu(request, menu_items):
 @hooks.register('construct_reports_menu')
 def construct_reports_menu(request, menu_items):
     """
-    Modify the Reports menu for Moderators role.
+    Modify the Reports menu for non super users.
     """
-    if flag_enabled(FLAG_ENABLE_AGING_NETWORKS) and request.user.groups.filter(name='Moderators').exists():
+    if not request.user.is_superuser:
         
-        menu_items[:] = [item for item in menu_items if item.name == 'aging-networks']
+        if flag_enabled(FLAG_ENABLE_AGING_NETWORKS) and flag_enabled(FLAG_REMOVE_SIDE_PANEL_OPTIONS):
+        
+            menu_items[:] = [item for item in menu_items if item.name == 'aging-networks']

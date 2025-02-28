@@ -4,10 +4,14 @@ from wagtail.test.utils import WagtailPageTestCase
 from wagtail.blocks import StreamValue
 from django.core.exceptions import ValidationError
 from home.models import HomePage
-from ropon_data.models import ObservingNetworkPage, ObservingNetworkIndexPage, Organization, ObservingNetworkOrganization
+from ropon_data.models import ObservingNetworkPage, ObservingNetworkIndexPage, Organization, ObservingNetworkOrganization, User
 from wagtail.models import Page
 from wagtail.test.utils.form_data import nested_form_data, streamfield
 from uuid import UUID
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+
+User = get_user_model()
 
 class ObservingNetworkPageTests(WagtailPageTestCase):
     def setUp(self):
@@ -17,6 +21,31 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         self.index_page = ObservingNetworkIndexPage(title='Observing Networks')
         self.home_page.add_child(instance=self.index_page)
         self.index_page.save_revision().publish()
+
+         # Create test users with different permissions
+        self.superuser = self.create_superuser(
+            username='superuser',
+            email='super@example.com',
+            password='password'
+        )
+        
+        self.moderator = User.objects.create_user(
+            username='moderator',
+            email='moderator@example.com',
+            password='password'
+        )
+        
+        self.editor = User.objects.create_user(
+            username='editor',
+            email='editor@example.com',
+            password='password'
+        )
+
+        # Create groups and add users
+        moderators_group = Group.objects.get(name='Moderators')
+        editors_group = Group.objects.get(name='Editors')
+        self.moderator.groups.add(moderators_group)
+        self.editor.groups.add(editors_group)
 
 
     def get_soso_geometry_field(self,valid=True):
@@ -217,6 +246,19 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         new_page.save_revision().publish()
         self.assertTrue(ObservingNetworkPage.objects.filter(title='Updated Name').exists())
 
+    def test_status_string(self):
+        """Test that status string is correctly formatted"""
+        # Create a test network page
+        network = ObservingNetworkPage(**self.get_page_data())
+        
+        self.index_page.add_child(instance=network)
+        self.assertEqual(network.status(), "LIVE")
+
+        network.unpublish()
+        # Test draft status
+        self.assertEqual(network.status(), "DRAFT")
+        
+        
     def test_observing_network_api_access(self):
         organization = Organization.objects.create(name='Test Organization')
         
