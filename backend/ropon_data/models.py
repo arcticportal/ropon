@@ -18,11 +18,13 @@ from wagtail.api import APIField
 from wagtail.fields import StreamField
 from wagtail.models import Orderable, Page
 from wagtail.search import index
+from flags.state import flag_enabled
 
 from .validators import validate_email_or_url, validate_start_year
 
 User = get_user_model()
 
+FLAG_REMOVE_PREVIEW_OPTIONS = 'ROPON.REMOVE_PREVIEW_OPTIONS'
 # ------ Controlled Vocabulary Models --------
 
 
@@ -400,6 +402,12 @@ class ObservingNetworkPage(Page):
 
     ]
 
+    # diable preview for Observing Network Page
+    def is_previewable(self):
+        if flag_enabled(FLAG_REMOVE_PREVIEW_OPTIONS):
+            return False
+        return super().is_previewable()
+    
     def __str__(self):
         return self.name
 

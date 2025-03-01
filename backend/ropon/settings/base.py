@@ -272,5 +272,11 @@ FLAGS = {
         {"condition": "boolean",
          "value": env.bool('ROPON.REPORTS.AGING_OBSERVING_NETWORKS', False),
         }
+    ],
+    # Add feature flag to remove preview options for pages as it is Headless CMS
+    'ROPON.REMOVE_PREVIEW_OPTIONS': [
+        {"condition": "boolean",
+         "value": env.bool('ROPON.REMOVE_PREVIEW_OPTIONS', False),
+        }
     ]
 }
