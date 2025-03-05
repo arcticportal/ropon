@@ -12,7 +12,7 @@ from ropon_data.models import (
     ObservingNetworkOrganization
 )
 from wagtail.models import Page
-
+import unittest.mock as mock
 
 User = get_user_model()
 
@@ -23,6 +23,20 @@ class TestAgingNetworksReport(TestCase, WagtailTestUtils):
 
     def setUp(self):
         """Set up test data for the Aging Networks report tests"""
+        
+        super().setUp()
+
+        # Create a mock for the logo download function
+        self.logo_download_patcher = mock.patch(
+            'ropon_data.models.ObservingNetworkPage.download_logo_image_from_url',
+            return_value=None
+        )
+        self.mock_download_logo = self.logo_download_patcher.start()
+        
+        # Use a valid default URL for all test networks
+        self.default_test_logo_url = 'https://polarobservingregistry.org/assets/ropon-text.png'
+    
+    
         # Create test users
         self.moderator_user = User.objects.create_user(
             username='moderator',
@@ -61,7 +75,8 @@ class TestAgingNetworksReport(TestCase, WagtailTestUtils):
             abbreviation='TN',
             description='Test Description',
             website_url='http://example.com',
-            logo_url='https://polarobservingregistry.org/assets/ropon-text.png',
+            # logo_url='https://polarobservingregistry.org/assets/ropon-text.png',
+            logo_url=self.default_test_logo_url,
             owner=self.owner,
             contact='test@example.com',
             has_catalog='yes'
@@ -71,6 +86,11 @@ class TestAgingNetworksReport(TestCase, WagtailTestUtils):
         # Login
         self.login(self.moderator_user)
 
+    def tearDown(self):
+            # Stop patchers after tests
+            self.logo_download_patcher.stop()
+            super().tearDown()
+    
     def test_aging_networks_view(self):
         """Test that the aging networks report view works for moderators"""
         with self.settings(FLAGS={self.ROPON_AGING_REPORTS_FLAG: [('boolean', True)]}):
