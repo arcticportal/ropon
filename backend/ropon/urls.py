@@ -13,7 +13,7 @@ from ropon_data.api import (ObservingNetworkPageViewSet,
                             ControlledVocabularyAPIViewSet
                             )
 from ropon_pages.api import RoponPagesAPIViewSet
-from ropon_data.api import RoponImagesAPIViewSet
+from base.api.views import RoponImagesAPIViewSet
 
 
 api_router = WagtailAPIRouter("wagtailapi")

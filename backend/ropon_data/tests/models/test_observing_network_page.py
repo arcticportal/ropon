@@ -104,7 +104,7 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
             'abbreviation': 'TN',
             'description': 'A test network',
             'website_url': 'http://example.com',
-            'logo_url': 'http://example.com/logo.png',
+            'logo_url': 'https://polarobservingregistry.org/assets/ropon-text.png',
             # 'ropon_id': '12345',
             'contact': 'contact@example.com',
             'has_catalog': 'yes'

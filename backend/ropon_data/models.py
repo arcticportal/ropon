@@ -25,10 +25,7 @@ from wagtail.search import index
 from flags.state import flag_enabled
 
 from .validators import validate_email_or_url, validate_start_year, validate_image_url
-import logging
 
-# Get logger for this module
-logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -360,12 +357,10 @@ class ObservingNetworkPage(Page):
 
             except requests.exceptions.RequestException as e:
                 # Handle any requests related errors (connection, timeout etc)
-                logger.error(f"Error downloading logo from {self.logo_url}: {str(e)}")
+                print(f"Error downloading logo from {self.logo_url}: {str(e)}")
             except Exception as e:
                 # Handle any other unexpected errors
-                logger.error(f"Unexpected error while processing logo: {str(e)}")
-                logger = logging.getLogger(__name__)
-                logger.error(f"Unexpected error while processing logo: {str(e)}")
+                print(f"Unexpected error while processing logo: {str(e)}")
 
 
     promote_panels = []
