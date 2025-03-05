@@ -1,11 +1,14 @@
 # ropon_data/models.py
 
 import uuid
-
+import os
+import requests
+from io import BytesIO
 from django import forms
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.core.files.images import ImageFile
 from django.utils.html import format_html
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from rest_framework import serializers
@@ -17,10 +20,15 @@ from wagtail.admin.panels import (FieldPanel, MultiFieldPanel,
 from wagtail.api import APIField
 from wagtail.fields import StreamField
 from wagtail.models import Orderable, Page
+from wagtail.images.models import Image
 from wagtail.search import index
 from flags.state import flag_enabled
 
-from .validators import validate_email_or_url, validate_start_year
+from .validators import validate_email_or_url, validate_start_year, validate_image_url
+import logging
+
+# Get logger for this module
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -176,7 +184,16 @@ class ObservingNetworkPage(Page):
     )
     logo_url = models.URLField(
         verbose_name='Network Logo',
-        help_text='URL to the observing network logo'
+        help_text='URL to the observing network logo.(must be .png, .jpg, .jpeg or .svg format)',
+        validators=[validate_image_url]
+    )
+
+    logo_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
     )
     ropon_id = models.CharField(
         max_length=255,
@@ -313,7 +330,43 @@ class ObservingNetworkPage(Page):
     def save(self, *args, **kwargs):
         # Ensure that the observing network page is not a child of another observing network page
         self.title = self.name
+           
+        # Only download if logo_url has changed or logo_image is not set
+        # if self.logo_url and (not self.logo_image or self.has_field_changed('logo_url')):
+        self.download_logo_image_from_url()
+        
         super().save(*args, **kwargs)
+
+
+    def download_logo_image_from_url(self):
+        """
+        Download and save the logo image from the URL provided by the user in logo_url field 
+        """
+
+        if self.logo_url and not self.logo_image:
+            try:
+                # Try to download image from URL
+                response = requests.get(self.logo_url)
+                response.raise_for_status()
+
+                # Get filename from URL
+                img_name = os.path.basename(self.logo_url)
+
+                # Create a new image object
+                image = Image(title= f"{self.name} Logo", 
+                              file=ImageFile(BytesIO(response.content), name=img_name))
+                image.save()
+                self.logo_image = image
+
+            except requests.exceptions.RequestException as e:
+                # Handle any requests related errors (connection, timeout etc)
+                logger.error(f"Error downloading logo from {self.logo_url}: {str(e)}")
+            except Exception as e:
+                # Handle any other unexpected errors
+                logger.error(f"Unexpected error while processing logo: {str(e)}")
+                logger = logging.getLogger(__name__)
+                logger.error(f"Unexpected error while processing logo: {str(e)}")
+
 
     promote_panels = []
 
@@ -323,6 +376,7 @@ class ObservingNetworkPage(Page):
         FieldPanel('description'),
         FieldPanel('website_url'),
         FieldPanel('logo_url'),
+
          MultipleChooserPanel('network_organizations',
                              chooser_field_name='organization',
                              heading='Organizations',
@@ -369,6 +423,7 @@ class ObservingNetworkPage(Page):
         APIField('description'),
         APIField('website_url'),
         APIField('logo_url'),
+        APIField('logo_image'),
         APIField('ropon_id'),
         APIField('organization_name', serializers.StringRelatedField(many=True, read_only=True, source = "network_organizations"),),
         APIField('domains',serializers.StringRelatedField(many=True, read_only=True)),

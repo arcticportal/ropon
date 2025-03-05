@@ -13,6 +13,7 @@ from ropon_data.api import (ObservingNetworkPageViewSet,
                             ControlledVocabularyAPIViewSet
                             )
 from ropon_pages.api import RoponPagesAPIViewSet
+from ropon_data.api import RoponImagesAPIViewSet
 
 
 api_router = WagtailAPIRouter("wagtailapi")
@@ -20,6 +21,7 @@ api_router = WagtailAPIRouter("wagtailapi")
 api_router.register_endpoint("ropon_pages", RoponPagesAPIViewSet)
 api_router.register_endpoint("networks", ObservingNetworkPageViewSet)
 api_router.register_endpoint("cv", ControlledVocabularyAPIViewSet)
+api_router.register_endpoint("images", RoponImagesAPIViewSet)
 
 # api_router.register_endpoint("cv/<str:cv_type>/<int:pk>/", ControlledVocabularyAPIViewSet.as_view({'get': 'detail_view'},name="cv-detail"))
 urlpatterns = [

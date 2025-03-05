@@ -7,7 +7,8 @@ from rest_framework.response import Response
 from flags.state import flag_enabled
 import sys
 from ropon_data.models import (ControlledVocabularyModel, ObservingNetworkPage)
-
+from .serializers import RoponImageSerializer
+from wagtail.images.api.v2.views import ImagesAPIViewSet
 from flags.urls import flagged_path
 
 ROPON_ID_FLAG = 'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS'
@@ -75,6 +76,12 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
         return super().detail_view(request, pk_value)
     
    
+class RoponImagesAPIViewSet(ImagesAPIViewSet):
+    base_serializer_class = RoponImageSerializer
+    # listing_default_fields = ImagesAPIViewSet.listing_default_fields + [ "width", "height"]
+    nested_default_fields = ImagesAPIViewSet.nested_default_fields + [ "width", "height"]
+
+
 class ControlledVocabularyAPIViewSet(BaseAPIViewSet):
     """
     Common API to serve up RoPON controlled vocabulary models
