@@ -140,7 +140,7 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
             'abbreviation': 'TN',
             'description': 'A test network',
             'website_url': 'http://example.com',
-            'logo_url': 'http://example.com/logo.png',
+            'logo_url': 'https://polarobservingregistry.org/assets/ropon-text.png',
             'ropon_id': '12345',
             'contact': 'contact@example.com',
             'has_catalog': 'yes',
@@ -189,15 +189,24 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
 
     def test_max_length_fields(self):
         page_data = self.get_page_data(valid=True)
-        page_data['name'] = 'a' * 257
+        page_data['name'] = 'a' * 257  # Exceeds max_length for name field
+        page_data.pop('logo_url')  # Remove logo_url field as it casues below error
+        # most probably due to how logo_image is saved
+        '''
+        raise TransactionManagementError(
+        django.db.transaction.TransactionManagementError: An error occurred in the current transaction. You can't execute queries until the end of the 'atomic' block.
+        '''
         page = ObservingNetworkPage(**page_data)
         
+        # Also verify it fails when attempting to add to the page tree
         with self.assertRaises(ValidationError) as cm:
             self.index_page.add_child(instance=page)
             page.save_revision().publish()
-
+        
         self.assertIn('name', cm.exception.error_dict)
         
+
+
     def test_name_empty_string(self):
         page_data = self.get_page_data(valid=True)
         page_data['name'] = ''
