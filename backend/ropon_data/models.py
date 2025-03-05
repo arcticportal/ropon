@@ -1,5 +1,6 @@
 # ropon_data/models.py
 
+from email.policy import HTTP
 import uuid
 import os
 import requests
@@ -7,7 +8,7 @@ from io import BytesIO
 from django import forms
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.db import models
+from django.db import models, transaction
 from django.core.files.images import ImageFile
 from django.utils.html import format_html
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
@@ -324,23 +325,26 @@ class ObservingNetworkPage(Page):
     def date_last_modified(self):
         return self.latest_revision_created_at
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         # Ensure that the observing network page is not a child of another observing network page
         self.title = self.name
            
         # Only download if logo_url has changed or logo_image is not set
         # if self.logo_url and (not self.logo_image or self.has_field_changed('logo_url')):
-        self.download_logo_image_from_url()
+        self.download_logo_image_from_url( **kwargs)
         
-        super().save(*args, **kwargs)
+        result = super().save(*args, **kwargs)
 
+        
+        return result
 
-    def download_logo_image_from_url(self):
+    def download_logo_image_from_url(self,**kwargs):
         """
         Download and save the logo image from the URL provided by the user in logo_url field 
         """
 
-        if self.logo_url and not self.logo_image:
+        if self.logo_url and (not self.logo_image or self._has_field_changed('logo_url',**kwargs)):
             try:
                 # Try to download image from URL
                 response = requests.get(self.logo_url)
@@ -361,7 +365,22 @@ class ObservingNetworkPage(Page):
             except Exception as e:
                 # Handle any other unexpected errors
                 print(f"Unexpected error while processing logo: {str(e)}")
+                raise HTTP(500, f"Unexpected error while processing logo: {str(e)}")
 
+    def _has_field_changed(self, field_name,**kwargs):
+        """
+        Check if the field has changed
+        """
+        if self.pk is None:
+            return True
+        # Get the previous revision from DB
+        current_obj = self.__class__.objects.get(pk=self.pk)  
+        # Compare the current field value with the previous version's value
+        current_value = getattr(current_obj, field_name)
+        new_value = getattr(self, field_name)
+        if new_value != current_value:
+                return True
+        return False
 
     promote_panels = []
 

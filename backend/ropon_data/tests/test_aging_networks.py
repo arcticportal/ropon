@@ -61,7 +61,7 @@ class TestAgingNetworksReport(TestCase, WagtailTestUtils):
             abbreviation='TN',
             description='Test Description',
             website_url='http://example.com',
-            logo_url='http://example.com/logo.png',
+            logo_url='https://polarobservingregistry.org/assets/ropon-text.png',
             owner=self.owner,
             contact='test@example.com',
             has_catalog='yes'
@@ -127,7 +127,7 @@ class TestAgingNetworksReport(TestCase, WagtailTestUtils):
             abbreviation='ON',
             description='Other Description',
             website_url='http://other.com',
-            logo_url='http://other.com/logo.png',
+            logo_url='https://ropon.arcticportal.org/logo_CU_Boulder.png',
             owner=self.owner,
             last_published_at=timezone.now() - timedelta(days=50),
             contact='other@example.com',
