@@ -8,7 +8,7 @@ from io import BytesIO
 from django import forms
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.db import models, transaction
+from django.db import models
 from django.core.files.images import ImageFile
 from django.utils.html import format_html
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
@@ -25,7 +25,8 @@ from wagtail.images.models import Image
 from wagtail.search import index
 from flags.state import flag_enabled
 
-from .validators import validate_email_or_url, validate_start_year, validate_image_url
+from .validators import validate_email_or_url, validate_start_year
+from django.conf import settings
 
 
 User = get_user_model()
@@ -183,7 +184,7 @@ class ObservingNetworkPage(Page):
     logo_url = models.URLField(
         verbose_name='Network Logo',
         help_text='URL to the observing network logo.(must be .png, .jpg, .jpeg or .svg format)',
-        validators=[validate_image_url]
+        # validators=[validate_image_url]
     )
 
     logo_image = models.ForeignKey(
@@ -325,20 +326,23 @@ class ObservingNetworkPage(Page):
     def date_last_modified(self):
         return self.latest_revision_created_at
 
-    @transaction.atomic
+    # @transaction.atomic
     def save(self, *args, **kwargs):
         # Ensure that the observing network page is not a child of another observing network page
         self.title = self.name
            
-        # Only download if logo_url has changed or logo_image is not set
-        # if self.logo_url and (not self.logo_image or self.has_field_changed('logo_url')):
-        self.download_logo_image_from_url( **kwargs)
+        # Checks to avoid downloading image twice  when page is published 
+        # This happens because revisions are saved twice when page is published
         
+        if self.live_revision_id and self.latest_revision_id and self.live_revision_id == self.latest_revision_id:
+            self.download_logo_image_from_url( **kwargs)
+
         result = super().save(*args, **kwargs)
-
+     
         
-        return result
+        # return result
 
+   
     def download_logo_image_from_url(self,**kwargs):
         """
         Download and save the logo image from the URL provided by the user in logo_url field 
@@ -347,15 +351,19 @@ class ObservingNetworkPage(Page):
         if self.logo_url and (not self.logo_image or self._has_field_changed('logo_url',**kwargs)):
             try:
                 # Try to download image from URL
+                if settings.DEBUG:
+                    print(f"Downloading logo from {self.logo_url}")
                 response = requests.get(self.logo_url)
                 response.raise_for_status()
 
                 # Get filename from URL
                 img_name = os.path.basename(self.logo_url)
-
+                img_file_name = f"{self.pk}-{self.abbreviation}-{img_name}"
                 # Create a new image object
                 image = Image(title= f"{self.name} Logo", 
-                              file=ImageFile(BytesIO(response.content), name=img_name))
+                              file=ImageFile(BytesIO(response.content), name=img_file_name),
+                              uploaded_by_user = self.owner)
+                image._set_image_file_metadata()
                 image.save()
                 self.logo_image = image
 

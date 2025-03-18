@@ -1,5 +1,3 @@
-
-
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _  # Import translation function
@@ -55,24 +53,39 @@ def validate_image_url(value, valid_extensions=None):
     
     Args:
         value: The URL to validate
-        valid_extensions: Optional list of valid file extensions (e.g. ['.png', '.jpg']). 
-                        Defaults to ['.png', '.jpg', '.jpeg', '.svg']
+        valid_extensions: Optional list of valid file extensions
+                         Defaults to ['.png', '.jpg', '.jpeg', '.svg']
     
     Raises:
         ValidationError: If the URL is invalid, inaccessible, or doesn't point to an image
     """
+    # Default allowed extensions
     if not valid_extensions:
         valid_extensions = ['.png', '.jpg', '.jpeg', '.svg']
     
+    # Validate extension
     if not any(value.lower().endswith(ext) for ext in valid_extensions):
-        raise ValidationError(_('Invalid logo URL. Must be one of: {}').format(', '.join(valid_extensions)))
+        raise ValidationError(
+            _('Invalid image URL. Must be one of: %(extensions)s'),
+            code='invalid_image_extension',
+            params={'extensions': ', '.join(valid_extensions)}
+        )
     
+    # Validate URL accessibility and content type
     try:
-        response = requests.head(value, allow_redirects=True)
+        response = requests.head(value, allow_redirects=True, timeout=2)
         response.raise_for_status()
+        
         content_type = response.headers.get('Content-Type', '')
         if not content_type.startswith('image/'):
-            raise ValidationError(_('URL does not point to an image file.'))
+            raise ValidationError(
+                _('URL does not point to an image file'),
+                code='invalid_image_content'
+            )
     except requests.RequestException as e:
-        raise ValidationError(_('Cannot access the image URL: {}').format(str(e)))
+        raise ValidationError(
+            _('Cannot access the image URL: %(error)s'),
+            code='inaccessible_url',
+            params={'error': str(e)}
+        )
 
