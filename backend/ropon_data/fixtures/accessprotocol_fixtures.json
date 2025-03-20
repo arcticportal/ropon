@@ -115,5 +115,14 @@
       "description": "ArcGIS Map Service allows users to share maps, layers, and other geographic information over the web.",
       "source_url": "https://enterprise.arcgis.com/en/server/latest/publish-services/windows/what-is-a-map-service.htm"
     }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 14,
+    "fields": {
+      "name": "Other",
+      "description": "If none of the above protocols apply",
+      "source_url": ""
+    }
   }
 ]
