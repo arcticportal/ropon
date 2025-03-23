@@ -221,6 +221,11 @@ WAGTAILSEARCH_BACKENDS = {
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
 WAGTAILADMIN_BASE_URL = env.str("WAGTAILADMIN_BASE_URL", "http://localhost:8000")
 
+# Frontend URL for linking to static pages on the frontend website
+# If FRONTEND_URL is not set or empty in .env, fall back to WAGTAILADMIN_BASE_URL
+# This is used to generate URLs for frontend static pages
+FRONTEND_URL = env.str("FRONTEND_URL", "").strip() or WAGTAILADMIN_BASE_URL
+
 # Allowed file extensions for documents in the document library.
 # This can be omitted to allow all files, but note that this may present a security risk
 # if untrusted users are allowed to upload files -

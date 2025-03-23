@@ -1,10 +1,18 @@
 {% extends "wagtailadmin/login.html" %}
 {% load static %}
+{% load ropon_tags %}
+
 
 {% block branding_logo %}
-<img class="ropon-login-logo" src="{% static 'ropon/images/ropon-text.png' %}" alt="RoPON Login" style="margin-top: 1rem"/>
+<a href="{% frontend_url %}">
+    <img class="ropon-login-logo" src="{% static 'ropon/images/ropon-text.png' %}" alt="RoPON Login" style="margin-top: 1rem"/>
+</a>
 {% endblock %}
 
 {% block branding_login %}Sign in to RoPON Dashboard{% endblock %}
 
-{% block above_login %} If you are new user read <a href="https://polarobservingregistry.org/faq">FAQ</a> before continuing <br></br>{% endblock %}
+{% block above_login %}
+    {# Using the frontend_url tag to generate the proper URL for the FAQ page #}
+    <br>If you are new user read <a href="{% frontend_url %}/ropon-pages/faq">FAQ</a> before continuing <br></br>
+
+{% endblock %}
