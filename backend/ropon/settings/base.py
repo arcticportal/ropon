@@ -60,6 +60,8 @@ WAGTAIL_APPS = [
     
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
+    "wagtail.contrib.settings",
+    "wagtail_guide",
     "wagtail.embeds",
     "wagtail.sites",
     "wagtail.users",
@@ -258,6 +260,8 @@ DEBUG = True
 # Set custom user model
 AUTH_USER_MODEL = 'ropon_auth.RoponUser'
 
+
+
 # Add feature flag settings
 FLAGS = {
     # Add feature flag so that ropon_id can be used in the API to get ObservingNetworkPage(ON) details
@@ -283,5 +287,22 @@ FLAGS = {
         {"condition": "boolean",
          "value": env.bool('ROPON.REMOVE_PREVIEW_OPTIONS', False),
         }
+    ],
+    # Add feature flag to activate WAGTAIL_GUIDE
+    'ROPON.ENABLE_WAGTAIL_GUIDE': [
+        {"condition": "boolean",
+         "value": env.bool('ROPON.ENABLE_WAGTAIL_GUIDE', False),
+        }
     ]
+}
+
+
+# Wagtail guide package settings
+WAGTAIL_GUIDE_SETTINGS = {
+    # Whether to add the guide to the help menu
+    "ADD_WAGTAIL_GUIDE_TO_HELP_MENU": env.bool("WAGTAIL_GUIDE_ADD_TO_HELP_MENU", False),
+    # Custom label for the guide in the menu
+    "WAGTAIL_GUIDE_MENU_LABEL": env.str("WAGTAIL_GUIDE_MENU_LABEL", "Editor's Guide"),
+    # Whether to hide the core editor guide
+    "HIDE_WAGTAIL_CORE_EDITOR_GUIDE": env.bool("WAGTAIL_GUIDE_HIDE_CORE_EDITOR", True),
 }
