@@ -16,3 +16,12 @@
     <br>If you are new user read <a href="{% frontend_url %}/ropon-pages/faq">FAQ</a> before continuing <br></br>
 
 {% endblock %}
+
+{% block below_login %}
+    {# Add message about password reset with admin contact email #}
+    <div class="password-reset-info" style="margin-top: 1rem; ">
+        <p>If you have forgotten your password, please contact the RoPON Administrator at 
+            <a href="mailto:{% ropon_admin_email %}">{% ropon_admin_email %}</a>
+        </p>
+    </div>
+{% endblock %}
