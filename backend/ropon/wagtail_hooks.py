@@ -4,25 +4,43 @@ from wagtail import hooks
 from wagtail.admin.menu import MenuItem  # Import AdminOnlyMenuItem for menu registration
 from flags.state import flag_enabled
 from ropon_data.reports.aging_networks import AgingObservingNetworksView  # Import the view class for aging networks report
+from wagtail_guide.settings import wagtail_guide_settings
 
+# Feature flags definitions
 FLAG_REMOVE_SIDE_PANEL_OPTIONS = 'ROPON.REMOVE_SIDE_PANEL_OPTIONS'
 FLAG_ENABLE_AGING_NETWORKS = 'ROPON.REPORTS.AGING_OBSERVING_NETWORKS'
+FLAG_ENABLE_WAGTAIL_GUIDE = 'ROPON.ENABLE_WAGTAIL_GUIDE'
 
 
 class AgingObservingNetworksMenuItem(MenuItem):
     """
     Custom menu item for the Aging Observing Networks report.
+    Only shown when the corresponding feature flag is enabled.
+    
+    This class extends MenuItem to provide conditional visibility based on feature flags.
     """
     def is_shown(self, request):
         """
         Only show the menu item if the feature flag is enabled.
+        
+        Args:
+            request: The HTTP request object
+            
+        Returns:
+            bool: Whether to show the menu item
         """
         return flag_enabled(FLAG_ENABLE_AGING_NETWORKS)
     
 
 @hooks.register('register_reports_menu_item')
 def register_aging_networks_report():
-    """Register the aging networks report in the Reports menu"""
+    """
+    Register the aging networks report in the Reports menu.
+    The visibility is controlled by the AgingObservingNetworksMenuItem class.
+    
+    Returns:
+        MenuItem: The menu item for aging networks report
+    """
     return AgingObservingNetworksMenuItem(
         _('Aging Observing Networks'),
         reverse('aging_networks'),
@@ -31,9 +49,16 @@ def register_aging_networks_report():
         order=200
     )
 
+
 @hooks.register('register_admin_urls')
 def register_aging_networks_url():
-    """Register the URL for the aging networks report"""
+    """
+    Register the URL for the aging networks report.
+    These URLs are always registered, but access can be controlled via views.
+    
+    Returns:
+        list: List of URL path objects for the aging networks report
+    """
     return [
         path('reports/aging-networks/', 
              AgingObservingNetworksView.as_view(), 
@@ -43,56 +68,101 @@ def register_aging_networks_url():
              name='aging_networks_results')
     ]
 
-def remove_moderator_main_menu_options(menu_items):
-    """
-    Remove side panel options for Moderators role.
-    """
 
-    # Remove the following menu items for Moderators
-    MODERATOR_MENU_ITEMS_TO_REMOVE = ['images', 'documents', 'help']
+def get_menu_items_to_remove(user_group):
+    """
+    Returns a list of menu items to remove based on user group and enabled features.
     
-    # If the feature flag is not enabled, remove the reports menu item
-    if not flag_enabled(FLAG_ENABLE_AGING_NETWORKS):
-        MODERATOR_MENU_ITEMS_TO_REMOVE.append('reports')
+    This function centralizes all flag condition processing for menu items,
+    including the FLAG_REMOVE_SIDE_PANEL_OPTIONS check.
     
-    menu_items[:] = [item for item in menu_items if item.name not in MODERATOR_MENU_ITEMS_TO_REMOVE]
+    Args:
+        user_group: The user group name ('Moderators', 'Editors', or None)
+            
+    Returns:
+        - items_to_remove: List of menu item names to remove if should_remove_items is True
+    """
     
+    items_to_remove = []
+     # Check wagtail guide feature flag for both roles
+    if not flag_enabled(FLAG_ENABLE_WAGTAIL_GUIDE):
+        items_to_remove.append(wagtail_guide_settings.WAGTAIL_GUIDE_MENU_LABEL.lower())
+   
+    # Check FLAG_REMOVE_SIDE_PANEL_OPTIONS flag - centralized here to avoid duplication
+    should_remove_items = flag_enabled(FLAG_REMOVE_SIDE_PANEL_OPTIONS)
+        
+    # If flag is not enabled or unknown group, return empty list
+    if not should_remove_items or user_group not in ('Moderators', 'Editors'):
+        # For Editors, we need special handling even when FLAG_REMOVE_SIDE_PANEL_OPTIONS is off
+        if user_group == 'Editors':
+            # Return basic restrictions that always apply to Editors
+            items_to_remove.extend(['ropon pages', 'documents', 'images'])
+        return items_to_remove
+    
+    # Initialize list with common items to remove for both roles when flag is enabled
+    items_to_remove.extend(['images', 'documents', 'help'])
+    
+    # Role-specific items based on enabled features
+    if user_group == 'Moderators':
+        # For Moderators, conditionally show reports based on aging networks flag
+        if not flag_enabled(FLAG_ENABLE_AGING_NETWORKS):
+            items_to_remove.append('reports')
+            
+    elif user_group == 'Editors':
+        # For Editors, always hide reports and ropon_pages regardless of flags
+        items_to_remove.extend(['ropon pages', 'reports'])
+    
+        
+    return items_to_remove
 
-def remove_editor_main_menu_options(menu_items):
-    """
-    Remove side panel options for Editors role.
-    """
 
-    EDITOR_MENU_ITEMS_TO_REMOVE = ['ropon_pages','images', 'documents', 'reports', 'help']
-
-    menu_items[:] = [item for item in menu_items if item.name not in EDITOR_MENU_ITEMS_TO_REMOVE]
-
-# Hide the pages menu item for non-superusers
 @hooks.register('construct_main_menu')
 def hide_pages_menu(request, menu_items):
-  
-    # Remove page explorer menu item for non-superusers
+    """
+    Wagtail hook to modify the main menu based on user role and feature flags.
+    
+    Applies menu item filtering based on centralized logic in get_menu_items_to_remove.
+    The FLAG_REMOVE_SIDE_PANEL_OPTIONS check is handled only in get_menu_items_to_remove
+    to avoid duplication.
+    
+    Args:
+        request: The HTTP request object
+        menu_items: List of menu items to filter
+    """
+    # Always remove page explorer menu item for non-superusers
     if not request.user.is_superuser:
+        # Filter out explorer for all non-superusers
         menu_items[:] = [item for item in menu_items if item.name != 'explorer']
-
-    # hide the ropon pages menu item for Editors Group
-    if request.user.groups.filter(name='Editors').exists():
-        menu_items[:] = [item for item in menu_items if item.name not in ['ropon_pages', 'documents', 'images']]
-  
-    # If the feature flag is enabled, remove the side panel options for Moderators and Editors
-    if flag_enabled(FLAG_REMOVE_SIDE_PANEL_OPTIONS):
+        
+        # Get user group
+        user_group = None
         if request.user.groups.filter(name='Moderators').exists():
-            remove_moderator_main_menu_options(menu_items)
+            user_group = 'Moderators'
         elif request.user.groups.filter(name='Editors').exists():
-            remove_editor_main_menu_options(menu_items)
+            user_group = 'Editors'
+        
+        # Apply menu restrictions based on user group and feature flags
+        # FLAG_REMOVE_SIDE_PANEL_OPTIONS is handled inside get_menu_items_to_remove
+        if user_group:
+            items_to_remove = get_menu_items_to_remove(user_group)
+            if items_to_remove:
+                # Apply the restrictions if any items need to be removed
+                menu_items[:] = [item for item in menu_items if item.label.lower() not in items_to_remove]
+
 
 @hooks.register('construct_reports_menu')
 def construct_reports_menu(request, menu_items):
     """
-    Modify the Reports menu for non super users.
+    Modify the Reports menu for non-superusers.
+    
+    When both aging networks and side panel flags are enabled, show only the aging networks
+    report for non-superusers.
+    
+    Args:
+        request: The HTTP request object
+        menu_items: List of menu items to filter
     """
     if not request.user.is_superuser:
-        
+        # Component-based approach: Only show aging networks report when both flags are enabled
         if flag_enabled(FLAG_ENABLE_AGING_NETWORKS) and flag_enabled(FLAG_REMOVE_SIDE_PANEL_OPTIONS):
-        
             menu_items[:] = [item for item in menu_items if item.name == 'aging-networks']
