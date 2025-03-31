@@ -35,4 +35,5 @@ def ropon_admin_email():
     Returns the email address of the ROPON admin user.
     """
     
-    return getattr(settings, "ROPON_ADMIN_EMAIL", "admin@website.com")
+    # Return the ROPON admin email, defaulting to 'admin@ropon.org' for consistency with settings.
+    return getattr(settings, "ROPON_ADMIN_EMAIL", "admin@ropon.org")
