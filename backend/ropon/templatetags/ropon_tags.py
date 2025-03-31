@@ -29,3 +29,10 @@ def wagtail_guide_title():
     wagtail_guide_settings = getattr(settings, "WAGTAIL_GUIDE_SETTINGS", {})
     return getattr(wagtail_guide_settings, "WAGTAIL_GUIDE_MENU_LABEL", "Editor's Guide")
 
+@register.simple_tag
+def ropon_admin_email():
+    """
+    Returns the email address of the ROPON admin user.
+    """
+    
+    return getattr(settings, "ROPON_ADMIN_EMAIL", "admin@website.com")
