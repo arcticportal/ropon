@@ -60,6 +60,8 @@ WAGTAIL_APPS = [
     
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
+    "wagtail.contrib.settings",
+    "wagtail_guide",
     "wagtail.embeds",
     "wagtail.sites",
     "wagtail.users",
@@ -206,8 +208,18 @@ STORAGES = {
 
 WAGTAIL_SITE_NAME = env.str('WAGTAIL_SITE_NAME','Registry of Polar Networks')
 
-# diable commenting in page editors
-WAGTAILADMIN_COMMENTS_ENABLED = False
+# disable commenting in page editors
+WAGTAILADMIN_COMMENTS_ENABLED = env.bool('WAGTAILADMIN_COMMENTS_ENABLED', False)
+# disable password reset for users
+WAGTAIL_PASSWORD_RESET_ENABLED = env.bool('WAGTAIL_PASSWORD_RESET_ENABLED', False)
+
+WAGTAIL_ENABLE_WHATS_NEW_BANNER = env.bool('WAGTAIL_ENABLE_WHATS_NEW_BANNER', False)
+WAGTAIL_ENABLE_UPDATE_CHECK = env.bool('WAGTAIL_ENABLE_UPDATE_CHECK', False)
+
+
+# Administrator email for user support (used in login template)
+ROPON_ADMIN_EMAIL = env.str('ROPON_ADMIN_EMAIL', 'admin@ropon.org')
+
 
 # Search
 # https://docs.wagtail.org/en/stable/topics/search/backends.html
@@ -258,6 +270,8 @@ DEBUG = True
 # Set custom user model
 AUTH_USER_MODEL = 'ropon_auth.RoponUser'
 
+
+
 # Add feature flag settings
 FLAGS = {
     # Add feature flag so that ropon_id can be used in the API to get ObservingNetworkPage(ON) details
@@ -283,5 +297,22 @@ FLAGS = {
         {"condition": "boolean",
          "value": env.bool('ROPON.REMOVE_PREVIEW_OPTIONS', False),
         }
+    ],
+    # Add feature flag to activate WAGTAIL_GUIDE
+    'ROPON.ENABLE_WAGTAIL_GUIDE': [
+        {"condition": "boolean",
+         "value": env.bool('ROPON.ENABLE_WAGTAIL_GUIDE', False),
+        }
     ]
+}
+
+
+# Wagtail guide package settings
+WAGTAIL_GUIDE_SETTINGS = {
+    # Whether to add the guide to the help menu
+    "ADD_WAGTAIL_GUIDE_TO_HELP_MENU": env.bool("WAGTAIL_GUIDE_ADD_TO_HELP_MENU", False),
+    # Custom label for the guide in the menu
+    "WAGTAIL_GUIDE_MENU_LABEL": env.str("WAGTAIL_GUIDE_MENU_LABEL", "Editor's Guide"),
+    # Whether to hide the core editor guide
+    "HIDE_WAGTAIL_CORE_EDITOR_GUIDE": env.bool("WAGTAIL_GUIDE_HIDE_CORE_EDITOR", True),
 }
