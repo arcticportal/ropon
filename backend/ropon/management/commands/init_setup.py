@@ -60,6 +60,22 @@ class Command(BaseCommand):
             return
         
      
+        # Init ropon_auth application
+        try:
+            call_command('init_ropon_auth')
+            self.stdout.write(self.style.SUCCESS('ropon_auth initialized successfully.'))
+        except CommandError as e:
+            self.stdout.write(self.style.ERROR(f'Error initializing ropon_auth: {e}'))
+            return
+        
+        # Init editor_guide application
+        try:
+            call_command('assign_editorguide_permissions')
+            self.stdout.write(self.style.SUCCESS('editor guide permissions assigned successfully.'))
+        except CommandError as e:
+            self.stdout.write(self.style.ERROR(f'Error assigning permissions to editor_guide: {e}'))
+            return
+
         # Init ropon_data application
 
         try:

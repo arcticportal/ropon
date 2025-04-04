@@ -10,7 +10,7 @@ from wagtail_guide.settings import wagtail_guide_settings
 FLAG_REMOVE_SIDE_PANEL_OPTIONS = 'ROPON.REMOVE_SIDE_PANEL_OPTIONS'
 FLAG_ENABLE_AGING_NETWORKS = 'ROPON.REPORTS.AGING_OBSERVING_NETWORKS'
 FLAG_ENABLE_WAGTAIL_GUIDE = 'ROPON.ENABLE_WAGTAIL_GUIDE'
-
+FLAG_MODERATOR_USER_MANAGEMENT = 'ROPON.AUTH.MODERATOR_USER_MANAGEMENT'
 
 class AgingObservingNetworksMenuItem(MenuItem):
     """
@@ -97,10 +97,11 @@ def get_menu_items_to_remove(user_group):
         if user_group == 'Editors':
             # Return basic restrictions that always apply to Editors
             items_to_remove.extend(['ropon pages', 'documents', 'images'])
+       
         return items_to_remove
     
     # Initialize list with common items to remove for both roles when flag is enabled
-    items_to_remove.extend(['images', 'documents', 'help'])
+    items_to_remove.extend([ 'help',])
     
     # Role-specific items based on enabled features
     if user_group == 'Moderators':
@@ -110,7 +111,7 @@ def get_menu_items_to_remove(user_group):
             
     elif user_group == 'Editors':
         # For Editors, always hide reports and ropon_pages regardless of flags
-        items_to_remove.extend(['ropon pages', 'reports'])
+        items_to_remove.extend(['ropon pages', 'reports','images', 'documents',])
     
         
     return items_to_remove
@@ -166,3 +167,58 @@ def construct_reports_menu(request, menu_items):
         # Component-based approach: Only show aging networks report when both flags are enabled
         if flag_enabled(FLAG_ENABLE_AGING_NETWORKS) and flag_enabled(FLAG_REMOVE_SIDE_PANEL_OPTIONS):
             menu_items[:] = [item for item in menu_items if item.name == 'aging-networks']
+
+
+@hooks.register('construct_settings_menu')
+def hide_settings_menu(request, menu_items):
+    """
+    Wagtail hook to modify the settings menu based on user role and feature flags.
+    
+    Applies menu item filtering based on centralized logic in get_menu_items_to_remove.
+    
+    Args:
+        request: The HTTP request object
+        menu_items: List of menu items to filter
+    """
+    # Always remove settings menu item for non-superusers
+    user_group = None
+    if request.user.groups.filter(name='Moderators').exists():
+        user_group = 'Moderators'
+    elif request.user.groups.filter(name='Editors').exists():
+        user_group = 'Editors'
+    
+    # Apply menu restrictions based on user group and feature flags
+    if user_group:
+        items_to_remove = get_settings_items_to_remove(user_group)
+        if items_to_remove:
+            # Apply the restrictions if any items need to be removed
+            menu_items[:] = [item for item in menu_items if item.label.lower() not in items_to_remove]
+
+def get_settings_items_to_remove(user_group):
+    """
+    Returns a list of settings items to remove based on user group and enabled features.
+    
+    This function centralizes all flag condition processing for settings items.
+    
+    Args:
+        user_group: The user group name ('Moderators', 'Editors', or None)
+            
+    Returns:
+        - items_to_remove: List of settings item names to remove if should_remove_items is True
+    """
+    
+    items_to_remove = []
+    
+    
+    # Role-specific items based on enabled features
+    if user_group == 'Moderators':
+        if not flag_enabled(FLAG_MODERATOR_USER_MANAGEMENT):
+            # For Moderators, conditionally show reports based on aging networks flag
+            items_to_remove.append('users')
+
+        if not flag_enabled(FLAG_ENABLE_WAGTAIL_GUIDE):
+            items_to_remove.append('manage editor guide')
+
+    
+        
+    return items_to_remove

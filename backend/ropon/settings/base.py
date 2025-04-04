@@ -64,7 +64,8 @@ WAGTAIL_APPS = [
     "wagtail_guide",
     "wagtail.embeds",
     "wagtail.sites",
-    "wagtail.users",
+    # "wagtail.users",
+    "ropon.apps.RoponUsersAppConfig",  # Custom Wagtail users app config
     "wagtail.snippets",
     "wagtail.documents",
     "wagtail.images",
@@ -302,6 +303,12 @@ FLAGS = {
     'ROPON.ENABLE_WAGTAIL_GUIDE': [
         {"condition": "boolean",
          "value": env.bool('ROPON.ENABLE_WAGTAIL_GUIDE', False),
+        }
+    ],
+    # Add feature flag to enable moderators to manage users
+    'ROPON.AUTH.MODERATOR_USER_MANAGEMENT': [
+        {"condition": "boolean",
+         "value": env.bool('ROPON.AUTH.MODERATOR_USER_MANAGEMENT', False),
         }
     ]
 }
