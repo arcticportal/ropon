@@ -5,3 +5,5 @@ class AuthConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "ropon_auth"
     verbose_name = 'ROPON Authorization app'
+
+
