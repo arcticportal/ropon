@@ -75,3 +75,18 @@
 .soso-bounding-box-block .w-field__label {
     text-align: center;
 }
+
+/* set ul and li items style to disc which are inside div class on-help-panel */
+.on-help-panel ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin-bottom: 1rem;
+}
+.on-help-panel ul li {
+    list-style-type:inherit;
+}
+
+/* set margin bottom for div class on-help-panel */
+.on-help-panel {
+    margin-bottom: 0;
+}

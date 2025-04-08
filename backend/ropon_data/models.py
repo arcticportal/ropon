@@ -16,7 +16,7 @@ from rest_framework import serializers
 from ropon_data.blocks import SOSOBoundingBoxBlock
 from wagtail import blocks
 from wagtail.admin.panels import (FieldPanel, MultiFieldPanel,
-                                  MultipleChooserPanel, ObjectList,
+                                  MultipleChooserPanel, ObjectList, HelpPanel,
                                   TabbedInterface)
 from wagtail.api import APIField
 from wagtail.fields import StreamField
@@ -393,6 +393,22 @@ class ObservingNetworkPage(Page):
     promote_panels = []
 
     content_panels =  [
+        HelpPanel(
+            classname='on-help-panel',
+            content =
+                f"""<h2>This form allows you to create and edit observing network entries in the Registry of Polar Observing Networks (RoPON).</h2>
+
+                <h3>Key Guidelines:</h3>
+                <ul>
+                    <li>Fields marked with '*' are required.</li>
+                    <li>For URLs, ensure they are valid and accessible.</li>
+                    <li>For Non-mandatory fields, you can leave them blank if not applicable or if unsure.</li>
+                </ul>
+
+                <p>For detailed instructions on each field, refer to the <a href="{getattr(settings,'FRONTEND_URL',"/")}/ropon-pages/faq">How-to guide</a>.</p>
+                """
+        ),
+        
         FieldPanel('name'),
         FieldPanel('abbreviation'),
         FieldPanel('description'),
@@ -426,7 +442,7 @@ class ObservingNetworkPage(Page):
             FieldPanel('metadata_standards', widget=forms.CheckboxSelectMultiple),
             FieldPanel('access_protocols', widget=forms.CheckboxSelectMultiple),
             FieldPanel('metadata_catalog_url'),
-        ], heading="Metadata Access"),
+        ], heading="Observing Assets"),
        
     ]
 
