@@ -1,14 +1,13 @@
-ropon-login-logo {
+.ropon-login-logo {
     display: block;
-    height: 100px;
     width: 100%;
     margin: 0 auto;
     margin-bottom: 2rem;
     margin-top: 1rem;
 }
 
-password-reset-info {
-    margin: 0 auto;
+.password-reset-info {
+    margin: 1.5rem auto ;
     width: 100%;
 
 }
