@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from flags.state import flag_enabled
 import sys
 from ropon_data.models import (ControlledVocabularyModel, ObservingNetworkPage)
-
 from flags.urls import flagged_path
 
 ROPON_ID_FLAG = 'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS'

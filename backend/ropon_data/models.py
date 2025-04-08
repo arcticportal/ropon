@@ -1,11 +1,15 @@
 # ropon_data/models.py
 
+from email.policy import HTTP
 import uuid
-
+import os
+import requests
+from io import BytesIO
 from django import forms
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.core.files.images import ImageFile
 from django.utils.html import format_html
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from rest_framework import serializers
@@ -17,10 +21,13 @@ from wagtail.admin.panels import (FieldPanel, MultiFieldPanel,
 from wagtail.api import APIField
 from wagtail.fields import StreamField
 from wagtail.models import Orderable, Page
+from wagtail.images.models import Image
 from wagtail.search import index
 from flags.state import flag_enabled
 
 from .validators import validate_email_or_url, validate_start_year
+from django.conf import settings
+
 
 User = get_user_model()
 
@@ -176,7 +183,16 @@ class ObservingNetworkPage(Page):
     )
     logo_url = models.URLField(
         verbose_name='Network Logo',
-        help_text='URL to the observing network logo'
+        help_text='URL to the observing network logo.(must be .png, .jpg, .jpeg or .svg format)',
+        # validators=[validate_image_url]
+    )
+
+    logo_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
     )
     ropon_id = models.CharField(
         max_length=255,
@@ -310,10 +326,69 @@ class ObservingNetworkPage(Page):
     def date_last_modified(self):
         return self.latest_revision_created_at
 
+    # @transaction.atomic
     def save(self, *args, **kwargs):
         # Ensure that the observing network page is not a child of another observing network page
         self.title = self.name
-        super().save(*args, **kwargs)
+           
+        # Checks to avoid downloading image twice  when page is published 
+        # This happens because revisions are saved twice when page is published
+        
+        if self.live_revision_id and self.latest_revision_id and self.live_revision_id == self.latest_revision_id:
+            self.download_logo_image_from_url( **kwargs)
+
+        result = super().save(*args, **kwargs)
+     
+        
+        # return result
+
+   
+    def download_logo_image_from_url(self,**kwargs):
+        """
+        Download and save the logo image from the URL provided by the user in logo_url field 
+        """
+
+        if self.logo_url and (not self.logo_image or self._has_field_changed('logo_url',**kwargs)):
+            try:
+                # Try to download image from URL
+                if settings.DEBUG:
+                    print(f"Downloading logo from {self.logo_url}")
+                response = requests.get(self.logo_url)
+                response.raise_for_status()
+
+                # Get filename from URL
+                img_name = os.path.basename(self.logo_url)
+                img_file_name = f"{self.pk}-{self.abbreviation}-{img_name}"
+                # Create a new image object
+                image = Image(title= f"{self.name} Logo", 
+                              file=ImageFile(BytesIO(response.content), name=img_file_name),
+                              uploaded_by_user = self.owner)
+                image._set_image_file_metadata()
+                image.save()
+                self.logo_image = image
+
+            except requests.exceptions.RequestException as e:
+                # Handle any requests related errors (connection, timeout etc)
+                print(f"Error downloading logo from {self.logo_url}: {str(e)}")
+            except Exception as e:
+                # Handle any other unexpected errors
+                print(f"Unexpected error while processing logo: {str(e)}")
+                raise HTTP(500, f"Unexpected error while processing logo: {str(e)}")
+
+    def _has_field_changed(self, field_name,**kwargs):
+        """
+        Check if the field has changed
+        """
+        if self.pk is None:
+            return True
+        # Get the previous revision from DB
+        current_obj = self.__class__.objects.get(pk=self.pk)  
+        # Compare the current field value with the previous version's value
+        current_value = getattr(current_obj, field_name)
+        new_value = getattr(self, field_name)
+        if new_value != current_value:
+                return True
+        return False
 
     promote_panels = []
 
@@ -323,6 +398,7 @@ class ObservingNetworkPage(Page):
         FieldPanel('description'),
         FieldPanel('website_url'),
         FieldPanel('logo_url'),
+
          MultipleChooserPanel('network_organizations',
                              chooser_field_name='organization',
                              heading='Organizations',
@@ -369,6 +445,7 @@ class ObservingNetworkPage(Page):
         APIField('description'),
         APIField('website_url'),
         APIField('logo_url'),
+        APIField('logo_image'),
         APIField('ropon_id'),
         APIField('organization_name', serializers.StringRelatedField(many=True, read_only=True, source = "network_organizations"),),
         APIField('domains',serializers.StringRelatedField(many=True, read_only=True)),
