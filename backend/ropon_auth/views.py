@@ -1,9 +1,13 @@
 from functools import cached_property
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import PermissionDenied
 
 # Import the specific user view classes from Wagtail 6.x
 from wagtail.users.views.users import IndexView, CreateView, EditView
 
+
+FLAG_MODERATOR_USER_MANAGEMENT = 'ROPON.AUTH.MODERATOR_USER_MANAGEMENT'
+from flags.state import flag_enabled
 
 class RoponUserIndexView(IndexView):
     """
@@ -14,6 +18,15 @@ class RoponUserIndexView(IndexView):
     """
     # Inherit template_name and permission_policy from parent class
     
+
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser and not flag_enabled(FLAG_MODERATOR_USER_MANAGEMENT):
+            raise PermissionDenied
+        # Call the parent class's dispatch method
+        return super().dispatch(request, *args, **kwargs)
+
+
     @cached_property
     def columns(self):
         """
@@ -54,6 +67,15 @@ class RoponUserCreateView(CreateView):
     
     It adds a form kwarg to check if the user is a superuser.
     """
+
+    
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser and not flag_enabled(FLAG_MODERATOR_USER_MANAGEMENT):
+            raise PermissionDenied
+        # Call the parent class's dispatch method
+        return super().dispatch(request, *args, **kwargs)
+
     
     def get_form_kwargs(self):
         """
@@ -79,6 +101,17 @@ class RoponUserEditView(EditView):
     a form kwarg to check if the user is a superuser. 
     """
     
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.request.user.is_superuser:
+            if not flag_enabled(FLAG_MODERATOR_USER_MANAGEMENT):
+                raise PermissionDenied
+            if self.object.is_superuser:
+                raise PermissionDenied
+        # Call the parent class's dispatch method
+        return super().dispatch(request, *args, **kwargs)
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs.update(
