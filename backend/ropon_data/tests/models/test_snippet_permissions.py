@@ -40,12 +40,24 @@ class SnippetPermissionsTest(TestCase):
 
     def test_editor_organization_permissions(self):
         """Test that editors have all permissions for Organization model"""
+        # Get content type for Organization model
         content_type = ContentType.objects.get_for_model(Organization)
-        for permission in Permission.objects.filter(content_type=content_type):
-            self.assertTrue(
-                self.editors.permissions.filter(id=permission.id).exists(),
-                f"Editors should have {permission.codename} for Organization"
-            )
+        
+        # Get all permissions for Organization model
+        organization_permissions = Permission.objects.filter(content_type=content_type)
+        
+        for permission in organization_permissions:
+            # Check if permission starts with 'add_' or 'change_'
+            if permission.codename.startswith('add_') or permission.codename.startswith('change_'):
+                self.assertTrue(
+                    self.editors.permissions.filter(id=permission.id).exists(),
+                    f"Editors should have {permission.codename} for Organization"
+                )
+            else:
+                self.assertFalse(
+                    self.editors.permissions.filter(id=permission.id).exists(),
+                    f"Editors should NOT have {permission.codename} for Organization"
+                )
 
     def test_editor_controlled_vocabulary_permissions(self):
         """Test that editors have no permissions for ControlledVocabulary models"""
