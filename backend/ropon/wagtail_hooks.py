@@ -222,3 +222,9 @@ def get_settings_items_to_remove(user_group):
     
         
     return items_to_remove
+
+
+@hooks.register('insert_global_admin_css')
+def global_admin_css():
+    return '<link rel="stylesheet" href="/static/ropon/css/ropon.css">'
+

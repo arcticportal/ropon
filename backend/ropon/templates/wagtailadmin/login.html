@@ -5,7 +5,7 @@
 
 {% block branding_logo %}
 <a href="{% frontend_url %}">
-    <img class="ropon-login-logo" src="{% static 'ropon/images/ropon-text.png' %}" alt="RoPON Login" style="margin-top: 1rem"/>
+    <img class="ropon-login-logo" src="{% static 'ropon/images/ropon-text.png' %}" alt="RoPON Login" />
 </a>
 {% endblock %}
 
@@ -19,7 +19,7 @@
 
 {% block below_login %}
     {# Add message about password reset with admin contact email #}
-    <div class="password-reset-info" style="margin-top: 1rem; ">
+    <div class="password-reset-info" >
         <p>If you have forgotten your password, please contact the RoPON Administrator at 
             <a href="mailto:{% ropon_admin_email %}">{% ropon_admin_email %}</a>
         </p>
