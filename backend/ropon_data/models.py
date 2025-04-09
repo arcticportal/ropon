@@ -395,10 +395,11 @@ class ObservingNetworkPage(Page):
     content_panels =  [
         HelpPanel(
             classname='on-help-panel',
-            content =
-                f"""<h2>This form allows you to create and edit observing network entries in the Registry of Polar Observing Networks (RoPON).</h2>
-
-                <h3>Key Guidelines:</h3>
+            heading ="Welcome to the Observing Network Page!",
+            content = 
+                f"""
+                <p>Here you can create and manage observing network entries in the RoPON database.</p>
+                <p>To ensure that the observing network entries in the RoPON are accurate and consistent, please follow these guidelines:</p>
                 <ul>
                     <li>Fields marked with '*' are required.</li>
                     <li>For URLs, ensure they are valid and accessible.</li>
