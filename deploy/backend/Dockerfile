@@ -1,4 +1,3 @@
-
 # Initial draft Docker file that should be used to build the Docker image for the project.
 
 # Use an official Python runtime based on Debian 10 "buster" as a parent image.
@@ -22,6 +21,8 @@ ARG PID=1001
 ARG PGID=1001
 ARG PUSER=wagtail
 ARG DOCKERGID=1000
+# Set build argument for environment (defaults to production)
+ARG ENVIRONMENT=prd
 
 RUN groupadd -g $PGID $PUSER && useradd -u $PID -g $PGID $PUSER
 
@@ -56,10 +57,10 @@ VOLUME ["${MEDIA_ROOT}"]
 # Use /app folder as a directory where the source code is stored.
 WORKDIR /app
 
-# Install the project requirements.
-COPY deploy/backend/requirements.prd.txt .
-RUN pip install --no-cache-dir -r requirements.prd.txt \
-&& rm -rf  requirements.prd.txt
+# Install the project requirements based on environment
+COPY deploy/backend/requirements.$ENVIRONMENT.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt \
+&& rm -rf requirements.txt
 
 # Set this directory to be owned by the "$PUSER=wagtail " user. This Wagtail project
 #  the folder needs to be owned by the user that
@@ -77,18 +78,5 @@ RUN python manage.py collectstatic --noinput --clear
 # Port used by this container to serve HTTP.
 EXPOSE 8000
 
-
-# Runtime command that executes when "docker run" is called, it does the
-# following:
-#   1. Migrate the database.
-#   2. Start the application server.
-# WARNING:
-#   Migrating database at the same time as starting the server IS NOT THE BEST
-#   PRACTICE. The database should be migrated manually or using the release
-#   phase facilities of your hosting platform. This is used only so the
-#   Wagtail instance can be started with a simple "docker run" command.
-
-# CMD set -xe; python manage.py migrate --noinput; gunicorn ropon.wsgi:application
-
-# TODO : CMD or entry point
+# Runtime command that executes the docker-entrypoint.sh
 CMD [ "./docker-entrypoint.sh"]
