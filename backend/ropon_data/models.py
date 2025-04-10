@@ -396,8 +396,9 @@ class ObservingNetworkPage(Page):
         HelpPanel(
             classname='on-help-panel',
             heading ="Welcome to the Observing Network Page!",
-            content = 
-                f"""
+            # TODO - move this code to a separate file e.g. a markdown file in ropon_data/docs
+            
+            content = f"""
                 <p>Here you can create and manage observing network entries in the RoPON database.</p>
                 <p>To ensure that the observing network entries in the RoPON are accurate and consistent, please follow these guidelines:</p>
                 <ul>
@@ -407,7 +408,7 @@ class ObservingNetworkPage(Page):
                 </ul>
 
                 <p>For detailed instructions on each field, refer to the <a href="{getattr(settings,'FRONTEND_URL',"/")}/ropon-pages/faq">How-to guide</a>.</p>
-                """
+            """
         ),
         
         FieldPanel('name'),
