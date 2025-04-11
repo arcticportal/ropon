@@ -27,7 +27,31 @@ if [ ! -z "$MEDIA_ROOT" ]; then
     fi
 fi
 
+
+# Initialize setup
 ./manage.py init_setup
 
-echo "Starting ropon wagtail server"
-./manage.py runserver 0.0.0.0:${DJANGO_PORT:-8000}
+# Check if gunicorn is available in the environment
+if command -v gunicorn &> /dev/null; then
+    echo "Starting ropon wagtail server with gunicorn"
+    
+    # Check if we have a custom gunicorn config file
+    if [ -f "gunicorn_conf.py" ]; then
+        echo "Using gunicorn configuration from gunicorn_conf.py"
+        exec gunicorn -c gunicorn_conf.py ropon.wsgi:application
+    else
+        # Use default gunicorn settings if no config file is available
+        echo "Using default gunicorn configuration"
+        exec gunicorn \
+            --bind 0.0.0.0:${DJANGO_PORT:-8000} \
+            --workers=${GUNICORN_WORKERS:-4} \
+            --worker-class=gthread \
+            --threads=${GUNICORN_THREADS:-4} \
+            --timeout=${GUNICORN_TIMEOUT:-120} \
+            ropon.wsgi:application
+    fi
+else
+    # Fallback to Django's development server if gunicorn is not available
+    echo "Gunicorn not found, starting ropon wagtail server with Django runserver"
+    ./manage.py runserver 0.0.0.0:${DJANGO_PORT:-8000}
+fi
