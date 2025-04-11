@@ -21,35 +21,39 @@ on:
       
 jobs:
   # run wagtail tests using django test command
-  # wagatail_test:
-  #   runs-on: ubuntu-latest
+  wagatail_test:
+    runs-on: ubuntu-latest
 
   # Using compose to run the tests
-    # steps:
-    #    - name : Checkout code 
-    #      uses: actions/checkout@v4
-    #      # Build the containers using docker-compose
-    #    - name: Build container
-    #      run: docker compose -f deploy/backend/docker-compose-test.yml build
+    steps:
+       - name : Checkout code 
+         uses: actions/checkout@v4
+         # Build the containers using docker-compose
+       - name: Build container
+         run: docker compose -f deploy/backend/docker-compose-test.yml build
         
-    #     # Pull any required images
-    #    - name: Pull required images
-    #      run: docker compose -f deploy/backend/docker-compose-test.yml pull
+        # Pull any required images
+       - name: Pull required images
+         run: docker compose -f deploy/backend/docker-compose-test.yml pull
         
-    #     # Run initial setup
-    #    - name: Initial setup
-    #      run: docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py init_setup
+        # Run initial setup
+       - name: Initial setup
+         run: docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py init_setup
        
-    #      # Run wagtail, django tests
-    #    - name: Run tests
-    #      run: docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py test
+         # Run wagtail, django tests
+       - name: Run tests
+         run: docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py test
 
-     # Stop the containers
-    #    - name: Stop containers
-    #      run: docker compose -f deploy/backend/docker-compose-test.yml down
+    # Stop the containers
+       - name: Stop containers
+         run: docker compose -f deploy/backend/docker-compose-test.yml down
 
 
   # test compose file setup for wagtail
+  # currently this is kep seaprate job just to keep it clean, although it takes more time
+  # maybe combine it with the above job in the future
+  # or the common steps till initial setup can be put into a separate job which can share resources
+  # and then the rest of the steps can be run in parallel
   test_wagtail_container:
     runs-on: ubuntu-latest
     
