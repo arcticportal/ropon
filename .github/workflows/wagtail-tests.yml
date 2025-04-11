@@ -71,13 +71,23 @@ jobs:
 
   # Using compose to run the tests
     steps:
-       - uses: actions/checkout@v4
+       - name : Checkout code 
+         uses: actions/checkout@v4
+         # Build the containers using docker-compose
        - name: Build container
-         run: docker-compose -f deploy/backend/docker-compose-test.yml build && docker-compose -f deploy/backend/docker-compose-test.yml pull
+         run: docker compose -f deploy/backend/docker-compose-test.yml build
+        
+        # Pull any required images
+       - name: Pull required images
+         run: docker compose -f deploy/backend/docker-compose-test.yml pull
+        
+        # Run initial setup
        - name: Initial setup
-         run: docker-compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py init_setup
+         run: docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py init_setup
+       
+         # Run wagtail, django tests
        - name: Run tests
-         run: docker-compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py test
+         run: docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py test
 
   # test compose file setup for wagtail
   test_wagtail_container:
@@ -112,7 +122,7 @@ jobs:
       # Use curl to test if the admin page loads correctly
       - name: Test admin page
         run: |
-          response=$(curl -s http://localhost:8000/admin/)
+          response=$(curl -sL http://localhost:8000/admin/)
           echo "Received response from admin page"
           
           # Check if the response contains the expected string

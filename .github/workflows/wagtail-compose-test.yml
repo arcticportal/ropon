@@ -51,7 +51,7 @@ jobs:
       # Use curl to test if the admin page loads correctly
       - name: Test admin page
         run: |
-          response=$(curl -s http://localhost:8000/admin/)
+          response=$(curl -sL http://localhost:8000/admin/)
           echo "Received response from admin page"
           
           # Check if the response contains the expected string
