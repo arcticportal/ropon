@@ -115,6 +115,7 @@ jobs:
       - name: Start wagtail service
         run: |
           docker compose -f deploy/backend/docker-compose-test.yml up -d
+          sleep 5
           echo "Container status after startup:"
           docker compose -f deploy/backend/docker-compose-test.yml ps
       
@@ -132,7 +133,7 @@ jobs:
           # Wait with retry logic (timeout after 2 minutes)
           timeout=120
           counter=0
-          until $(curl --output /dev/null --silent --fail http://localhost:8000/admin/); do
+          until $(curl --output /dev/null --silent --fail http://wagtail:8000/admin/); do
             if [ $counter -eq $timeout ]; then
               echo "ERROR: Timed out waiting for Wagtail to start"
               docker compose -f deploy/backend/docker-compose-test.yml logs wagtail
