@@ -248,7 +248,7 @@ WAGTAILDOCS_EXTENSIONS = ['csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'tx
 # SECURITY WARNING: define the correct hosts in production!
 
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost'] + list(filter(None, env.str('ALLOWED_HOSTS', '').split(',')))
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost'] + list(filter(None, env.str('DJANGO_ALLOWED_HOSTS', '').split(',')))
 
 
 # CSRF
