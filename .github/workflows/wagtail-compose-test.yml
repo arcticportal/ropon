@@ -28,19 +28,19 @@ jobs:
       
       # Build the containers using docker-compose
       - name: Build container
-        run: docker-compose -f deploy/backend/docker-compose-test.yml build
+        run: docker compose -f deploy/backend/docker-compose-test.yml build
       
       # Pull any required images
       - name: Pull required images
-        run: docker-compose -f deploy/backend/docker-compose-test.yml pull
+        run: docker compose -f deploy/backend/docker-compose-test.yml pull
       
       # Run initial setup
       - name: Initial setup
-        run: docker-compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py init_setup
+        run: docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py init_setup
       
       # Start the containers in detached mode
       - name: Start wagtail service
-        run: docker-compose -f deploy/backend/docker-compose-test.yml up -d
+        run: docker compose -f deploy/backend/docker-compose-test.yml up -d
       
       # Wait for service to be ready
       - name: Wait for service to be ready
@@ -67,4 +67,4 @@ jobs:
       
       # Stop the containers
       - name: Stop containers
-        run: docker-compose -f deploy/backend/docker-compose-test.yml down
+        run: docker compose -f deploy/backend/docker-compose-test.yml down
