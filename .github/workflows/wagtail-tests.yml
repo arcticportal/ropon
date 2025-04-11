@@ -5,10 +5,12 @@ on:
     types: [synchronize, opened, reopened]
     paths:
       - backend/**
+      - deploy/backend/**
       - .github/workflows/**
   push:
     paths:
       - backend/**
+      - deploy/backend/**
       - .github/workflows/**
     branches:
       - dev
@@ -122,17 +124,18 @@ jobs:
       # Use curl to test if the admin page loads correctly
       - name: Test admin page
         run: |
-          response=$(curl -sL http://localhost:8000/admin/)
+         # Store curl output in a file to avoid potential issues with variable capture
+          curl -sL http://localhost:8000/admin/ > response.html
           echo "Received response from admin page"
           
           # Check if the response contains the expected string
-          if echo "$response" | grep -q "Sign in to RoPON Dashboard"; then
+          if grep -q "Sign in to RoPON Dashboard" response.html; then
             echo "Success: Admin page contains expected login text"
             exit 0
           else
             echo "Error: Admin page does not contain expected login text"
             echo "Response content:"
-            echo "$response"
+            cat response.html
             exit 1
           fi
       
