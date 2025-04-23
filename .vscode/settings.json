@@ -22,6 +22,7 @@
             "file": ".github/copilot/test-generation-instructions.md"
         }
     ],
+    "github.copilot.chat.codeGeneration.useInstructionFiles": false,
 
    
 }
