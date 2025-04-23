@@ -32,3 +32,10 @@ __pycache__/
 # Storage
 /storage/
 /local/
+
+# Cline
+memory-bank/
+.clinerules
+
+#Copilot
+.github/copilot/
