@@ -1,31 +1,83 @@
-.ms-auto
-{ position: relative;
-  top: 8px }
+a
+{ text-decoration: none }
 
 img
-{ max-height: 26px }
+{ max-width: 100%;
+  max-height: 100%;
+  object-fit: contain }
 
 .card-title>a
 { color: var(--ropon-blue);
-  text-decoration: none }
+  /*font-weight: bold*/ }
 
-.card-body:hover .card-title>a
-{ text-decoration: underline }
+/*.card-title
+{ transition: border-bottom 0.3s ease-in-out;
+  border-bottom: solid 2px transparent }*/
 
-.card-body .col-auto
+.card
+{ transition: box-shadow 0.3s ease-in-out }
+
+.card:hover
+{ box-shadow: var(--bs-box-shadow) !important }
+
+/*.card:hover .card-title
+{ border-bottom: solid 2px var(--ropon-blue) }*/
+
+.underline
+{ background-color: var(--ropon-blue);
+  height: 2px;
+  width: 0;
+  position: relative;
+  top: -8px;
+  transition: width 0.3s ease-in-out }
+
+.card:hover .underline
+{ width: 100% }
+
+dt
+{ color: var(--bs-gray);
+  font-weight: normal;
+  width: 6em }
+
+dd
+{ max-width: calc(100% - 6em) }
+
+col:first-child,col:nth-child(3)
+{ width: 6em }
+
+td:first-child,td:nth-child(3)
 { color: var(--bs-gray) }
 
-#domain>.badge
+tr:first-child>td:nth-child(2),td:nth-child(4)
+{ color: var(--ropon-blue) }
+
+.badge
+{ /*color: var(--ropon-blue);
+  font-weight: normal;
+  border-left: none !important;
+  border-right: none !important;
+  border-width: 2px;
+  border-style: solid;
+  margin-bottom: 4px*/ }
+
+.region
+{ color: var(--ropon-blue) }
+
+.region>.badge
+{ /*font-size: medium;*/
+  padding-top: 0;
+  padding-left: 8px;
+  border-top: none;
+  border-color: transparent }
+
+.domain>.badge
 { background-color: var(--badge-domain) }
 
-#discipline>.badge
+.discipline>.badge
 { background-color: var(--badge-discipline) }
 
-#asset-type>.badge
+.asset-type>.badge
 { background-color: var(--badge-asset-type) }
 
-div>a
-{ text-decoration: none }
-
-div>a:hover
+dd>a:hover
 { text-decoration: underline }

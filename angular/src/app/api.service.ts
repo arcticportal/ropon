@@ -18,9 +18,20 @@ export class ApiService {
 
   get(...args: (string | number)[]): Observable<any> {
     var join = this.util.pathJoin, k = join(...args)
+    if (!k.startsWith('https://'))
+      k = join(backendDomain, apiPrefix, k, '/')
     return (k in this.db ? of(this.db[k]) :
-      this.http.get(join(backendDomain, apiPrefix, k, '/')).pipe(
-    	map(s => JSON.parse(s)),
+      this.http.get(k).pipe(
+	map((r: any) => {
+	  if (r.status != 200) throw new Error(r.statusText)
+	  var j
+	  try { j = JSON.parse(r.body) }
+	  catch (e) { j = {meta: {}, data: r.body} }
+	  if (r.headers.has('X-Redirected-From'))
+	    j.meta.x_redirected_from = r.headers.get(
+	      'X-Redirected-From')
+	  console.log(r)
+	  return j }),
     	tap(d => { if (useCache) this.db[k] = d }))).pipe(first()) }
 
   getNetworks(): Observable<Obj> {

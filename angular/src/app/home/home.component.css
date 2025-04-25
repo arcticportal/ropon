@@ -1,23 +1,52 @@
-:host
+/* :host
 { display: block }
 
 .alert
 { text-indent: -13px;
   padding-left: 39px }
 
-.bi-x
+a
+{ text-decoration: none }
+
+a:hover
+{ text-decoration: underline }*/
+
+.input-group-text
+{ border: none;
+  background-color: transparent }
+
+input
+{ border-top: none;
+  border-left: none;
+  border-right: none;
+  border-radius: unset;
+  border-bottom-width: 3px }
+
+i
 { position: absolute;
-  font-size: xx-large;
-  top: -7px;
-  right: 12px;
-  cursor: pointer;
   z-index: 5;
   color: var(--bs-gray-500) }
+
+.bi-search
+{ font-size: x-large;
+  top: 2px;
+  right: 17px }
+
+.bi-x
+{ font-size: xx-large;
+  top: -4px;
+  right: 11px;
+  cursor: pointer }
 
 .bi-x:hover
 { color: var(--bs-gray-600) }
 
-.d-flex>div
-{ position: relative;
-  width: 150px;
-  aspect-ratio: 461 / 171 }
+.d-grid>a
+{ --bs-btn-color: var(--ropon-blue);
+  --bs-btn-border-color: var(--ropon-blue);
+  --bs-btn-hover-bg: var(--ropon-blue);
+  --bs-btn-hover-border-color: var(--ropon-blue);
+  --bs-btn-active-bg: var(--ropon-blue);
+  --bs-btn-active-border-color: var(--ropon-blue);
+  --bs-btn-disabled-color: var(--ropon-blue);
+  --bs-btn-disabled-border-color: var(--ropon-blue) }

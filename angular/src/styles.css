@@ -1,15 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
 @import "../node_modules/ol/ol.css";
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css");
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Carlito:ital,wght@0,400;0,700;1,400;1,700&display=swap");
 
 :root
 { --ropon-blue: #1c4587;
   --navbar-background: #7fa5b2;
-  --badge-domain: #38761d;
-  --badge-discipline: #134f5c;
-  --badge-asset-type: var(--ropon-blue);
+  --badge-domain: #568a3f;
+  --badge-discipline: #1088bb;
+  --badge-asset-type: #185863;
   --ropon-font: Carlito,Poppins,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
   --ropon-normal: 300;
   --ropon-bold: 700;

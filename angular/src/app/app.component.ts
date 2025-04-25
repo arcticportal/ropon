@@ -8,11 +8,12 @@ import {CookieConsentService} from './cookie-consent.service'
 import {GdprService} from './gdpr.service'
 
 import {HeaderComponent} from './header/header.component'
+import {FooterComponent} from './footer/footer.component'
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

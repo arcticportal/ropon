@@ -25,7 +25,7 @@ export class UtilService {
     return r }
 
   formatImg(s: string): string {
-    return s.indexOf('http') >= 0 ? s : this.pathJoin('/', s) }
+    return !s? '' : s.indexOf('http') >= 0 ? s : this.pathJoin('/', s) }
 
   formatUrl(s: string | null): string {
     return !s ? '' : s.replace(
@@ -50,7 +50,8 @@ export class UtilService {
 	  '</div></div><div class="row justify-content-center">',
 	  '<figure class="col-auto" style="aspect-ratio: ',
 	  d.width, ' / ', d.height, '"><img src="',
-	  this.pathJoin(backendDomain, d.url), '" fill />',
+	  this.pathJoin(backendDomain, d.url),
+	  '" fill class="img-fluid" />',
 	  '</figure></div><div class="row"><div class="col-12">')
 	break
       default: console.log(`Unknown tag type: ${d.type}`) }

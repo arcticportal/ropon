@@ -17,6 +17,8 @@ export class HomeFilterComponent {
   private router = inject(Router)
   private api = inject(ApiService)
   private util = inject(UtilService)
+  window = window
+  show = false
 
   filters: Obj = {
     regions: {show: false, list: []},
@@ -61,7 +63,7 @@ export class HomeFilterComponent {
     {name: 'asset_types', label: 'Asset Type', options: [
       'Sites', 'Mobile platforms', 'Projects', 'Campaigns',
       'Initiatives']},
-    {name: 'has_catalog', label: 'Asset Catalog?', options: [
+    {name: 'has_catalog', label: 'Asset Catalog', options: [
       'yes', 'no', 'under development']}]
 
   ngOnInit() {
@@ -104,6 +106,9 @@ export class HomeFilterComponent {
   stylGroup(k: string) {
     return !this.childSelected(k) ? {} : {
       'font-weight': 'var(--ropon-bold)'} }
+
+  stylRadio(k: string, v: any) {
+    return 'bi-record' + (this.selected(k, String(v)) ? '2' : '') }
 
   toggle(k: string) { this.filters[k].show = !this.filters[k].show }
 }

@@ -1,0 +1,49 @@
+<div class="container">
+  <a class="navbar-brand" routerLink="/">
+    <img src="{{logoPath()}}" />
+  </a>
+  <button class="navbar-toggler" type="button"
+	  data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+	  aria-controls="navbarCollapse" aria-expanded="false"
+	  aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarCollapse">
+    <div class="d-flex flex-row ms-auto gap-3">
+      <a class="navbar-brand" target="_blank"
+	 href="https://arcticobserving.org">
+	<img src="/SAON_logo_2023.png" />
+      </a>
+      <a class="navbar-brand" target="_blank"
+	 href="https://arcticportal.org">
+	<img src="/ap-background.png" />
+      </a>
+      <a class="navbar-brand" targe="_blank"
+	 href="https://www.colorado.edu">
+	<img src="/logo_CU_Boulder.png" />
+      </a>
+    </div>
+    <ul class="navbar-nav justify-content-evenly">
+      <li class="nav-item">
+	<a [ngStyle]="styl('home')"
+	    class="nav-link" routerLink="/">Home</a>
+      </li>
+      <li class="nav-item">
+	<a [ngStyle]="styl('about')"
+	   class="nav-link" routerLink="/ropon-pages/about">About</a>
+      </li>
+      <li class="nav-item">
+	<a [ngStyle]="styl('contact')"
+	   class="nav-link" routerLink="/ropon-pages/contact">Contact</a>
+      </li>
+      <li class="nav-item">
+	<a [ngStyle]="styl('poawg')"
+	   class="nav-link" routerLink="/ropon-pages/poawg">POAwg</a>
+      </li>
+      <li class="nav-item">
+	<a [ngStyle]="styl('faq')"
+	   class="nav-link" routerLink="/ropon-pages/faq">FAQ</a>
+      </li>
+    </ul>
+  </div>
+</div>

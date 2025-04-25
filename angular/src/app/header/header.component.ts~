@@ -55,11 +55,13 @@ export class HeaderComponent {
       r = a[1].replace(/\?.*$/, '')
     return r }
     
+  styl(s: string): {[index: string]: string} {
+    return this.id() != s ? {} : {
+      'font-weight': 'var(--ropon-bold)',
+      'text-decoration': 'underline'} }
+
   logoPath(): string {
-    var big = '/RoPON_logo_2025_LowRes.jpg',
-    	small = '/RoPON_logo_GLOBE_LowRES.jpg', w = this.width
-    //return w < 558 ? small : w < 576 ? big : w < 992 ? small : big
-    return w < 486 ? small : w < 576 ? big : w < 992 ? small : big }
+    return this.width > 991.98 ? '/ropon-text.png' : '/ropon.png' }
 
   setY(k: string): void {
     var y = getY()

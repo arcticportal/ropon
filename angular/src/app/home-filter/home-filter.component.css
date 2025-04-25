@@ -1,4 +1,4 @@
-.bi-x
+/*.bi-x
 { font-size: xx-large;
   position: relative;
   top: 5px;
@@ -9,4 +9,28 @@
 { color: var(--bs-gray-600) }
 
 .ms-4>li
-{ text-indent: -12px }
+{ text-indent: -12px }*/
+
+
+h4,h5>button
+{ color: var(--ropon-blue) }
+
+img
+{ height: 1em;
+  cursor: pointer }
+
+.accordion-button:focus
+{ box-shadow: none }
+
+li
+{ text-indent: -14px }
+
+a>i
+{ position: relative;
+  top: 4px }
+
+.accordion-item
+{ border-bottom: 1px solid var(--ropon-blue) !important;
+  border-top: none;
+  border-left: none;
+  border-right: none }

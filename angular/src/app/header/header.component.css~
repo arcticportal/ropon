@@ -1,0 +1,59 @@
+:host
+{ background-image: url("/ropon-background.jpg");
+  min-height: 200px;
+  background-size: cover }
+
+.container
+{ position: relative;
+  top: 20px }
+
+#navbarCollapse
+{ flex-direction: column;
+  position: relative }
+
+.navbar-nav
+{ width: 100% }
+
+.nav-link
+{ font-size: larger;
+  font-weight: bolder }
+
+.navbar-brand
+{ margin-left: 0;
+  margin-right: 0 }
+
+.container>a>img
+{ height: 120px }
+
+.d-flex
+{ margin-bottom: 16px }
+
+.d-flex img
+{ border-radius: var(--bs-border-radius-sm);
+  height: 60px }
+
+.d-flex>a:last-child>img
+{ background-color: rgba(255, 255, 255, 0.5) }
+
+@media (max-width: 767.98px) {
+  .d-flex
+  { display: none !important } }
+
+@media (max-width: 767.98px) and (min-width: 576px) {
+  .navbar-nav
+  { position: relative;
+    top: 40px } }
+
+@media (max-width: 575.98px) {
+  :host
+  { min-height: 0 }
+
+  .container
+  { top: 0 }
+
+  #navbarCollapse
+  { top: 0 }
+
+  .navbar-nav
+  { margin-left: 2em;
+    margin-top: 0 } }

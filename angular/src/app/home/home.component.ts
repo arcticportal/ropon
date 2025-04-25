@@ -1,4 +1,5 @@
-import { Component, HostBinding, inject } from '@angular/core';
+import {
+  Component, HostBinding, inject, ViewChild } from '@angular/core';
 import {NgOptimizedImage} from '@angular/common'
 import {ActivatedRoute, Router} from '@angular/router'
 import {FormControl, ReactiveFormsModule} from '@angular/forms'
@@ -19,10 +20,12 @@ import {HomeResultComponent} from '../home-result/home-result.component'
 })
 export class HomeComponent {
   @HostBinding('class.container') container = true
+  @ViewChild(HomeResultComponent) result!: HomeResultComponent
   private route = inject(ActivatedRoute)
   private router = inject(Router)
   private util = inject(UtilService)
   private api = inject(ApiService)
+  window = window
   ctrl = new FormControl('')
 
   ngOnInit() {

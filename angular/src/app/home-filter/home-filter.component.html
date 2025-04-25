@@ -1,4 +1,4 @@
-<h4>Filter<i class="bi-x" (click)="clear()"></i></h4>
+<!-- <h4>Filter<i class="bi-x" (click)="clear()"></i></h4>
 <ul class="list-unstyled user-select-none">
   <li *ngFor="let d of order">
     <span role="button" (click)="toggle(d.name)"
@@ -13,4 +13,60 @@
       </li>
     </ul>
   </li>
-</ul>
+</ul> -->
+<div class="card">
+  <div class="card-body">
+    <div class="card-title d-flex mb-0">
+      <h4 class="mb-0">Filter by</h4>
+      @if (window.innerWidth < 992) {
+      <i [class]="'mt-1 ms-2 bi-chevron-' + (show ? 'up' : 'down')"
+	 (click)="show = !show" ></i> }
+      @if (show || window.innerWidth >= 992) {
+      <img src="/ClearALL_Icon.png" class="ms-auto"
+	   (click)="clear()" /> }
+    </div>
+    @if (show || window.innerWidth >= 992) {
+    <div class="accordion accordion-flush user-select-none" id="accordion">
+      <div *ngFor="let d of order" class="accordion-item">
+	<h5 class="accordion-header">
+	  <button class="accordion-button collapsed fs-5" type="button"
+		  data-bs-toggle="collapse"
+		  [attr.data-bs-target]="'#collapse' + d.name"
+		  [attr.aria-controls]="'collapse' + d.name"
+		  [ngStyle]="stylGroup(d.name)"
+		  aria-expanded="false">{{d.label}}</button>
+	</h5>
+	<!-- <div data-bs-parent="#accordion" -->
+	<div 
+	     class="accordion-collapse collapse"
+	     [id]="'collapse' + d.name">
+	  <ul class="accordion-body list-unstyled pt-2 ms-3 pb-0">
+	    <li *ngFor="let s of filters[d.name].list" class="lh-1">
+	      <a class="text-decoration-none text-reset"
+		 [queryParams]="changedQuery(d.name, s)"
+		 [routerLink]="[]"><i class="fs-4" [ngClass]="stylRadio(d.name, s)"></i>
+		{{s}}</a>
+	    </li>
+	  </ul>
+	</div>
+      </div>
+    </div> }
+  </div>
+</div>
+<!-- @if (window.innerWidth >= 992) { -->
+@if (false) {
+<div class="card shadow-lg mt-3">
+  <div class="card-body">
+    <div class="row">
+      <img class="col-12" src="/FAQ_ICON_BLUE.png" />
+      <p class="col-12">What is RoPON?</p>
+      <p class="col-12">What are &ldquo;observing assets&rdquo;?</p>
+      <p class="col-12">What is an asset-level metadata catalog?</p>
+      <p class="col-12">Why was RoPON created?</p>
+      <p class="col-12">Who created RoPON?</p>
+      <p class="col-12">What are future plans for RoPON?</p>
+      <a class="ms-auto col-auto"
+	 routerLink="/ropon-pages/faq">More FAQ</a>
+    </div>
+  </div>
+</div> }

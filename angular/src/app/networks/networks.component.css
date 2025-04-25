@@ -1,21 +1,30 @@
-:host
-{ display: block }
+a
+{ text-decoration: none }
 
-nav
-{ position: relative }
+a:hover
+{ text-decoration: underline }
 
-nav a
-{ position: relative;
-  top: -1.5em;
-  color: var(--ropon-blue);
-  font-size: large;
-  font-weight: bolder;
+nav>a
+{ color: var(--ropon-blue);
+  /*border: 1px solid var(--ropon-blue);*/
+  margin-left: 12px;
   cursor: pointer }
 
-img
+nav>a:hover
+{ text-decoration: none }
+
+/*img
 { height: 50px;
   position: relative;
-  top: -0.8em }
+  top: -0.8em }*/
+
+img
+{ max-width: 100%;
+  max-height: 100%;
+  object-fit: contain }
+
+h4,h6
+{ color: var(--ropon-blue) }
 
 dt,section i,div.small
 { color: var(--bs-gray) }
@@ -24,33 +33,54 @@ dt
 { font-weight: normal;
   margin-bottom: 8px }
 
+.regions
+{ color: var(--ropon-blue) }
+
+.badge
+{ color: var(--ropon-blue);
+  font-weight: normal;
+  border-left: none !important;
+  border-right: none !important;
+  border-width: 2px;
+  border-style: solid }
+
 #domain>.badge
-{ background-color: var(--badge-domain) }
+{ border-color: var(--badge-domain) }
 
 #discipline>.badge
-{ background-color: var(--badge-discipline) }
+{ border-color: var(--badge-discipline) }
 
 #asset-type>.badge
-{ background-color: var(--badge-asset-type) }
-
-section>div
-{ background-color: var(--bs-gray-200);
-  border-radius: var(--bs-border-radius-xl) }
-
-section .col-auto
-{ color: var(--ropon-blue) }
+{ border-color: var(--badge-asset-type) }
 
 app-map
 { height: var(--ropon-map-size) }
 
-@media (min-width: 768px)
-{ app-map
-  { position: absolute;
-    padding: 0;
-    width: var(--ropon-map-size);
-    top: -12px;
-    left: calc(100% - var(--ropon-map-size) - 12px) } }
-
 @media (max-width: 767.98px)
 { app-map
   { width: 100% } }
+
+@media (min-width: 768px)
+{ app-map
+  { position: absolute;
+    padding: 0 } }
+
+@media (min-width: 768px) and (max-width: 991.98px)
+{ app-map
+  { left: calc(100% - 276px - 12px);
+    width: 276px } }
+
+@media (min-width: 992px) and (max-width: 1199.98px)
+{ app-map
+  { left: calc(100% - 376px - 12px);
+    width: 376px } }
+
+@media (min-width: 1200px) and (max-width: 1399.98px)
+{ app-map
+  { left: calc(100% - 451px - 12px);
+    width: 451px } }
+
+@media (min-width: 1400px)
+{ app-map
+  { left: calc(100% - 416px - 12px);
+    width: 416px } }

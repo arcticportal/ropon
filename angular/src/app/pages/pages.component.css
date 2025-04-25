@@ -1,5 +1,6 @@
 :host
-{ display: block;
+{ background-color: white;
+  display: block;
   margin-bottom: 3em }
 
 :host ::ng-deep h1
