@@ -1,10 +1,10 @@
-up:
+up: subst
 	docker compose up
 
 down:
 	docker compose down --remove-orphans
 
-buildup:
+buildup: subst
 	docker compose up --build
 
 detachup:
@@ -42,3 +42,6 @@ loaddb:
 	sudo chown root postgres.tar.zst
 	sudo tar -xI unzstd -f postgres.tar.zst -C .. --recursive-unlink
 	sudo chown ${USER} postgres.tar.zst
+
+subst:
+	./subst ../angular/src/app/util.service.ts.template >../angular/src/app/util.service.ts
