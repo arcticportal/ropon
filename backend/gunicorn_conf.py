@@ -33,7 +33,7 @@ bind = f"0.0.0.0:{port}"
 keepalive = int(env.str("GUNICORN_KEEPALIVE", "").strip() or 5)
 timeout = int(env.str("GUNICORN_TIMEOUT", "").strip() or 120)  # Set to 120s to match docker-entrypoint.sh fallback
 graceful_timeout = int(env.str("GUNICORN_GRACEFUL_TIMEOUT", "").strip() or 120)  # Set to 120s to match docker-entrypoint.sh fallback
-timeout = env.int("GUNICORN_TIMEOUT", 120)  # Set to 120s to match docker-entrypoint.sh fallback
+
 # Log configuration
 accesslog = env.str("GUNICORN_ACCESS_LOG", "").strip() or "-"  # - means stdout
 errorlog = env.str("GUNICORN_ERROR_LOG", "").strip() or "-"    # - means stderr
@@ -44,8 +44,7 @@ threads = int(env.str("GUNICORN_THREADS", "").strip() or 4)
 
 # Worker class - use gthread by default for better handling of blocking operations
 worker_class = env.str("GUNICORN_WORKER_CLASS", "").strip() or "gthread"
-# Worker class - use gthread by default for better handling of blocking operations
-worker_class = env.str("GUNICORN_WORKER_CLASS", "gthread")
+
 
 # Load application
 wsgi_app = "ropon.wsgi:application"
