@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import {ActivatedRoute, Params} from '@angular/router'
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser'
 
-export const frontendDomain = '«FRONTEND_DOMAIN»'
-export const backendDomain = '«BACKEND_DOMAIN»'
+export const frontendDomain = 'https://«FRONTEND_DOMAIN»'
+export const backendDomain = 'https://«BACKEND_DOMAIN»'
 export const apiPrefix = 'api/v2'
 export const useCache = true
 

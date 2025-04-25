@@ -1,3 +1,5 @@
+.PHONY: subst
+
 up: subst
 	docker compose up
 
@@ -44,4 +46,6 @@ loaddb:
 	sudo chown ${USER} postgres.tar.zst
 
 subst:
-	./subst ../angular/src/app/util.service.ts.template >../angular/src/app/util.service.ts
+	for tmp in app.config gdpr.service util.service;\
+	  do ./subst ../angular/src/app/$$tmp.ts.template\
+	       >../angular/src/app/$$tmp.ts; done
