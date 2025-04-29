@@ -111,7 +111,7 @@ def get_menu_items_to_remove(user_group):
             
     elif user_group == 'Editors':
         # For Editors, always hide reports and ropon_pages regardless of flags
-        items_to_remove.extend(['ropon pages', 'reports','images', 'documents',])
+        items_to_remove.extend(['ropon pages', 'reports','images', 'documents','organizations'])
     
         
     return items_to_remove

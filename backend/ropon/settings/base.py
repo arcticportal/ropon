@@ -288,7 +288,7 @@ FLAGS = {
     # Add feature flag to remove side panel options for Moderators and Editors
     'ROPON.REMOVE_SIDE_PANEL_OPTIONS': [
         {"condition": "boolean",
-         "value": env.bool('ROPON.REMOVE_SIDE_PANEL_OPTIONS', False),
+         "value": env.bool('ROPON.REMOVE_SIDE_PANEL_OPTIONS', True),
         }
     ],
     # Add feature flag for aging observing networks report
