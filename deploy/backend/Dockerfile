@@ -24,7 +24,10 @@ ARG DOCKERGID=1000
 # Set build argument for environment (defaults to production)
 ARG ENVIRONMENT=prd
 
-RUN groupadd -g $PGID $PUSER && useradd -u $PID -g $PGID $PUSER
+# Create the user with a proper home directory
+RUN groupadd -g $PGID $PUSER && \
+    useradd -u $PID -g $PGID -m -d /home/$PUSER $PUSER && \
+    chown -R ${PUSER}:${PUSER} /home/${PUSER}
 
 # SET docker group ID, which matches with group ID of host machine
 RUN groupadd -g $DOCKERGID docker
@@ -57,13 +60,8 @@ VOLUME ["${MEDIA_ROOT}"]
 # Use /app folder as a directory where the source code is stored.
 WORKDIR /app
 
-# Install the project requirements based on environment
-COPY deploy/backend/requirements.$ENVIRONMENT.txt requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt \
-&& rm -rf requirements.txt
 
-# Set this directory to be owned by the "$PUSER=wagtail " user. This Wagtail project
-#  the folder needs to be owned by the user that
+# Set this directory to be owned by the "$PUSER=wagtail" user.
 RUN chown ${PUSER}:${PUSER} /app
 
 # Copy the source code of the project into the container.
@@ -71,6 +69,16 @@ COPY --chown=${PUSER}:${PUSER} backend/ .
 
 # Use user "wagtail" to run the build commands below and the server itself.
 USER ${PUSER}
+
+# Install the project requirements based on environment
+COPY deploy/backend/requirements.$ENVIRONMENT.txt requirements.txt
+# Remove --user flag since it's causing permission issues
+RUN pip install --user --no-cache-dir -r requirements.txt \
+    && rm -rf requirements.txt
+
+# Create migrations.
+RUN python manage.py makemigrations
+
 
 # Collect static files.
 RUN python manage.py collectstatic --noinput --clear
