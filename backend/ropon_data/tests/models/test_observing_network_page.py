@@ -1,4 +1,5 @@
 import datetime
+from django.core.cache import cache
 from django.test import override_settings
 from wagtail.test.utils import WagtailPageTestCase
 from wagtail.blocks import StreamValue
@@ -12,6 +13,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 
 User = get_user_model()
+
 
 class ObservingNetworkPageTests(WagtailPageTestCase):
     def setUp(self):
@@ -46,7 +48,9 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         editors_group = Group.objects.get(name='Editors')
         self.moderator.groups.add(moderators_group)
         self.editor.groups.add(editors_group)
-
+        
+        # Clear the cache to ensure fresh data
+        cache.clear()
 
     def get_soso_geometry_field(self,valid=True):
         return  [
