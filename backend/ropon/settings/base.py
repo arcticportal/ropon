@@ -40,7 +40,7 @@ LOCAL_APPS = [
     "ropon_pages",
     "ropon",
     "search",
-
+    "ropon_email", # Add the new email app
 ]
 
 DJANGO_APPS = [
@@ -276,6 +276,26 @@ AUTH_USER_MODEL = 'ropon_auth.RoponUser'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Django REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        # Add other authentication classes if needed
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        # 'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'email': '50/day', # Specific rate for contact form email endpoint
+        'anon': '1000/hour', # Default rate for anonymous users (increased)
+        'user': '1000/hour' # Default rate for authenticated users (increased)
+    }
+}
+
 
 # Add feature flag settings
 FLAGS = {
@@ -288,7 +308,7 @@ FLAGS = {
     # Add feature flag to remove side panel options for Moderators and Editors
     'ROPON.REMOVE_SIDE_PANEL_OPTIONS': [
         {"condition": "boolean",
-         "value": env.bool('ROPON.REMOVE_SIDE_PANEL_OPTIONS', True),
+         "value": env.bool('ROPON.REMOVE_SIDE_PANEL_OPTIONS', False),
         }
     ],
     # Add feature flag for aging observing networks report

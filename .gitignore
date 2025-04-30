@@ -39,3 +39,4 @@ memory-bank/
 
 #Copilot
 .github/copilot/
+.devcontainer/.env.dev

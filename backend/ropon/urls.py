@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.urls import include, path
+from django.urls import path, include # Ensure include is imported
 from django.contrib import admin
 
 from wagtail.admin import urls as wagtailadmin_urls
@@ -15,25 +15,31 @@ from ropon_data.api import (ObservingNetworkPageViewSet,
 from ropon_pages.api import RoponPagesAPIViewSet
 from base.api.views import RoponImagesAPIViewSet
 
-
 api_router = WagtailAPIRouter("wagtailapi")
+
 # api_router.register_endpoint("pages", PagesAPIViewSet)
 api_router.register_endpoint("ropon_pages", RoponPagesAPIViewSet)
 api_router.register_endpoint("networks", ObservingNetworkPageViewSet)
 api_router.register_endpoint("cv", ControlledVocabularyAPIViewSet)
 api_router.register_endpoint("images", RoponImagesAPIViewSet)
 
-# api_router.register_endpoint("cv/<str:cv_type>/<int:pk>/", ControlledVocabularyAPIViewSet.as_view({'get': 'detail_view'},name="cv-detail"))
 urlpatterns = [
     path("django-admin/", admin.site.urls),
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
     path("search/", search_views.search, name="search"),
 
-    path('api/v2/', api_router.urls),
-    #path('api/gdpr/', CookieConsentStatus.as_view(), name='gdpr'),
-    # path('api/gdpr/', include('cookie_consent.urls'))
-    ]
+    # Include the ropon_email urls under the desired path
+    path("api/v2/email/", include("ropon_email.urls", namespace="ropon_email_api")),
+
+    path('api/v2/', api_router.urls), # Keep other API router endpoints
+
+    # For anything not caught by a more specific rule above, hand over to
+    # Wagtail's page serving mechanism. This should be the last pattern.
+    # Alternatively, if you want Wagtail pages to be served from a subpath
+    # of your site, rather than the site root:
+    #    path("pages/", include(wagtail_urls)),
+]
 
 
 if settings.DEBUG:
@@ -43,13 +49,3 @@ if settings.DEBUG:
     # Serve static and media files from development server
     urlpatterns += staticfiles_urlpatterns()
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-urlpatterns = urlpatterns + [
-    # For anything not caught by a more specific rule above, hand over to
-    # Wagtail's page serving mechanism. This should be the last pattern in
-    # the list:
-    #path("", include(wagtail_urls)),
-    # Alternatively, if you want Wagtail pages to be served from a subpath
-    # of your site, rather than the site root:
-        # path("pages/", include(wagtail_urls)),
-]
