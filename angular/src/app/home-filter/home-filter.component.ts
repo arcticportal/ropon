@@ -66,7 +66,7 @@ export class HomeFilterComponent {
     {name: 'has_catalog', label: 'Asset Catalog', options: [
       'yes', 'no', 'under development']}]
 
-  ngOnInit() {
+  ngOnInit2() {
     var r: Obj = {}
     for (var k in this.filters) {
       this.filters[k].show = this.childSelected(k)
@@ -74,6 +74,20 @@ export class HomeFilterComponent {
     this.api.getNetworks().subscribe(nets => {
       var k, v
       for (var d of nets['networks'])
+	for (k in r)
+	  if (typeof d[k] == 'string') r[k][d[k]] = null
+	  else for (v of d[k]) r[k][v] = null
+      for (d of this.order) for (v of d.options)
+	if (v in r[d.name]) this.filters[d.name].list.push(v) }) }
+
+  ngOnInit() {
+    var r: Obj = {}
+    for (var k in this.filters) {
+      this.filters[k].show = this.childSelected(k)
+      r[k] = {} }
+    this.api.getList().subscribe(a => {
+      var k, v
+      for (var d of a['items'])
 	for (k in r)
 	  if (typeof d[k] == 'string') r[k][d[k]] = null
 	  else for (v of d[k]) r[k][v] = null

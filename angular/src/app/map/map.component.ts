@@ -1,4 +1,5 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, Renderer2, ViewChild,
+  ElementRef } from '@angular/core';
 
 import {Feature, Map, View} from 'ol'
 import {Polygon} from 'ol/geom'
@@ -50,6 +51,8 @@ function zoom([[x, y], [X, Y]]: Bound): number {
 export class MapComponent {
   @Input() boxes: Obj[] = []
   private map?: Map
+  private renderer = inject(Renderer2)
+  @ViewChild('map') mapEl!: ElementRef
 
   ngOnChanges(changes: Obj) {
     if (!(changes['boxes'] && changes['boxes'].currentValue)) return
@@ -57,6 +60,9 @@ export class MapComponent {
     var boxes = geometries(this.boxes)
     if (!boxes.length) return
     var b = globalBounds(boxes)
+    if (this.mapEl) {
+      var el = this.mapEl.nativeElement
+      while (el.firstChild) el.removeChild(el.firstChild) }
     this.map = new Map({
       view: new View({center: centre(b), zoom: zoom(b)}),
       layers: [

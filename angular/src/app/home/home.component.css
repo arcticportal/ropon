@@ -42,11 +42,12 @@ i
 { color: var(--bs-gray-600) }
 
 .d-grid>a
-{ --bs-btn-color: var(--ropon-blue);
+{ --bs-btn-bg: var(--ropon-blue);
   --bs-btn-border-color: var(--ropon-blue);
-  --bs-btn-hover-bg: var(--ropon-blue);
+  --bs-btn-hover-color: var(--ropon-blue);
+  --bs-btn-hover-bg: white;
   --bs-btn-hover-border-color: var(--ropon-blue);
   --bs-btn-active-bg: var(--ropon-blue);
   --bs-btn-active-border-color: var(--ropon-blue);
-  --bs-btn-disabled-color: var(--ropon-blue);
+  --bs-btn-disabled-bg: var(--ropon-blue);
   --bs-btn-disabled-border-color: var(--ropon-blue) }

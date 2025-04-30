@@ -3,22 +3,65 @@
   <div *ngFor="let network of networks" class="col-12 mt-3">
     <div class="card shadow-sm">
       <div class="row g-0">
-	<div class="col-12 col-sm-2 pt-2 pt-sm-0 ps-2 pe-2 pe-sm-0 d-flex justify-content-center align-items-center">
+	<!-- <div class="col-12 col-sm-2 pt-2 pt-sm-0 ps-2 pe-2 pe-sm-0 d-flex justify-content-center align-items-center">
 	  <img class="img-fluid rounded-start"
 	       [src]="util.formatImg(network.logo_url)" />
-	</div>
+	</div> -->
 	<div class="col">
-	  <div class="card-body">
-	    <h4 class="card-title">
+	  <div class="card-body pt-2 pb-2">
+	    <img [src]="util.formatImg(network.logo_image.meta.download_url)" />
+	    <h4 class="card-title mb-0">
 	      <a [routerLink]="['/networks', network.ropon_id]">{{
-		network.name}}</a>
+		network.title}}</a>
+	      <div class="underline"></div>
 	    </h4>
-	    <div class="underline"></div>
-	    <!--<div class="row">
-	      <div class="col-sm-1">Asset Types</div>
-	      <div class="col-sm-11">Foo</div>
-	    </div>-->
-	    <dl class="mb-0">
+	    @if (width < 576) {
+	    <div class="row blue">
+	      <div class="col-auto">Regions</div>
+	      <div class="col">{{network.regions.join(', ')}}</div>
+	    </div>
+	    <div class="row blue">
+	      <div class="col-auto">Subregions</div>
+	      <div class="col">{{network.subregions.join(', ')}}</div>
+	    </div> }
+	    @else {
+	    <div class="row blue">
+	      <div class="col-auto">Regions</div>
+	      <div class="col-auto region">
+		{{network.regions.join(', ')}}
+	      </div>
+	      <div class="col-auto">Subregions</div>
+	      <div class="col">{{network.subregions.join(', ')}}</div>
+	    </div> }
+	    <div class="row">
+	      <div class="col-auto">Domains</div>
+	      <div class="col domain">
+		<span *ngFor="let domain of network.domains"
+		      class="badge me-1">{{domain}}</span>
+	      </div>
+	    </div>
+	    <div class="row">
+	      <div class="col-auto">Disciplines</div>
+	      <div class="col discipline">
+		<span *ngFor="let discipline of network.disciplines"
+		      class="badge me-1">{{discipline}}</span>
+	      </div>
+	    </div>
+	    <div class="row">
+	      <div class="col-auto">Asset Types</div>
+	      <div class="col asset-type">
+		<span *ngFor="let assetType of network.asset_types"
+		      class="badge me-1">{{assetType}}</span>
+	      </div>
+	    </div>
+	    <div class="row">
+	      <div class="col-auto">Website</div>
+	      <div class="col">
+		<a [href]="network.website_url" target="_blank">{{
+		  util.formatUrl(network.website_url)}}</a>
+	      </div>
+	    </div>
+	    <!-- <dl class="mb-0">
 	      <span class="d-flex">
 		<dt>Regions</dt>
 		<dd class="region ms-2">{{
@@ -57,7 +100,7 @@
 		    util.formatUrl(network.website_url)}}</a>
 		</dd>
 	      </span>
-	    </dl>
+	    </dl> -->
 	    <!-- <table class="table table-sm table-borderless mb-0">
 	      <colgroup>
 		<col />

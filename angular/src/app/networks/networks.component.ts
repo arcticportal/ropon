@@ -4,7 +4,7 @@ import {HttpClient} from '@angular/common/http'
 import {ActivatedRoute, ActivationStart, Router,
   RouterLink} from '@angular/router'
 import {Title} from '@angular/platform-browser'
-import {filter, first, Subscription} from 'rxjs'
+import {filter, first, map, Subscription, switchMap} from 'rxjs'
 
 import {frontendDomain, Obj, UtilService} from '../util.service'
 import {ApiService} from '../api.service'
@@ -32,14 +32,45 @@ export class NetworksComponent {
   private subscription?: Subscription
   network: any = {}
   showBookmarkMessage = false
+  all: Obj[] = []
 
-  ngOnInit() {
+  navigate(s: string) {
+    this.router.navigateByUrl(s, {replaceUrl: true}) }
+
+  ngOnInit2() {
     this.api.getNetworks().subscribe(d => {
       this.render(d, this.route)
       this.subscription = this.router.events.pipe(filter(e =>
 	e instanceof ActivationStart)).subscribe(e => {
 	  //this.popover?.hide()
 	  this.render(d, e) }) }) }
+
+  ngOnInit() {
+    this.api.get('networks', this.route.snapshot.params[
+      'ropon_id'], '').subscribe(d => {
+	this.network = d
+	this.title.setTitle(d.name + suf)
+	this.subscription = this.router.events.pipe(
+	  filter(e => e instanceof ActivationStart),
+	  map(e => e.snapshot.params['ropon_id']),
+	  switchMap(id => this.api.get('networks', id, ''))).subscribe(
+	    d => {
+	      this.network = d
+	      this.title.setTitle(d.name + suf) }) })
+    this.api.getList().subscribe(d => {
+      this.all = d['items'].toSorted((a: Obj, b: Obj) => {
+	var s = a['title'].toLowerCase(), t = b['title'].toLowerCase()
+	return s < t ? -1 : s > t ? 1 : 0 }) }) }
+
+  prev() {
+    var i = this.all.findIndex((r: Obj) =>
+      r['ropon_id'] == this.route.snapshot.params['ropon_id'])
+    return i > 0 ? i - 1 : -1 }
+
+  next() {
+    var i = this.all.findIndex((r: Obj) =>
+      r['ropon_id'] == this.route.snapshot.params['ropon_id'])
+    return i >= 0 && i < this.all.length - 1 ? i + 1 : -1 }
 
   ngOnDestroy() {
     //this.popover?.hide()
@@ -52,6 +83,12 @@ export class NetworksComponent {
     this.network = d['networks'].find((r: Obj) => r['ropon_id'] == id)
     /*this.popover = new (window as any).bootstrap.Popover(
       document.getElementById('info'))*/
+    this.title.setTitle(this.network.name + suf) }
+
+  render2(d: Obj, e: Obj) {
+    var id = e['snapshot'].params['ropon_id']
+    if (!id) return
+    this.network = d
     this.title.setTitle(this.network.name + suf) }
 
   checkOldId(id: string) {

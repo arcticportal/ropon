@@ -19,7 +19,7 @@ export class ApiService {
   get(...args: (string | number)[]): Observable<any> {
     var join = this.util.pathJoin, k = join(...args)
     if (!k.startsWith('https://'))
-      k = join(backendDomain, apiPrefix, k, '/')
+      k = join(backendDomain, apiPrefix, k)
     return (k in this.db ? of(this.db[k]) :
       this.http.get(k).pipe(
 	map((r: any) => {
@@ -44,4 +44,12 @@ export class ApiService {
 	      networks: networks})))),
 	tap(d => { if (useCache) this.db['allNetworks'] = d }))).pipe(
 	  first()) }
+
+  getList(): Observable<Obj> {
+    return this.get(
+      'networks',
+      '?fields=logo_image,regions,subregions,domains,disciplines,asset_types,website_url,has_catalog') }
+
+  getPage(slug: string): Observable<Obj> {
+    return this.get('ropon_pages', '?fields=body&slug=' + slug) }
 }

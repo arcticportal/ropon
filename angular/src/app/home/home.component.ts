@@ -33,6 +33,6 @@ export class HomeComponent {
     this.ctrl.valueChanges.pipe(debounceTime(300)).subscribe(s => {
       this.router.navigate([], {queryParams: this.util.changedQuery(
 	this.route, 'search', s || '')}) })
-    this.api.getNetworks().subscribe(d => {
-      ;(window as any)._allNetworks = d }) }
+    /*this.api.getNetworks().subscribe(d => {
+      ;(window as any)._allNetworks = d })*/ }
 }

@@ -1,7 +1,7 @@
 import { Component, HostBinding, inject } from '@angular/core';
 import {ActivatedRoute, ActivationStart, Router} from '@angular/router'
 import {Title} from '@angular/platform-browser'
-import {filter, Subscription} from 'rxjs'
+import {filter, Subscription, switchMap} from 'rxjs'
 
 import {ApiService} from '../api.service'
 import {Obj, UtilService} from '../util.service'
@@ -24,12 +24,20 @@ export class PagesComponent {
   private subscription?: Subscription
   content: any = ''
 
-  ngOnInit() {
+  ngOnInit2() {
     this.api.get('ropon_pages').subscribe(d => {
       this.render(d, this.route)
       this.subscription = this.router.events.pipe(filter(e =>
 	e instanceof ActivationStart)).subscribe(e => {
 	  this.render(d, e) }) }) }
+
+  ngOnInit() {
+    this.api.getPage(this.route.snapshot.params['slug']).subscribe(d =>{
+      this.render2(d)
+      this.subscription = this.router.events.pipe(
+	filter(e =>e instanceof ActivationStart),
+	switchMap(e => this.api.getPage(e.snapshot.params['slug']))
+      ).subscribe(d => { this.render2(d) }) }) }
 
   ngOnDestroy() {
     this.subscription?.unsubscribe() }
@@ -43,5 +51,14 @@ export class PagesComponent {
       return }
     this.api.get('ropon_pages', d['id']).subscribe(p => {
       this.content = this.util.sanitise(p) })
+    this.title.setTitle(d['title'] + suf) }
+
+  render2(d: Obj) {
+    if (!d['items'].length) {
+      this.content = '<h1>404</h1>'
+      this.title.setTitle('404' + suf)
+      return }
+    d = d['items'][0]
+    this.content = this.util.sanitise(d)
     this.title.setTitle(d['title'] + suf) }
 }

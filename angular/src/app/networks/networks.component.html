@@ -13,7 +13,7 @@
     <div class="card shadow-lg">
       <div class="row g-0">
 	<div class="col-12 col-lg-2 pt-2 pt-lg-0 ps-2 pe-2 pe-lg-0 d-flex justify-content-center align-items-center">
-	  <img class="img-fluid rounded-start"
+	  <img class="img-fluid rounded-start h-75 object-fit-contain"
 	       [src]="util.formatImg(network.logo_url)" />
 	</div>
 	<div class="col">
@@ -161,4 +161,19 @@
 	 *ngIf="network.meta?.first_published_at">
     Last Modified: {{modDate()}}
   </small>
+  <div class="col-12">
+    <div class="row mt-3">
+      @if (prev() >= 0) {
+      <div class="col-auto">
+	<a (click)="navigate('/networks/' + all[prev()]['ropon_id'])"
+	   class="btn btn-outline-primary" type="button"><i class="bi-arrow-left"></i> {{all[prev()]['title']}}</a>
+      </div> }
+      @if (next() >= 0) {
+      <div class="ms-auto col-auto">
+	<a (click)="navigate('/networks/' + all[next()]['ropon_id'])"
+	   class="btn btn-outline-primary" type="button">{{all[next()]['title']}} <i class="bi-arrow-right"></i></a>
+      </div>
+      }
+    </div>
+  </div>
 </div>

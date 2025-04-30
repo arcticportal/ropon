@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import {NgFor, NgIf} from '@angular/common'
 import {ActivatedRoute, Params, RouterLink} from '@angular/router'
 
@@ -40,16 +40,29 @@ function filtered(a: Obj[], p: Params): Obj[] {
 export class HomeResultComponent {
   private route = inject(ActivatedRoute)
   private api = inject(ApiService)
+  private resizeTimeout: any
+  width = window.outerWidth
   util = inject(UtilService)
   total: number = 0
   all: Obj[] = []
   networks: any[] = []
 
-  ngOnInit() {
+  ngOnInit2() {
     this.api.getNetworks().subscribe(d => {
       this.total = d['total'],
       this.all = d['networks'].toSorted((a: Obj, b: Obj) => {
 	var s = a['name'].toLowerCase(), t = b['name'].toLowerCase()
+	return s < t ? -1 : s > t ? 1 : 0 })
+      this.networks = filtered(
+	this.all, this.route.snapshot.queryParams) })
+    this.route.queryParams.subscribe(p => {
+      this.networks = filtered(this.all, p) }) }
+
+  ngOnInit() {
+    this.api.getList().subscribe(d => {
+      this.total = d['meta'].total_count,
+      this.all = d['items'].toSorted((a: Obj, b: Obj) => {
+	var s = a['title'].toLowerCase(), t = b['title'].toLowerCase()
 	return s < t ? -1 : s > t ? 1 : 0 })
       this.networks = filtered(
 	this.all, this.route.snapshot.queryParams) })
@@ -62,4 +75,10 @@ export class HomeResultComponent {
     if (this.total != n) r.push(n, 'found in')
     r.push(this.total, 'total')
     return r.join(' ') }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    if (this.resizeTimeout) clearTimeout(this.resizeTimeout)
+    this.resizeTimeout = setTimeout(
+      (() => { this.width = window.outerWidth }).bind(this), 100) }
 }
