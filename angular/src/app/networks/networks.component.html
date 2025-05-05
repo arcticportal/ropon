@@ -1,0 +1,179 @@
+<nav class="row">
+  <!-- <a class="col-auto px-2 rounded-1 fs-5 fw-bold mt-3" -->
+  @if (showBookmarkMessage) {
+  <div class="bd-callout bd-callout-warning col-12">
+    Please update your bookmarks to the new URL.
+  </div> }
+  <a class="col-auto px-2 rounded-1 fs-5 mt-3"
+     (click)="location.back()"><i class="bi-arrow-left"></i>
+    BACK</a>
+</nav>
+<div class="row position-relative mt-4">
+  <div class="col-md-7 col-xxl-8">
+    <div class="card shadow-lg">
+      <div class="row g-0">
+	<div class="col-12 col-lg-2 pt-2 pt-lg-0 ps-2 pe-2 pe-lg-0 d-flex justify-content-center align-items-center">
+	  <img class="img-fluid rounded-start h-75 object-fit-contain"
+	       [src]="util.formatImg(network.logo_url)" />
+	</div>
+	<div class="col">
+	  <div class="card-body">
+	    <h4 class="card-title">{{network.name}}</h4>
+	    <p class="card-text">{{network.description}}</p>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+  <!-- <app-map class="mt-4 mt-md-0"
+	   [boxes]="network.geometry_field"></app-map> -->
+  <div class="col-12">
+    <dl class="row ms-2 mt-4">
+      <dt class="col-sm-3 col-lg-2">Abbreviation</dt>
+      <dd class="col-sm-9 col-lg-10">{{
+	network.abbreviation}}</dd>
+      <dt class="col-sm-3 col-lg-2">Website</dt>
+      <dd class="col-sm-9 col-lg-10">
+	<a [href]="network.website_url"
+	   target="_blank">{{util.formatUrl(network.website_url)}}</a>
+      </dd>
+      <dt class="col-sm-3 col-lg-2">Regions</dt>
+      <dd class="col-sm-9 col-lg-10 regions">{{
+	network.regions?.join(', ')}}</dd>
+      <dt class="col-sm-3 col-lg-2">Subregions</dt>
+      <dd class="col-sm-9 col-lg-10 regions">{{
+	network.subregions?.join(', ')}}</dd>
+      <dt class="col-sm-3 col-lg-2">Domains</dt>
+      <dd class="col-sm-9 col-lg-10" id="domain">
+	<span *ngFor="let domain of network.domains"
+	      class="badge me-1">{{domain}}</span>
+      </dd>
+      <dt class="col-sm-3 col-lg-2">Disciplines</dt>
+      <dd class="col-sm-9 col-lg-10" id="discipline">
+	<span *ngFor="let discipline of network.disciplines"
+	      class="badge me-1">{{discipline}}</span>
+      </dd>
+      <dt class="col-sm-3 col-lg-2">Organizations</dt>
+      <dd class="col-sm-9 col-lg-10">{{
+	network.organization_name?.join(', ')}}</dd>
+      <dt class="col-sm-3 col-lg-2">Year Started</dt>
+      <dd class="col-sm-9 col-lg-10">{{network.start_year}}</dd>
+      <dt class="col-sm-3 col-lg-2">Contact</dt>
+      <dd class="col-sm-9 col-lg-10">
+	<a [href]="contactHref()" target="_blank">{{contactText()}}</a>
+      </dd>
+      <dt class="col-sm-3 col-lg-2">Data Repositories</dt>
+      <dd class="col-sm-9 col-lg-10">
+	<ul class="list-unstyled mb-0">
+	  <li *ngFor="let d of network.data_repository_url">
+	    <a [href]="d.value"
+	       target="_blank">{{util.formatUrl(d.value)}}</a>
+	  </li>
+	</ul>
+      </dd>
+    </dl>
+  </div>
+  <div class="col-md-7 col-xxl-8">
+    <div class="card shadow-lg h-100">
+      <div class="card-body">
+	<dl class="row small mb-0">
+	  <dt class="col-sm-5 col-xl-4 col-xxl-3">
+	    Asset Types
+	  </dt>
+	  <dd class="col-sm-7 col-xl-8 col-xxl-9" id="asset-type">
+	    <span *ngFor="let assetType of network.asset_types"
+		  class="badge me-1">
+	      {{assetType}}
+	    </span>
+	  </dd>
+	  <dt class="col-sm-5 col-xl-4 col-xxl-3">
+	    Asset-Level Metadata Catalog
+	  </dt>
+	  <dd class="col-sm-7 col-xl-8 col-xxl-9">
+	    {{network.has_catalog}}
+	  </dd>
+	  <dt class="col-sm-5 col-xl-4 col-xxl-3">
+	    Metadata Access
+	  </dt>
+	  <dd class="col-sm-7 col-xl-8 col-xxl-9">
+	    {{network.metadata_access}}
+	  </dd>
+	  <dt class="col-sm-5 col-xl-4 col-xxl-3">
+	    Machine-Readable Access
+	  </dt>
+	  <dd class="col-sm-7 col-xl-8 col-xxl-9">
+	    {{network.machine_readable}}
+	  </dd>
+	  <dt class="col-sm-5 col-xl-4 col-xxl-3">
+	    Metadata Standards
+	  </dt>
+	  <dd class="col-sm-7 col-xl-8 col-xxl-9">
+	    {{network.metadata_standards?.join(', ')}}
+	  </dd>
+	  <dt class="col-sm-5 col-xl-4 col-xxl-3">
+	    Access Protocols
+	  </dt>
+	  <dd class="col-sm-7 col-xl-8 col-xxl-9">
+	    {{network.access_protocols?.join(', ')}}
+	  </dd>
+	  <dt class="col-sm-5 col-xl-4 col-xxl-3">
+	    Metadata Catalog
+	  </dt>
+	  <dd class="col-sm-7 col-xl-8 col-xxl-9">
+	    <ul class="list-unstyled mb-0">
+	      <li *ngFor="let d of network.metadata_catalog_url">
+		<a [href]="d.value"
+		   target="_blank">{{util.formatUrl(d.value)}}</a>
+	      </li>
+	    </ul>
+	  </dd>
+	</dl>
+      </div>
+    </div>
+  </div>
+  <app-map class="mt-4 mt-md-0"
+	   [boxes]="network.geometry_field"></app-map>
+  <div class="col-md-5 col-xxl-4 mt-4 mt-md-0">
+    <div class="card shadow-lg h-100">
+      <small class="row card-body">
+	<h6 class="col card-title fw-bold">Observing Assets</h6>
+	<p class="col-12 card-text">
+	  Many organizations compile structured information about
+	  “observing assets”: Components of <i>in situ</i>
+	  infrastructure such as monitoring sites or mobile platforms,
+	  as well as activities such as projects, campaigns, or
+	  initiatives.  This section conveys the level of
+	  interoperability for such “asset-level” metadata – whether
+	  details are tracked, if they are publicly available, and if so
+	  how.
+	</p>
+	<a class="col-auto ms-auto"
+	   routerLink="/ropon-pages/faq">Learn more</a>
+      </small>
+    </div>
+  </div>
+  <small class="col-12 ms-3 mt-4">
+    RoPON ID:
+    <a [routerLink]="['/networks', network.ropon_id]">{{
+      frontendDomain}}/networks/{{network.ropon_id}}</a>
+  </small>
+  <small class="col-12 ms-3"
+	 *ngIf="network.meta?.first_published_at">
+    Last Modified: {{modDate()}}
+  </small>
+  <div class="col-12">
+    <div class="row mt-3">
+      @if (prev() >= 0) {
+      <div class="col-auto">
+	<a (click)="navigate('/networks/' + all[prev()]['ropon_id'])"
+	   class="btn btn-outline-primary" type="button"><i class="bi-arrow-left"></i> {{all[prev()]['title']}}</a>
+      </div> }
+      @if (next() >= 0) {
+      <div class="ms-auto col-auto">
+	<a (click)="navigate('/networks/' + all[next()]['ropon_id'])"
+	   class="btn btn-outline-primary" type="button">{{all[next()]['title']}} <i class="bi-arrow-right"></i></a>
+      </div>
+      }
+    </div>
+  </div>
+</div>

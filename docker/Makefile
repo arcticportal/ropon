@@ -1,10 +1,12 @@
-up:
+.PHONY: subst
+
+up: subst
 	docker compose up
 
 down:
 	docker compose down --remove-orphans
 
-buildup:
+buildup: subst
 	docker compose up --build
 
 detachup:
@@ -42,3 +44,8 @@ loaddb:
 	sudo chown root postgres.tar.zst
 	sudo tar -xI unzstd -f postgres.tar.zst -C .. --recursive-unlink
 	sudo chown ${USER} postgres.tar.zst
+
+subst:
+	for tmp in app.config gdpr.service util.service;\
+	  do ./subst ../angular/src/app/$$tmp.ts.template\
+	       >../angular/src/app/$$tmp.ts; done
