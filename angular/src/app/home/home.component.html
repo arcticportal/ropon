@@ -1,0 +1,56 @@
+<div class="row">
+  <p class="col-12 lead text-secondary mt-3 mb-4">
+    Systems and related organizations that coordinate or track observing
+    activities &amp; infrastructure in the polar regions.
+    <!-- <div class="alert alert-warning">
+      <i class="bi-info-circle-fill me-1"></i>
+      This registry has been released as a phase 1 version for
+      demonstration purposes.  Plans are underway for improvements in
+      scope, functionality, and interoperability.  Feedback is
+      appreciated.
+    </div> -->
+  </p>
+  @if (window.innerWidth >= 992) {
+  <aside class="col-sm-4 col-md-3">
+    <app-home-filter />
+    <div class="d-grid mt-3">
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLScMiZuUXeNc8Pe0YFM-CMeXTzKNSvRP5j1xy07zMH8400WzCw/viewform?usp=sf_link"
+	 class="btn btn-primary btn-lg" target="_blank"
+	 type="button">Suggest a Network</a>
+    </div>
+  </aside>
+  <div class="col">
+    <div class="row">
+      <div class="col position-relative">
+	<div class="input-group">
+	  <input type="text" class="form-control" [formControl]="ctrl"
+		 placeholder="Search observing network"
+		 aria-label="Search" />
+	</div>
+	<i [class]="'bi-' + (ctrl.value ? 'x' : 'search')"
+	   (click)="ctrl.setValue('')"></i>
+      </div>
+      <div class="col-auto pt-1">{{result ? result.count() : ''}}</div>
+      <app-home-result class="col-12" />
+    </div>
+  </div> }
+  @else {
+  <div class="col-12 position-relative">
+    <div class="input-group">
+      <input type="text" class="form-control" [formControl]="ctrl"
+	     placeholder="Search observing network"
+	     aria-label="Search" />
+    </div>
+	<i [class]="'bi-' + (ctrl.value ? 'x' : 'search')"
+	   (click)="ctrl.setValue('')"></i>
+  </div>
+  <app-home-filter class="col-12 mt-3" />
+  <div class="ms-auto col-auto mt-2">{{
+    result ? result.count() : ''}}</div>
+  <app-home-result class="col-12" />
+  <div class="d-grid mt-3">
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLScMiZuUXeNc8Pe0YFM-CMeXTzKNSvRP5j1xy07zMH8400WzCw/viewform?usp=sf_link"
+       class="btn btn-primary btn-lg" target="_blank"
+       type="button">Suggest a Network</a>
+  </div> }
+</div>

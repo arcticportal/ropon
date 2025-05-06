@@ -1,0 +1,92 @@
+#!/usr/bin/python3
+import os, re, sys, typing as typ
+from io import IOBase
+
+doc = '''Usage: subst TEMPLATE [ENV [LEFT_DELIMITER [RIGHT_DELIMITER]]]
+
+For each key=value pair in ENV file, replace every occurrence of "«key»"
+in TEMPLATE file with "value" and write to stdout.
+
+ENV defaults to ".env" if not provided.
+
+If LEFT_DELIMITER and RIGHT_DELIMITER are not provided, they default to
+guillemets.  If LEFT_DELIMITER is provided but RIGHT_DELIMITER is not,
+then RIGHT_DELIMITER is set to empty string.
+
+Anseok Joo (anseok@gmail.com) - public domain - v0.1.2024-12-01'''
+
+delimiterLeft: str = '«'
+delimiterRight: str = '»'
+
+
+## Functions ###########################################################
+def readEnv(a: typ.Iterable[str]) -> dict[str, str]:
+    'Read key-value pairs into a dict'
+    d = {}
+    for s in a:
+        s = s.lstrip()
+        if not s or s[0] == '#': continue
+        pair = s.split('=', 1)
+        assert len(pair) == 2, f'Invalid line: {s}'
+        k = pair[0].rstrip()
+        assert k, f'Empty key: {s}'
+        v = pair[1].strip()
+        # Use quotes to preserve whitespaces, \, and other quotes
+        d[k] = v[1:-1] if (
+            len(v) > 1 and v[0] in '\'"' and v[0] == v[-1]) else v
+    return d
+
+
+def pattern(d: typ.Collection[str],
+            left: str, right: str) -> re.Pattern[str]:
+    'Return a regex pattern for matching any keys'
+    assert len(d) > 0, 'Empty dictionary'
+    esc, ks = re.escape, iter(d)
+    a = [esc(left), '(', esc(next(ks))]
+    for k in ks: a.extend(('|', esc(k)))
+    a.extend((')', esc(right)))
+    return re.compile(''.join(a))
+
+
+## Generators ##########################################################
+def lines(ss: str) -> typ.Iterable[str]:
+    'Yield lines with trailing backslashes removed'
+    a = ss.splitlines()
+    buf, n = '', len(a) - 1
+    for i, s in enumerate(a):
+        s, buf = buf + s, ''
+        # To escape line-end \, user can quote value
+        if s.endswith('\\') and i < n: buf = s[:-1]; continue
+        yield s
+
+
+def subst(d: dict[str, str], fd: IOBase,
+          left: str, right: str) -> typ.Iterable[str]:
+    'Replace each "«key»" in template with corresponding "value"'
+    if not d: yield from fd; return
+    def repl(m: re.Match[str]) -> str: return d[m.group(1)]
+    pat = pattern(d, left, right)
+    for s in fd: yield pat.sub(repl, s)
+
+
+## Run #################################################################
+def argParse() -> list[str]:
+    a = sys.argv[1:]
+    if len(a) < 1 or len(a) > 4: sys.exit(doc)
+    if len(a) < 2: a.append('.env')
+    for s in a[:2]:
+        assert os.path.isfile(s), f'File not found: {s}'
+        assert os.access(s, os.R_OK), f'Permission denied: {s}'
+    if len(a) < 3: a.extend([delimiterLeft, delimiterRight])
+    if len(a) < 4: a.append('')
+    return a
+
+
+def main(template: str, env: str, left: str, right: str) -> None:
+    with open(env, encoding='utf-8') as fd: s = fd.read()
+    d = readEnv(lines(s))
+    with open(template, encoding='utf-8') as fd:
+        for s in subst(d, fd, left, right): print(s, end='')
+
+
+if __name__ == '__main__': main(*argParse())

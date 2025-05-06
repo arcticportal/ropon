@@ -1,0 +1,19 @@
+# Base image with Node.js for Angular development
+FROM mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm
+	
+# # Set working directory
+# WORKDIR /app
+
+# # Copy package.json and install dependencies
+# COPY angular/package.json angular/package-lock.json ./
+# RUN npm install
+
+# Install Angular CLI globally
+# RUN npm install -g @angular/cli
+
+
+# Expose Angular development server port
+EXPOSE 4200
+
+# Start Angular development server
+CMD ["npm", "run", "start"]

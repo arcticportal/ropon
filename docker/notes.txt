@@ -1,0 +1,15 @@
+-*- mode: org -*-
+
+* TODO
+** DONE Footer
+ + white background
+ + preserve border radius
+ + gutter space
+ + rows / columns by innerWidth
+** Results
+ + Position logo properly on small screen
+ + Subregions should go to next line on small screen
+ + Convert from table to grid / css-grid?
+** Filter
+ + On small screen expand / minimise filter component
+ + Set clear icon to 1em

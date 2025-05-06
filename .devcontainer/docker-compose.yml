@@ -1,12 +1,12 @@
 
 services:
-  app:
+  backend:
     build:
       context: ..
-      dockerfile: .devcontainer/Dockerfile
+      dockerfile: .devcontainer/Dockerfile-backend
 
     volumes:
-      - ../..:/workspaces
+      - ..:/workspace
       - ../../storage:/srv/media
 
     # Overrides default command so things don't shut down after the process ends.
@@ -35,6 +35,20 @@ services:
 
     # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile-angular
+    volumes:
+      - ..:/workspace
+    # ports:
+    #   - "4200"
+    env_file:
+      - .env.dev
+    command: sleep infinity
+
+    # network_mode: service:db
 
 volumes:
   postgres-data:
