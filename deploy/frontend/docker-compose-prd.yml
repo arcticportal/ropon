@@ -1,0 +1,11 @@
+# /workspace/deploy/frontend/docker-compose-prd.yml
+version: '3.8'
+services:
+  frontend:
+    image: arcticportal.azurecr.io/ropon/frontend:prd # Production image
+    environment:
+      - ANGULAR_ENV=${ANGULAR_ENV:-production} # just a placeholder
+    # In production, we typically don't mount volumes for the code
+    # as the image should be self-contained.
+    # Add any production-specific configurations here.
+    

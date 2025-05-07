@@ -1,0 +1,66 @@
+# /workspace/deploy/docker-compose-test.yml
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ../
+      dockerfile: deploy/frontend/Dockerfile
+      args:
+        ANGULAR_ENV: dev # Updated from staging
+    ports:
+      - "4200:80" # Nginx serves on 80
+    env_file:
+      - ./frontend/.env.test # Assuming .env.test is for 'dev' (staging) frontend
+    volumes:
+      - ../angular:/srv/angular
+      - /srv/angular/node_modules
+    depends_on:
+      - backend
+    networks:
+      - ropon_network
+
+  backend:
+    build:
+      context: ../
+      dockerfile: deploy/backend/Dockerfile
+      args:
+        ENVIRONMENT: dev # Updated from test
+    command: ./docker-entrypoint.sh
+    env_file:
+      - ./backend/.env.test # Assuming .env.test is for 'dev' (staging) backend
+    volumes:
+      - ../backend:/app
+      - media_volume_test:/app/media
+    ports:
+      - "8001:8000" # Use a different host port for test backend
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - ropon_network
+
+  db:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    volumes:
+      - postgres_data_test:/var/lib/postgresql/data
+    env_file:
+      - ./backend/.env.test # DB credentials from backend dev (staging) env file
+    ports:
+      - "5433:5432" # Use a different host port for test DB
+    networks:
+      - ropon_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data_test:
+  media_volume_test:
+
+networks:
+  ropon_network:
+    driver: bridge
