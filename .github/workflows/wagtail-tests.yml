@@ -27,6 +27,8 @@ jobs:
     outputs:
       # Define an output for the artifact name to ensure uniqueness if needed
       db_artifact_name: db_backup_${{ github.run_id }}_${{ github.run_attempt }}
+      wagtail_image_artifact_name: wagtail_image
+      wagtail_image_path: ${{ runner.temp }}/wagtail_image.tar
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,8 +36,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build service images
-        run: docker compose -f deploy/backend/docker-compose-test.yml build # Build specific services or all
+      - name: Build and export wagtail image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./deploy/backend/Dockerfile
+          push: false
+          tags: wagtail_image:local
+          outputs: type=docker,dest= ${{ steps.prepare_environment.outputs.wagtail_image_path }}
+        
+      - name: Upload Wagtail image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.prepare_environment.outputs.wagtail_image_artifact_name }}
+          path: ${{ steps.prepare_environment.outputs.wagtail_image_path }}
 
       - name: Pull database image
         run: docker compose -f deploy/backend/docker-compose-test.yml pull
@@ -101,9 +115,20 @@ jobs:
             tar xzf /backup_input/db_backup.tar.gz -C /volume_data_to_restore
           echo "Database restored."
 
-      - name: Build images (should leverage cache)
-        run: docker compose -f deploy/backend/docker-compose-test.yml build
+      - name: Download Wagtail image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.prepare_environment.outputs.wagtail_image_artifact_name }}
+          path: ${{ runner.temp }}
 
+      - name: Load Wagtail image artifact
+        run: |
+          # Load the Wagtail image from the artifact
+          docker load -i ${{ needs.prepare_environment.outputs.wagtail_image_path }}
+          docker image ls 
+          echo "Wagtail image loaded."
+          
+      
       - name: Pull DB image (should be cached)
         run: docker compose -f deploy/backend/docker-compose-test.yml pull
 
@@ -122,6 +147,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -149,9 +175,19 @@ jobs:
           docker run --rm -v "${DB_VOLUME_NAME}:/volume_data_to_restore" -v "$(pwd)/db_artifact_dir:/backup_input" alpine \
             tar xzf /backup_input/db_backup.tar.gz -C /volume_data_to_restore
 
-      - name: Build images (should leverage cache)
-        run: docker compose -f deploy/backend/docker-compose-test.yml build
+      - name: Download Wagtail image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.prepare_environment.outputs.wagtail_image_artifact_name }}
+          path: ${{ runner.temp }}
 
+      - name: Load Wagtail image artifact
+        run: |
+          # Load the Wagtail image from the artifact
+          docker load -i ${{ needs.prepare_environment.outputs.wagtail_image_path }}
+          docker image ls 
+          echo "Wagtail image loaded."
+     
       - name: Pull required images (should be cached)
         run: docker compose -f deploy/backend/docker-compose-test.yml pull
 
@@ -214,7 +250,7 @@ jobs:
             cat response.html
             exit 1
           fi
-          
+
       - name: Show Docker logs on job failure
         if: failure()
         run: |

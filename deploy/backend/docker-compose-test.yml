@@ -1,8 +1,6 @@
 services:
   wagtail:
-    build:
-      context: ../../
-      dockerfile: deploy/backend/Dockerfile
+    image: wagtail:local
     command: ./docker-entrypoint.sh
     env_file:
       - .env.test
