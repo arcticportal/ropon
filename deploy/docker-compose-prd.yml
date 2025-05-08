@@ -1,5 +1,4 @@
 # /workspace/deploy/docker-compose-prd.yml
-version: '3.8'
 
 services:
   frontend:

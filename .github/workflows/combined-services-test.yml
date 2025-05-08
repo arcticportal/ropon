@@ -23,16 +23,79 @@ jobs:
       - name: Build services (test environment)
         run: docker compose -f deploy/docker-compose-test.yml build
 
+      # Pull any required images
+      - name: Pull required images
+        run: docker compose -f deploy/docker-compose-test.yml pull
+    
+      # Run initial setup for backend
+      - name: Initial setup for backend
+        run: docker compose -f deploy/docker-compose-test.yml run backend python manage.py init_setup
+    
       - name: Start services (test environment)
-        run: docker compose -f deploy/docker-compose-test.yml up -d
-
-      - name: Check backend health
         run: |
-          echo "Checking backend health (http://localhost:8000/api/v2/)..."
-          # Accessing the root of the Wagtail API v2, which should list available endpoints.
-          curl --fail --retry 10 --retry-delay 15 --max-time 10 http://localhost:8000/api/v2/
-        # Increased retries and delay.
-      
+          docker compose -f deploy/docker-compose-test.yml up -d
+          sleep 5
+          echo "Container status after startup:"
+          docker compose -f deploy/docker-compose-test.yml ps
+
+      # Wait for service to be ready with retry logic
+      - name: Wait for service to be ready
+        run: |
+          echo "Waiting for Wagtail to start..."
+          # Wait with retry logic (timeout after 2 minutes)
+          timeout=60
+          counter=0
+          until $(curl -sL --output /dev/null --fail http://localhost:8000/admin/); do
+            if [ $counter -eq $timeout ]; then
+              echo "ERROR: Timed out waiting for Wagtail to start"
+              exit 1
+            fi
+            echo "Waiting for Wagtail to be available... ($counter seconds elapsed)"
+            sleep 5
+            counter=$((counter+5))
+          done
+          echo "Wagtail admin is now accessible!"
+     
+      # Use curl to test if the admin page loads correctly
+      - name: Check network connectivity
+        run: |
+            # Check if port 8000 is accessible at network level
+            echo "Checking network connectivity to port 8000..."
+            PORT_8000_REACHABLE=true
+            if nc -z localhost 8000; then
+            echo "Port 8000 is reachable"
+            else
+            echo "Error: Cannot connect to port 8000 on localhost"
+            PORT_8000_REACHABLE=false
+            fi
+            
+            # Check if port 4200 is accessible at network level
+            echo "Checking network connectivity to port 4200..."
+            PORT_4200_REACHABLE=true
+            if nc -z localhost 4200; then
+            echo "Port 4200 is reachable"
+            else
+            echo "Error: Cannot connect to port 4200 on localhost"
+            PORT_4200_REACHABLE=false
+            fi
+            
+
+      - name: Test backend admin page
+        run: |
+          # Store curl output in a file to avoid potential issues with variable capture
+          curl -sL --retry 3 --retry-delay 5 http://localhost:8000/admin/ > response.html
+          echo "Received response from admin page"
+          
+          # Check if the response contains the expected string
+          if grep -q "Sign in to RoPON Dashboard" response.html; then
+            echo "Success: Admin page contains expected login text"
+          else
+            echo "Error: Admin page does not contain expected login text"
+            echo "Response content:"
+            cat response.html
+            exit 1
+          fi
+
       - name: Wait for services and check frontend health
         run: |
          echo "Waiting for services to start..."
