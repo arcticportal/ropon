@@ -21,6 +21,13 @@ on:
       - 'deploy/docker-compose-*.yml'
       - '.github/workflows/angular-build.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Cancel any in-progress runs of this workflow for the same branch
+  # This is useful to avoid multiple builds for the same branch
+  # and to save resources.
+  cancel-in-progress: true
+  
 jobs:
   build_and_push_angular_docker:
     runs-on: ubuntu-latest
@@ -61,7 +68,7 @@ jobs:
           images: arcticportal.azurecr.io/ropon/angular
           tags: |
             type=raw,value=${{ github.ref_name }}-{{date 'YYYY-MM-DD'}}
-            type=ref,event=branch,prefix=${{ steps.determine_env.outputs.ANGULAR_ENV }}-
+            type=ref,event=branch,prefix=${{ github.ref_name }}
             type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
             type=raw,value=${{ steps.determine_env.outputs.ANGULAR_ENV }}-latest,enable=${{ github.ref_name == 'main' || github.ref_name == 'dev' }}
 

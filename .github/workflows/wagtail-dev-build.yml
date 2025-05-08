@@ -1,4 +1,12 @@
 name: Build and Push Wagtail Docker Image
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Cancel any in-progress runs of this workflow for the same branch
+  # This is useful to avoid multiple builds for the same branch
+  # and to save resources.
+  cancel-in-progress: true
+  
 on:
   workflow_run:
     workflows: ["Run Wagtail Tests"]

@@ -29,3 +29,4 @@ services:
 
 volumes:
   postgres-data:
+    name: ropon_postgres_data
