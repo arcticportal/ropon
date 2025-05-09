@@ -47,7 +47,7 @@ jobs:
           context: .
           file: ./deploy/backend/Dockerfile
           push: false
-          tags: wagtail_image:local
+          tags: wagtail:local
           outputs: type=docker,dest=${{ runner.temp }}/${{ env.wagtail_image_file }}
         
       - name: Upload Wagtail image artifact
