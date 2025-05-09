@@ -21,6 +21,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  db_artifact_name: db_backup_${{ github.run_id }}_${{ github.run_attempt }}
+  wagtail_image_artifact_name: wagtail_image
+  wagtail_image_file: wagtail_image.tar
+
 jobs:
   prepare_environment:
     runs-on: ubuntu-latest
@@ -28,7 +33,7 @@ jobs:
       # Define an output for the artifact name to ensure uniqueness if needed
       db_artifact_name: db_backup_${{ github.run_id }}_${{ github.run_attempt }}
       wagtail_image_artifact_name: wagtail_image
-      wagtail_image_path: ${{ runner.temp }}/wagtail_image.tar
+      wagtail_image_path: ${{ runner.temp }}/${{ env.wagtail_image_file }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,13 +48,13 @@ jobs:
           file: ./deploy/backend/Dockerfile
           push: false
           tags: wagtail_image:local
-          outputs: type=docker,dest= ${{ steps.prepare_environment.outputs.wagtail_image_path }}
+          outputs: type=docker,dest=${{ runner.temp }}/${{ env.wagtail_image_file }}
         
       - name: Upload Wagtail image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.prepare_environment.outputs.wagtail_image_artifact_name }}
-          path: ${{ steps.prepare_environment.outputs.wagtail_image_path }}
+          name: ${{ env.wagtail_image_artifact_name }}
+          path: ${{ runner.temp }}/${{ env.wagtail_image_file }}
 
       - name: Pull database image
         run: docker compose -f deploy/backend/docker-compose-test.yml pull
@@ -76,7 +81,7 @@ jobs:
       - name: Upload database artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.prepare_environment.outputs.db_artifact_name || format('db_backup_{0}_{1}', github.run_id, github.run_attempt) }}
+          name: ${{ env.db_artifact_name }}
           path: db_artifact_dir/db_backup.tar.gz
 
       - name: Clean up Docker environment
@@ -125,7 +130,7 @@ jobs:
         run: |
           # Load the Wagtail image from the artifact
           docker load -i ${{ needs.prepare_environment.outputs.wagtail_image_path }}
-          docker image ls 
+          docker image ls
           echo "Wagtail image loaded."
           
       
