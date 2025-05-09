@@ -2,7 +2,7 @@
 
 services:
   frontend:
-    image: arcticportal.azurecr.io/ropon/frontend:dev
+    image: arcticportal.azurecr.io/ropon/angular:dev
     environment:
       - ANGULAR_ENV=${ANGULAR_ENV:-dev} # just a placeholder
    

@@ -44,9 +44,9 @@ if command -v gunicorn &> /dev/null; then
         echo "Using default gunicorn configuration"
         exec gunicorn \
             --bind 0.0.0.0:${DJANGO_PORT:-8000} \
-            --workers=${GUNICORN_WORKERS:-4} \
+            --workers=${GUNICORN_WORKERS:-2} \
             --worker-class=gthread \
-            --threads=${GUNICORN_THREADS:-4} \
+            --threads=${GUNICORN_THREADS:-2} \
             --timeout=${GUNICORN_TIMEOUT:-120} \
             ropon.wsgi:application
     fi

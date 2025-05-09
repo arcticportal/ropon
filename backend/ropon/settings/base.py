@@ -273,8 +273,9 @@ AUTH_USER_MODEL = 'ropon_auth.RoponUser'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# commented out to avoid migration issues with 3rd party packages
+# https://docs.djangoproject.com/en/5.1/releases/5.0/#automatic-primary-key-fields
+# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Django REST Framework settings
 REST_FRAMEWORK = {
