@@ -49,107 +49,23 @@ jobs:
        
          # Run wagtail, django tests
        - name: Run tests
-         run: docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py test
-
-    # Stop the containers
-       - name: Stop containers
-         run: docker compose -f deploy/backend/docker-compose-test.yml down
-
-
-  # test compose file setup for wagtail
-  # currently this is kep seaprate job just to keep it clean, although it takes more time
-  # maybe combine it with the above job in the future
-  # or the common steps till initial setup can be put into a separate job which can share resources
-  # and then the rest of the steps can be run in parallel
-  test_wagtail_container:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      # Build the containers using docker-compose
-      - name: Build container
-        run: docker compose -f deploy/backend/docker-compose-test.yml build
-      
-      # Pull any required images
-      - name: Pull required images
-        run: docker compose -f deploy/backend/docker-compose-test.yml pull
-      
-      # Run initial setup
-      - name: Initial setup
-        run: docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py init_setup
-      
-      # Start the containers in detached mode
-      - name: Start wagtail service
-        run: |
-          docker compose -f deploy/backend/docker-compose-test.yml up -d
-          sleep 5
-          echo "Container status after startup:"
+         run: |
+          echo "Running tests..."
+          echo "list running containers before tests"
           docker compose -f deploy/backend/docker-compose-test.yml ps
-      
-      # Display container logs for debugging
-      - name: Display container logs
-        run: |
-          echo "Displaying Wagtail container logs:"
-          docker compose -f deploy/backend/docker-compose-test.yml logs wagtail
-          echo "Checking container health:"
-          docker compose -f deploy/backend/docker-compose-test.yml ps wagtail
-      # Wait for service to be ready with retry logic
-      - name: Wait for service to be ready
-        run: |
-          echo "Waiting for Wagtail to start..."
-          # Wait with retry logic (timeout after 2 minutes)
-          timeout=60
-          counter=0
-          interval=5
-          until $(curl -sL --output /dev/null --fail http://localhost:8000/admin/); do
-            if [ $counter -eq $timeout ]; then
-              echo "ERROR: Timed out waiting for Wagtail to start"
-              exit 1
-            fi
-            echo "Waiting for Wagtail to be available... ($counter seconds elapsed)"
-            sleep $interval
-            counter=$((counter+$interval))
-          done
-          echo "Wagtail admin is now accessible!"
-      
-      # Use curl to test if the admin page loads correctly
-      - name: Check network connectivity
-        run: |
-          # Check if port 8000 is accessible at network level
-          echo "Checking network connectivity to port 8000..."
-          if nc -z localhost 8000; then
-            echo "Port 8000 is reachable"
-          else
-            echo "Error: Cannot connect to port 8000 on localhost"
-            exit 1
-          fi
-      
-      - name: Test admin page
-        run: |
-          # Store curl output in a file to avoid potential issues with variable capture
-          curl -sL --retry 3 --retry-delay 5 http://localhost:8000/admin/ > response.html
-          echo "Received response from admin page"
-          
-          # Check if the response contains the expected string
-          if grep -q "Sign in to RoPON Dashboard" response.html; then
-            echo "Success: Admin page contains expected login text"
-          else
-            echo "Error: Admin page does not contain expected login text"
-            echo "Response content:"
-            cat response.html
-            exit 1
-          fi
-      
-      - name: Show Docker logs on job failure
-        if: failure()
-        run: |
-          echo "Displaying Wagtail container logs:"
-          docker compose -f deploy/backend/docker-compose-test.yml logs wagtail || echo "Failed to fetch logs for Wagtail container"
-          echo "Checking DB logs:"
-          docker compose -f deploy/backend/docker-compose-test.yml logs db || echo "Failed to fetch logs for DB container"
-      # Stop the containers
-      - name: Stop containers
-        if: always()
-        run: docker compose -f deploy/backend/docker-compose-test.yml down -v --remove-orphans
+          echo "list all containers before tests"
+          docker ps -a
+          docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py test
+          echo "list running containers after tests"
+          docker compose -f deploy/backend/docker-compose-test.yml ps
+          echo "list all containers after tests"
+          docker ps -a
+   
+       - name: Show Docker logs on failure
+         if: failure()
+         run: docker compose -f deploy/backend/docker-compose-test.yml logs
+       
+       - name: Stop services
+         if: always()
+         run: docker compose -f deploy/backend/docker-compose-test.yml down -v --remove-orphans
+  

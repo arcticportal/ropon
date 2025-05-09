@@ -1,4 +1,16 @@
 name: Combined Services Health Check
+# Check the health of all services
+# This workflow is triggered on push or pull request to main or dev branches
+# It checks the health of the frontend and backend services
+# and verifies that the admin page is accessible.
+# It also checks the network connectivity to the frontend and backend services.
+# The workflow is triggered by changes to the frontend and backend directories
+# and the Docker Compose files.
+# It uses the Docker Compose file for the test environment
+# and runs the services in detached mode.
+# The workflow includes steps to build the services, start them,
+# and check their health.
+# It also includes steps to stop the services and remove any orphaned containers.
 
 on:
   push:
@@ -27,6 +39,13 @@ on:
       - 'backend/**'
       - 'deploy/backend/.env.test'
       - '.github/workflows/combined-services-test.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Cancel any in-progress runs of this workflow for the same branch
+  # This is useful to avoid multiple builds for the same branch
+  # and to save resources.
+  cancel-in-progress: true
 
 jobs:
   test-combined-services:
@@ -60,17 +79,18 @@ jobs:
       - name: Wait for service to be ready
         run: |
           echo "Waiting for Wagtail to start..."
-          # Wait with retry logic (timeout after 2 minutes)
+          # Wait with retry logic (timeout after 1 minute)
           timeout=60
           counter=0
+          interval=5
           until $(curl -sL --output /dev/null --fail http://localhost:8000/admin/); do
             if [ $counter -eq $timeout ]; then
               echo "ERROR: Timed out waiting for Wagtail to start"
               exit 1
             fi
             echo "Waiting for Wagtail to be available... ($counter seconds elapsed)"
-            sleep 5
-            counter=$((counter+5))
+            sleep $interval
+            counter=$((counter+interval))
           done
           echo "Wagtail admin is now accessible!"
      
@@ -81,20 +101,20 @@ jobs:
             echo "Checking network connectivity to port 8000..."
             PORT_8000_REACHABLE=true
             if nc -z localhost 8000; then
-            echo "Port 8000 is reachable"
+              echo "Port 8000 is reachable"
             else
-            echo "Error: Cannot connect to port 8000 on localhost"
-            PORT_8000_REACHABLE=false
+              echo "Error: Cannot connect to port 8000 on localhost"
+              PORT_8000_REACHABLE=false
             fi
             
             # Check if port 4200 is accessible at network level
             echo "Checking network connectivity to port 4200..."
             PORT_4200_REACHABLE=true
             if nc -z localhost 4200; then
-            echo "Port 4200 is reachable"
+              echo "Port 4200 is reachable"
             else
-            echo "Error: Cannot connect to port 4200 on localhost"
-            PORT_4200_REACHABLE=false
+              echo "Error: Cannot connect to port 4200 on localhost"
+              PORT_4200_REACHABLE=false
             fi
             
 
@@ -116,12 +136,10 @@ jobs:
 
       - name: Wait for services and check frontend health
         run: |
-         echo "Waiting for services to start..."
-         sleep 30 # Initial wait for services to come up
-         echo "Checking frontend health (http://localhost:4200)..."
-         curl --fail --retry 10 --retry-delay 15 --max-time 10 http://localhost:4200
-        # Increased retries and delay to allow services ample time to initialize.
-
+          echo "Waiting for services to start..."
+          echo "Checking frontend health (http://localhost:4200)..."
+          curl --fail --retry 10 --retry-delay 5 --max-time 10 http://localhost:4200
+          echo "Frontend is healthy!"
      
       - name: Show Docker logs on failure
         if: failure()
@@ -136,4 +154,4 @@ jobs:
 
       - name: Stop services
         if: always() # Ensures services are stopped even if previous steps fail
-        run: docker compose -f deploy/docker-compose-test.yml down
+        run: docker compose -f deploy/docker-compose-test.yml down -v --remove-orphans
