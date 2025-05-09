@@ -1,6 +1,6 @@
 # /workspace/deploy/frontend/docker-compose-dev.yml
 services:
   frontend:
-    image: arcticportal.azurecr.io/ropon/frontend:dev 
+    image: arcticportal.azurecr.io/ropon/angular:dev 
     environment: # for any dev-specific environment variables
       - ANGULAR_ENV=${ANGULAR_ENV:-dev} # just a placeholder

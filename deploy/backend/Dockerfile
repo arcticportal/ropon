@@ -64,17 +64,18 @@ WORKDIR /app
 # Set this directory to be owned by the "$PUSER=wagtail" user.
 RUN chown ${PUSER}:${PUSER} /app
 
+
+# Install the project requirements based on environment
+COPY deploy/backend/requirements.$ENVIRONMENT.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt \
+    && rm -rf requirements.txt
+
+
 # Copy the source code of the project into the container.
 COPY --chown=${PUSER}:${PUSER} backend/ .
 
 # Use user "wagtail" to run the build commands below and the server itself.
 USER ${PUSER}
-
-# Install the project requirements based on environment
-COPY deploy/backend/requirements.$ENVIRONMENT.txt requirements.txt
-# Remove --user flag since it's causing permission issues
-RUN pip install --user --no-cache-dir -r requirements.txt \
-    && rm -rf requirements.txt
 
 # Create migrations.
 RUN python manage.py makemigrations
