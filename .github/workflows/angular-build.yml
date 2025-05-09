@@ -27,7 +27,7 @@ concurrency:
   # This is useful to avoid multiple builds for the same branch
   # and to save resources.
   cancel-in-progress: true
-  
+
 jobs:
   build_and_push_angular_docker:
     runs-on: ubuntu-latest
@@ -68,9 +68,9 @@ jobs:
           images: arcticportal.azurecr.io/ropon/angular
           tags: |
             type=raw,value=${{ github.ref_name }}-{{date 'YYYY-MM-DD'}}
-            type=ref,event=branch,prefix=${{ github.ref_name }}
+            type=ref,event=branch
             type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
-            type=raw,value=${{ steps.determine_env.outputs.ANGULAR_ENV }}-latest,enable=${{ github.ref_name == 'main' || github.ref_name == 'dev' }}
+            type=raw,value=${{ github.ref_name }}-latest,enable=${{ github.ref_name == 'main' || github.ref_name == 'dev' }}
 
       - name: Build and push Angular Docker image
         uses: docker/build-push-action@v5

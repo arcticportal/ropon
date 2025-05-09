@@ -6,7 +6,7 @@ concurrency:
   # This is useful to avoid multiple builds for the same branch
   # and to save resources.
   cancel-in-progress: true
-  
+
 on:
   workflow_run:
     workflows: ["Run Wagtail Tests"]
@@ -55,13 +55,15 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: arcticportal.azurecr.io/ropon/wagtail
           tags: |
             type=raw,value=${{ github.ref_name }}-{{date 'YYYY-MM-DD'}}
             type=ref,event=branch
-              
+            type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
+            type=raw,value=${{ github.ref_name }}-latest,enable=${{ github.ref_name == 'main' || github.ref_name == 'dev' }}
+
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
