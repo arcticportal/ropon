@@ -48,27 +48,27 @@
               ],
               "outputHashing": "all"
             },
-            "development": {
+            "local": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.development.ts"
+                  "with": "src/environments/environment.local.ts"
                 }
               ]
             },
-            "staging": {
+            "dev": {
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.staging.ts"
+                  "with": "src/environments/environment.dev.ts"
                 }
               ]
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "local"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -76,14 +76,14 @@
             "production": {
               "buildTarget": "ropon:build:production"
             },
-            "development": {
-              "buildTarget": "ropon:build:development"
+            "local": {
+              "buildTarget": "ropon:build:local"
             },
-            "staging": {
-              "buildTarget": "ropon:build:staging"
+            "dev": {
+              "buildTarget": "ropon:build:dev"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "local"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"

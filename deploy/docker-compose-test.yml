@@ -1,0 +1,44 @@
+# /workspace/deploy/docker-compose-test.yml
+
+services:
+  frontend:
+    build:
+      context: ../
+      dockerfile: deploy/frontend/Dockerfile
+      args:
+        ANGULAR_ENV: local # Updated from staging
+    ports:
+      - "4200:80" # Nginx serves on 80
+    env_file:
+      - ./frontend/.env.local # Assuming .env.local is for 'local' frontend
+    depends_on:
+      - backend
+  backend:
+    build:
+      context: ../
+      dockerfile: deploy/backend/Dockerfile
+    command: ./docker-entrypoint.sh
+    env_file:
+      - ./backend/.env.test # Assuming .env.test is for 'dev' (staging) backend
+    ports:
+      - "8000:8000" # Use the same host port for test backend
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgis/postgis:17-3.5
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.test # DB credentials from backend dev (staging) env file
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
