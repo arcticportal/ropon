@@ -57,7 +57,7 @@ jobs:
           path: ${{ runner.temp }}/${{ env.wagtail_image_file }}
 
       - name: Pull database image
-        run: docker compose -f deploy/backend/docker-compose-test.yml db pull
+        run: docker compose -f deploy/backend/docker-compose-test.yml pull db
 
       - name: Run initial setup (populates DB)
         run: docker compose -f deploy/backend/docker-compose-test.yml run --rm wagtail python manage.py init_setup
@@ -135,7 +135,7 @@ jobs:
           
       
       - name: Pull DB image (should be cached)
-        run: docker compose -f deploy/backend/docker-compose-test.yml db pull
+        run: docker compose -f deploy/backend/docker-compose-test.yml pull db
 
       # init_setup is NOT run here as the database is restored from artifact
 
@@ -194,7 +194,7 @@ jobs:
           echo "Wagtail image loaded."
      
       - name: Pull required images (should be cached)
-        run: docker compose -f deploy/backend/docker-compose-test.yml db pull
+        run: docker compose -f deploy/backend/docker-compose-test.yml pull db
 
       # init_setup is NOT run here
 
