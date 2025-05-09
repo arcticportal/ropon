@@ -12,9 +12,9 @@ github_branch: "dev"
 # external facing domains configuration. Internal services must be configured using 
 # service names and ports
 service_ingres:
-  frotend: 
-    hostname: ropon.dev.cntb.arcticportal.org
-    ssl_host: ropon.dev.cntb.arcticportal.org
+  frontend: 
+    hostname: frontend.ropon.dev.cntb.arcticportal.org
+    ssl_host: frontend.ropon.dev.cntb.arcticportal.org
     port: 80
   
 secrets:  

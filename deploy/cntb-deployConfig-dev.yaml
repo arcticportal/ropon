@@ -18,6 +18,7 @@ service_ingres:
     port: 8000
   frontend:
     hostname: frontend.ropon.dev.cntb.arcticportal.org
+    ssl_host: frontend.ropon.dev.cntb.arcticportal.org
     port: 80
 
 secrets:
