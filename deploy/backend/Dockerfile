@@ -77,9 +77,6 @@ COPY --chown=${PUSER}:${PUSER} backend/ .
 # Use user "wagtail" to run the build commands below and the server itself.
 USER ${PUSER}
 
-# Create migrations.
-RUN python manage.py makemigrations
-
 
 # Collect static files.
 RUN python manage.py collectstatic --noinput --clear
