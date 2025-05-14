@@ -212,14 +212,14 @@ WAGTAIL_SITE_NAME = env.str('WAGTAIL_SITE_NAME','Registry of Polar Networks')
 # disable commenting in page editors
 WAGTAILADMIN_COMMENTS_ENABLED = env.bool('WAGTAILADMIN_COMMENTS_ENABLED', False)
 # disable password reset for users
-WAGTAIL_PASSWORD_RESET_ENABLED = env.bool('WAGTAIL_PASSWORD_RESET_ENABLED', False)
-
+WAGTAIL_PASSWORD_RESET_ENABLED = env.bool('WAGTAIL_PASSWORD_RESET_ENABLED', True)
+WAGTAILUSERS_PASSWORD_REQUIRED = env.bool('WAGTAILUSERS_PASSWORD_REQUIRED', False)
 WAGTAIL_ENABLE_WHATS_NEW_BANNER = env.bool('WAGTAIL_ENABLE_WHATS_NEW_BANNER', False)
 WAGTAIL_ENABLE_UPDATE_CHECK = env.bool('WAGTAIL_ENABLE_UPDATE_CHECK', False)
 
 
 # Administrator email for user support (used in login template)
-ROPON_ADMIN_EMAIL = env.str('ROPON_ADMIN_EMAIL', 'admin@ropon.org')
+ROPON_ADMIN_EMAIL = env.str('ROPON_ADMIN_EMAIL', 'info@polarobservingregistry.org')
 
 
 # Search
