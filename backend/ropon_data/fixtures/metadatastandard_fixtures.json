@@ -47,9 +47,9 @@
     "model": "ropon_data.metadatastandard",
     "pk": 6,
     "fields": {
-      "name": "Dublin Core",
-      "description": "A set of vocabulary terms used to describe web resources.",
-      "source_url": "https://en.wikipedia.org/wiki/Dublin_Core"
+      "name": "WMO WIGOS",
+      "description": "A comprehensive metadata standard covering all types of observation is by nature complex to define. A user should be able to use the WIGOS metadata to identify the conditions under which the observation, or measurement, was made, and any aspects that may affect its use or understanding, that is, to determine whether the observations are fit for the purpose.",
+      "source_url": "https://library.wmo.int/records/item/55626-wigos-metadata-standard"
     }
   },
   {
@@ -79,18 +79,10 @@
       "source_url": "https://www.fgdc.gov/"
     }
   },
+  
   {
     "model": "ropon_data.metadatastandard",
     "pk": 10,
-    "fields": {
-      "name": "DCAT-AP",
-      "description": "DCAT Application Profile for data portals in Europe (DCAT-AP) is a specification based on DCAT for describing public sector datasets in Europe.",
-      "source_url": "https://joinup.ec.europa.eu/collection/semantic-interoperability-community-semic/dcat-ap"
-    }
-  },
-  {
-    "model": "ropon_data.metadatastandard",
-    "pk": 11,
     "fields": {
       "name": "Other",
       "description": "If none of the above standards apply, please select this option.",
