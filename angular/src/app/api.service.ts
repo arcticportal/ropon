@@ -1,10 +1,14 @@
-import { Injectable, inject } from '@angular/core';
-import {first, forkJoin, map, Observable, of, switchMap,
-  tap} from 'rxjs'
+import { inject, Injectable } from '@angular/core';
+import {
+  first, forkJoin, map, Observable, of, switchMap,
+  tap
+} from 'rxjs';
 
-import {CachedHttpService} from './cached-http.service'
-import {apiPrefix, backendDomain, Obj, useCache,
-  UtilService} from './util.service'
+import { CachedHttpService } from './cached-http.service';
+import {
+  apiPrefix, backendDomain, Obj, useCache,
+  UtilService
+} from './util.service';
 
 @Injectable({
   providedIn: 'root'
@@ -48,7 +52,7 @@ export class ApiService {
   getList(): Observable<Obj> {
     return this.get(
       'networks',
-      '?fields=logo_image,regions,subregions,domains,disciplines,asset_types,website_url,has_catalog') }
+      '?fields=logo_image,regions,subregions,domains,disciplines,asset_types,website_url,has_catalog&limit=500') }
 
   getPage(slug: string): Observable<Obj> {
     return this.get('ropon_pages', '?fields=body&slug=' + slug) }
