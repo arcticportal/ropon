@@ -8,8 +8,8 @@ on:
       - dev # Match branch name used in wagtail workflow
     paths:
       - 'angular/**'
-      - 'deploy/frontend/**'
-      - 'deploy/docker-compose-*.yml'
+      # - 'deploy/frontend/**'
+      # - 'deploy/docker-compose-*.yml'
       - '.github/workflows/angular-build.yml'
   pull_request:
     branches:
@@ -17,8 +17,8 @@ on:
       - dev
     paths:
       - 'angular/**'
-      - 'deploy/frontend/**'
-      - 'deploy/docker-compose-*.yml'
+      # - 'deploy/frontend/**'
+      # - 'deploy/docker-compose-*.yml'
       - '.github/workflows/angular-build.yml'
 
 concurrency:
