@@ -246,8 +246,10 @@ class SendContactEmailAPIViewTestCase(TestCase):
         # Assert: Check the send method was called
         mock_email_instance.send.assert_called_once_with(fail_silently=False)
 
-    # Remove the override_settings decorator for REST_FRAMEWORK and CACHES
-    # @override_settings(...)
+    @override_settings(
+        ROPON_ADMIN_EMAIL='admin@ropon.org',
+        DEFAULT_FROM_EMAIL='noreply@ropon.org'
+    )
     @patch('ropon_email.views.EmailMessage')
     @patch('rest_framework.throttling.SimpleRateThrottle.timer') # Patch the throttle's timer method
     def test_throttling(self, mock_timer, mock_email_message): # Add mock_timer back
