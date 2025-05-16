@@ -217,6 +217,8 @@ WAGTAILUSERS_PASSWORD_REQUIRED = env.bool('WAGTAILUSERS_PASSWORD_REQUIRED', Fals
 WAGTAIL_ENABLE_WHATS_NEW_BANNER = env.bool('WAGTAIL_ENABLE_WHATS_NEW_BANNER', False)
 WAGTAIL_ENABLE_UPDATE_CHECK = env.bool('WAGTAIL_ENABLE_UPDATE_CHECK', False)
 
+# Wagtail API settings
+WAGTAILAPI_LIMIT_MAX = int(env_value) if (env_value := env.str('WAGTAILAPI_LIMIT_MAX', '').strip()) and env_value.isdigit() else None
 
 # Administrator email for user support (used in login template)
 ROPON_ADMIN_EMAIL = env.str('ROPON_ADMIN_EMAIL', 'info@polarobservingregistry.org')
