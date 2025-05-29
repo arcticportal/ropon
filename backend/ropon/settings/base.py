@@ -308,6 +308,12 @@ FLAGS = {
          "value": env.bool('ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS', False),
         }
     ],
+    # Add feature flag to use Cutom Create and Edit View for Wagtail Pages
+    'ROPON.BASE.USE_CUSTOM_PAGE_CREATE_EDIT_VIEWS': [
+        {"condition": "boolean",
+         "value": env.bool('ROPON.BASE.USE_CUSTOM_PAGE_CREATE_EDIT_VIEWS', False),
+        }
+    ],
     # Add feature flag to remove side panel options for Moderators and Editors
     'ROPON.REMOVE_SIDE_PANEL_OPTIONS': [
         {"condition": "boolean",

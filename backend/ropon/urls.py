@@ -1,10 +1,9 @@
 from django.conf import settings
 from django.urls import path, include # Ensure include is imported
 from django.contrib import admin
-
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
-
+from flags.state import flag_enabled
 from search import views as search_views
 
 
@@ -14,7 +13,7 @@ from ropon_data.api import (ObservingNetworkPageViewSet,
                             )
 from ropon_pages.api import RoponPagesAPIViewSet
 from base.api.views import RoponImagesAPIViewSet
-
+from base import urls as base_urls
 api_router = WagtailAPIRouter("wagtailapi")
 
 # api_router.register_endpoint("pages", PagesAPIViewSet)
@@ -23,12 +22,20 @@ api_router.register_endpoint("networks", ObservingNetworkPageViewSet)
 api_router.register_endpoint("cv", ControlledVocabularyAPIViewSet)
 api_router.register_endpoint("images", RoponImagesAPIViewSet)
 
-urlpatterns = [
+urlpatterns = []
+if flag_enabled('ROPON.BASE.USE_CUSTOM_PAGE_CREATE_EDIT_VIEWS'):
+    urlpatterns += [path('admin/pages/', include(base_urls))]  # Include custom create/edit views for pages
+
+urlpatterns += [
     path("django-admin/", admin.site.urls),
+    # Include custom Page Create and Edit views
+    # only if feature flag is enabled
+    
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
     path("search/", search_views.search, name="search"),
 
+    
     # Include the ropon_email urls under the desired path
     path("api/v2/email/", include("ropon_email.urls", namespace="ropon_email_api")),
 
