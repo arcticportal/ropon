@@ -1,4 +1,3 @@
-
 # Define custom PageViewSet, PageIndex and PageViews classes for Ropon data
 
 
@@ -6,6 +5,7 @@ from wagtail.admin.viewsets.pages import PageListingViewSet
 from wagtail.admin.views.pages.listing import IndexView
 from ropon_data.models import ObservingNetworkPage
 from wagtail.admin.ui.tables import Column
+
 
 class ObservingNetworkPageIndexView(IndexView):
     def get_base_queryset(self):
@@ -25,6 +25,7 @@ class ObservingNetworkFilterSet(PageListingViewSet.filterset_class):
         # Remove unwanted fields
         self.filters.pop("site", None)
         self.filters.pop("has_child_pages", None)
+
 
 class ObservingNetworkPageViewSet(PageListingViewSet):
     model = ObservingNetworkPage
@@ -49,3 +50,5 @@ class ObservingNetworkPageViewSet(PageListingViewSet):
     search_fields = ('name', 'description', 'abbreviation')
     menu_order = 150  # Adjust the order as needed
     add_to_admin_menu = True
+
+    

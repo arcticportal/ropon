@@ -45,6 +45,7 @@ LOCAL_APPS = [
 
 DJANGO_APPS = [
     "taggit",
+    'flags',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -53,7 +54,7 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     'corsheaders',
-    'flags'
+    
 ]
 
 WAGTAIL_APPS = [
@@ -306,6 +307,12 @@ FLAGS = {
     'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS': [
         {"condition": "boolean",
          "value": env.bool('ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS', False),
+        }
+    ],
+    # Add feature flag to use Custom Create and Edit View for Wagtail Pages
+    'ROPON.BASE.USE_CUSTOM_PAGE_CREATE_EDIT_VIEWS': [
+        {"condition": "boolean",
+         "value": env.bool('ROPON.BASE.USE_CUSTOM_PAGE_CREATE_EDIT_VIEWS', False),
         }
     ],
     # Add feature flag to remove side panel options for Moderators and Editors

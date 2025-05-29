@@ -11,9 +11,9 @@ from wagtail.test.utils.form_data import nested_form_data, streamfield
 from uuid import UUID
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.urls import clear_url_caches, set_urlconf
 
 User = get_user_model()
-
 
 class ObservingNetworkPageTests(WagtailPageTestCase):
     def setUp(self):
@@ -163,9 +163,19 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
             'metadata_catalog_url': streamfield([
                 ('url', 'http://example.com/catalog1'),
                 ('url', 'http://example.com/catalog2')
-            ])
+            ]),
+            'data_repository_url': streamfield([
+                ('url', 'http://example.com/repository1'),
+                ('url', 'http://example.com/repository2')
+            ]),
+            'domains': [1, 2],  # Assuming these are valid domain IDs
+            'disciplines': [1, 2],  # Assuming these are valid discipline IDs
+            'regions': [1, 2],  # Assuming these are valid region IDs
+            'subregions': [1, 2],  # Assuming these are valid subregion IDs
+            'asset_types': [1, 2],  # Assuming these are valid asset type IDs
+
         })
-    
+
     def test_valid_page_creation(self):
         page = ObservingNetworkPage(**self.get_page_data())
         self.index_page.add_child(instance=page)
@@ -188,7 +198,6 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         
             self.index_page.add_child(instance=page)
             page.save_revision().publish()
-
         self.assertIn('name', cm.exception.error_dict)
 
     def test_max_length_fields(self):
@@ -741,4 +750,41 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         uppercase_uuid = str(ropon_id).upper()
         response = self.client.get(f'/api/v2/networks/{uppercase_uuid}/')
         self.assertEqual(response.status_code, 404)
-    
+
+    @override_settings(FLAGS= {'ROPON.BASE.USE_CUSTOM_PAGE_CREATE_EDIT_VIEWS': [{'condition': 'boolean','value':True}]})
+    def test_missing_required_fields_validation_message(self):
+        """Test that correct validation message is shown when required fields are missing"""
+        # Get valid page data and remove a required field
+        try:
+            # First clear URL caches and reload URLs with the flag enabled
+            clear_url_caches()
+            import sys
+            if 'ropon.urls' in sys.modules:
+                reload = __import__('importlib').reload
+                reload(sys.modules['ropon.urls'])
+            set_urlconf('ropon.urls')
+            
+            # Ensure the custom create/edit views are enabled
+            page_data = self.get_valid_page_data_streamfield()
+            page_data.pop('name')  # Remove required field
+
+            # Login as editor to access the create view
+            self.login(self.editor)
+            
+            # Attempt to create the page via POST request
+            response = self.client.post(
+                f'/admin/pages/add/ropon_data/observingnetworkpage/{self.index_page.id}/',
+                page_data
+            )
+
+            # Check response
+            self.assertEqual(response.status_code, 200)  # Form should return with errors
+            self.assertContains(
+                response,
+                "Please complete all required fields marked with an asterisk (*) before submitting the page."
+            )
+        finally:
+            # Reset URL configuration
+            clear_url_caches()
+            set_urlconf(None)
+      
