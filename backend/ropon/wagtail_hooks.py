@@ -12,6 +12,16 @@ FLAG_ENABLE_AGING_NETWORKS = 'ROPON.REPORTS.AGING_OBSERVING_NETWORKS'
 FLAG_ENABLE_WAGTAIL_GUIDE = 'ROPON.ENABLE_WAGTAIL_GUIDE'
 FLAG_MODERATOR_USER_MANAGEMENT = 'ROPON.AUTH.MODERATOR_USER_MANAGEMENT'
 
+# Hook to remove summary items (statistics panel) from the admin homepage
+@hooks.register('construct_homepage_summary_items')
+def remove_homepage_summary_items(request, summary_items):
+    """
+    Removes all summary items from the Wagtail admin homepage.
+    This effectively hides the top statistics/reports panel.
+    """
+    summary_items.clear()
+
+
 class AgingObservingNetworksMenuItem(MenuItem):
     """
     Custom menu item for the Aging Observing Networks report.
