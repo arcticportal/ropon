@@ -5,7 +5,6 @@ from wagtail.admin.viewsets.pages import PageListingViewSet
 from wagtail.admin.views.pages.listing import IndexView
 from ropon_data.models import ObservingNetworkPage
 from wagtail.admin.ui.tables import Column
-from django.utils.translation import gettext as _
 
 
 class ObservingNetworkPageIndexView(IndexView):
