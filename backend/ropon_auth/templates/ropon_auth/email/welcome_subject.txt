@@ -1,1 +1,0 @@
-{% load i18n %}{% blocktrans %}Welcome to ROPON - Set Your Password{% endblocktrans %}

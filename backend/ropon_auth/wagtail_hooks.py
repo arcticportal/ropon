@@ -6,7 +6,8 @@ from django.urls import reverse
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-
+import logging
+          
 # Template paths as constants
 WELCOME_EMAIL_SUBJECT_TEMPLATE = 'ropon_auth/new_user_email/welcome_subject.txt'
 WELCOME_EMAIL_BODY_TEMPLATE = 'ropon_auth/new_user_email/welcome_body.txt'
@@ -73,5 +74,6 @@ def send_welcome_email_on_user_create(request, user):
             send_mail(subject, body, from_email, recipient_list, fail_silently=False)
         except Exception as e:
             # Consider using Django's logging framework for production
-            print(f"Failed to send welcome email to {user.email}: {e}")
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send welcome email to {user.email}: {e}")
 
