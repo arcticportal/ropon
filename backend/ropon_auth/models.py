@@ -82,5 +82,5 @@ class RoponUser(AbstractUser):
         when combined with a unique constraint on the username field.
         """
         if self.username:
-            self.username = self.username.lower() # Ensure username is lowercase before saving
+            self.username = self.username.strip().lower() # Ensure username is stripped and lowercase before saving
         super().save(*args, **kwargs)
