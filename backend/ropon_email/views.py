@@ -50,16 +50,15 @@ class SendContactEmailAPIView(APIView):
 
             subject = f"Contact Form Submission from {name}"
             full_message = f"\n{message_body}"
-            # Get recipient email(s) from ROPON_ADMIN_EMAIL setting
-            # If set as comma-separated list, parse and clean each email
-            recipient_list = []
-            if hasattr(settings, 'ROPON_ADMIN_EMAIL') and settings.ROPON_ADMIN_EMAIL:
-                if isinstance(settings.ROPON_ADMIN_EMAIL, str):
-                    recipient_list = [email.strip() for email in settings.ROPON_ADMIN_EMAIL.split(',') if email.strip()]
+            # Get recipient email(s) from ROPON_ADMIN_EMAIL setting, fallback to DEFAULT_FROM_EMAIL
+            admin_email = getattr(settings, 'ROPON_ADMIN_EMAIL', None) or getattr(settings, 'DEFAULT_FROM_EMAIL', None)
             
-            if not recipient_list:
-                print("Error: ROPON_ADMIN_EMAIL is not configured properly.")
+            if not admin_email:
+                print("Error: Neither ROPON_ADMIN_EMAIL nor DEFAULT_FROM_EMAIL is configured.")
                 return Response({"error": "Server configuration error: Admin email not set."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            # Parse comma-separated emails if provided as string
+            recipient_list = [email.strip() for email in admin_email.split(',') if email.strip()]
 
             try:
                 # Format the from_email to include the sender's name
