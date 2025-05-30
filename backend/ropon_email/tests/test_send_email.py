@@ -167,12 +167,12 @@ class SendContactEmailAPIViewTestCase(TestCase):
 
     @override_settings(
         ROPON_ADMIN_EMAIL=None, # Simulate missing/None setting
-        DEFAULT_FROM_EMAIL='noreply@ropon.org' # Use literal value matching setUp
+        DEFAULT_FROM_EMAIL='' # Simulate empty DEFAULT_FROM_EMAIL setting
     )
     @patch('ropon_email.views.EmailMessage')
-    def test_send_email_missing_admin_email_setting(self, mock_email_message):
+    def test_send_email_missing_admin_default_email_setting(self, mock_email_message):
         """
-        Test failure when ROPON_ADMIN_EMAIL setting is not configured (is None).
+        Test failure when ROPON_ADMIN_EMAIL and DEFAULT_FROM_EMAIL settings are not configured (are None).
 
         Verifies:
         - HTTP 500 Internal Server Error status code.
@@ -190,28 +190,75 @@ class SendContactEmailAPIViewTestCase(TestCase):
         mock_email_message.assert_not_called()
 
     @override_settings(
-        ROPON_ADMIN_EMAIL='', # Simulate empty string setting
+        ROPON_ADMIN_EMAIL=None, # Simulate missing/None setting
         DEFAULT_FROM_EMAIL='noreply@ropon.org' # Use literal value matching setUp
     )
     @patch('ropon_email.views.EmailMessage')
-    def test_send_email_empty_admin_email_setting(self, mock_email_message):
+    def test_send_email_missing_admin_email_setting(self, mock_email_message):
         """
-        Test failure when ROPON_ADMIN_EMAIL setting is an empty string.
+        Test failure when ROPON_ADMIN_EMAIL setting is not configured (is None).
 
         Verifies:
         - HTTP 500 Internal Server Error status code.
         - Correct error message indicating configuration issue.
         - EmailMessage is not instantiated or called.
         """
+
+         # Arrange: Mock the EmailMessage instance and its send method
+        mock_email_instance = MagicMock()
+        mock_email_message.return_value = mock_email_instance
+
         # Act
         response = self.client.post(self.url, self.valid_data, format='json')
 
-        # Assert: Check response status and error content
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
-        self.assertEqual(response.data, {"error": "Server configuration error: Admin email not set."})
+          # Assert: Check response status and success content
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"message": "Email sent successfully."})
 
-        # Assert: Ensure email sending was not attempted
-        mock_email_message.assert_not_called()
+        # Assert: Check EmailMessage instantiation uses DEFAULT_FROM_EMAIL as fallback
+        mock_email_message.assert_called_once()
+        call_args, call_kwargs = mock_email_message.call_args
+        # When ROPON_ADMIN_EMAIL is empty, should fallback to DEFAULT_FROM_EMAIL
+        self.assertEqual(call_kwargs['to'], [self.default_from_email])
+
+        # Assert: Check send method call
+        mock_email_instance.send.assert_called_once_with(fail_silently=False)
+
+
+    @override_settings(
+        ROPON_ADMIN_EMAIL='', # Simulate empty string setting
+        DEFAULT_FROM_EMAIL='noreply@ropon.org' # Use literal value matching setUp
+    )
+    @patch('ropon_email.views.EmailMessage')
+    def test_send_email_empty_admin_email_setting(self, mock_email_message):
+        """
+        Test fallback to DEFAULT_FROM_EMAIL when ROPON_ADMIN_EMAIL setting is empty.
+
+        Verifies:
+        - HTTP 200 OK status code (email sent successfully).
+        - Correct success message in the response.
+        - EmailMessage is instantiated with DEFAULT_FROM_EMAIL as the recipient.
+        - The send() method on the EmailMessage instance is called once.
+        """
+        # Arrange: Mock the EmailMessage instance and its send method
+        mock_email_instance = MagicMock()
+        mock_email_message.return_value = mock_email_instance
+
+        # Act
+        response = self.client.post(self.url, self.valid_data, format='json')
+
+        # Assert: Check response status and success content
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"message": "Email sent successfully."})
+
+        # Assert: Check EmailMessage instantiation uses DEFAULT_FROM_EMAIL as fallback
+        mock_email_message.assert_called_once()
+        call_args, call_kwargs = mock_email_message.call_args
+        # When ROPON_ADMIN_EMAIL is empty, should fallback to DEFAULT_FROM_EMAIL
+        self.assertEqual(call_kwargs['to'], [self.default_from_email])
+
+        # Assert: Check send method call
+        mock_email_instance.send.assert_called_once_with(fail_silently=False)
 
     @override_settings(
         ROPON_ADMIN_EMAIL='admin@ropon.org', # Use literal value matching setUp
