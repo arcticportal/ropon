@@ -182,8 +182,10 @@ class ObservingNetworkPage(Page):
         help_text='URL to the observing network website'
     )
     logo_url = models.URLField(
+        blank=True,
+        null=True,
         verbose_name='Network Logo',
-        help_text='URL to the observing network logo.(must be .png, .jpg, .jpeg or .svg format)',
+        help_text='URL to the observing network logo.(must be .png, .jpg, .jpeg or .svg format)'
         # validators=[validate_image_url]
     )
 
@@ -276,7 +278,7 @@ class ObservingNetworkPage(Page):
         blank=True,
         null=True,
         verbose_name='Metadata Access',
-        help_text="Is the network's asset-level catalog, spreadsheet, list, or other documentation enabled online for public viewing, download, or other access?"
+        help_text="Is the network's asset-level catalog, spreadsheet, list, or other documentation enabled online for public viewing, download, or other access? If partially enabled, select Yes."
     )
     machine_readable = models.CharField(
         max_length=20,
@@ -288,7 +290,7 @@ class ObservingNetworkPage(Page):
         blank=True,
         null=True,
         verbose_name='Machine Readable Access',
-        help_text="Is the network's asset-level metadata catalog enabled for access with an API or endpoint URL for automated harvesting of asset-level metadata records?"
+        help_text="Is the network's asset-level metadata catalog enabled for access with an API or endpoint URL for automated harvesting of asset-level metadata records? If partially enabled, select Yes."
     )
     metadata_standards = ParentalManyToManyField(
         MetadataStandard,

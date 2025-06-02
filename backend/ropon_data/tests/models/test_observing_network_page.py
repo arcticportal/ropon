@@ -781,7 +781,7 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
             self.assertEqual(response.status_code, 200)  # Form should return with errors
             self.assertContains(
                 response,
-                "Please complete all required fields marked with an asterisk (*) before submitting the page."
+                "Ensure all fields marked with an asterisk (*) are completed."
             )
         finally:
             # Reset URL configuration

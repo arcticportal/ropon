@@ -1,8 +1,7 @@
-
 from wagtail.admin.views.pages.edit import EditView as WagtailPageEditView
 from wagtail.admin import messages
 from django.utils.translation import gettext as _
-
+from base.messages import generate_form_validation_summary_message
 
 # Custom EditView for Wagtail pages in the Ropon application
 class RoponPageEditView(WagtailPageEditView):
@@ -39,18 +38,7 @@ class RoponPageEditView(WagtailPageEditView):
             )
         else:
             # Custom validation message logic
-            has_required_error = False
-            required_message_text = _("This field is required.")
-            for error_list in form.errors.values():
-                if any(required_message_text in error for error in error_list):
-                    has_required_error = True
-                    break
-
-            if has_required_error:
-                summary_message = _("Please complete all required fields marked with an asterisk (*) before submitting the page.")
-            else:
-                summary_message = _("The page could not be saved due to validation errors")
-
+            summary_message = generate_form_validation_summary_message(form, "saved")
             messages.validation_error(
                 self.request,
                 summary_message,
