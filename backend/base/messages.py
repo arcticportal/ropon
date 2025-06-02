@@ -1,13 +1,14 @@
 
 from django.utils.html import format_html, format_html_join
-from django.utils.translation import gettext as _ # Use lazy for top-level definitions
+from django.utils.translation import gettext as _ 
 
-def generate_form_validation_summary_message(form):
+def generate_form_validation_summary_message(form, verb="saved"):
     """
     Generates a formatted HTML summary message for form validation errors.
 
     Args:
         form: The Django form instance containing errors.
+        verb: The action verb to use in the message (e.g., 'saved', 'created').
 
     Returns:
         An HTML string representing the summary message.
@@ -24,7 +25,7 @@ def generate_form_validation_summary_message(form):
     # Start with a general error message.
     # This message will be displayed if there are any validation errors.
     # Construct the summary message using HTML for better formatting.
-    top_line = _("The page could not be saved due to validation errors or missing information. Correct the errors below before submitting the page.")
+    top_line = _(f"The page could not be {verb} due to validation errors or missing information. Correct the errors below before submitting the page.")
     bullet_point_1 = _("Please review the form and check the errors highlighted below for each field.")
 
     # Prepare content for list items. Each item in the list is a tuple of arguments for the format string.

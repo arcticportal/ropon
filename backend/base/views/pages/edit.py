@@ -38,7 +38,7 @@ class RoponPageEditView(WagtailPageEditView):
             )
         else:
             # Custom validation message logic
-            summary_message = generate_form_validation_summary_message(form)
+            summary_message = generate_form_validation_summary_message(form, "saved")
             messages.validation_error(
                 self.request,
                 summary_message,

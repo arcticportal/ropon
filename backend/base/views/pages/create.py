@@ -14,8 +14,8 @@ class RoponPageCreateView(WagtailPageCreateView):
         Overrides the default form_invalid behavior to show a custom message
         if required fields are missing.
         """
-        summary_message = generate_form_validation_summary_message(form)
-        
+        summary_message = generate_form_validation_summary_message(form, 'created')
+
         messages.validation_error(
             self.request,
             summary_message,
