@@ -1,6 +1,5 @@
 from django.apps import AppConfig
-from .signal_handlers import update_owner_authorization_on_publish
-from wagtail.signals import page_published
+
 
 class RoponDataConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
@@ -9,6 +8,7 @@ class RoponDataConfig(AppConfig):
 
     def ready(self):
 
-        # Connect the update_owner_authorization_on_publish function to the page_published signal
-        from .models import ObservingNetworkPage
-        page_published.connect(update_owner_authorization_on_publish, sender=ObservingNetworkPage)
+        # Ensure that the signal handlers are registered when the app is ready
+        from ropon_data.signal_handlers import register_signal_handlers
+
+        register_signal_handlers()
