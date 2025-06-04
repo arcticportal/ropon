@@ -26,7 +26,9 @@
         </li>
         <li>
             {% trans "For \"Asset Types\", see the" %}
-            <a href="{% frontend_url %}/ropon-pages/faq" target="_blank">{% trans "FAQ page" %}</a>.
+            {% blocktrans with faq_url=frontend_url|add:"/ropon-pages/faq" %}
+                For "Asset Types", see the <a href="{{ faq_url }}" target="_blank">FAQ page</a>.
+            {% endblocktrans %}
         </li>
         <li>{% trans "At bottom, you can “Save draft” and come back to this later." %}</li>
         <li>{% trans "When done, please remember to submit for moderation by the RoPON administrators. One of them might email you with questions, or might simply publish it live to the RoPON website." %}</li>

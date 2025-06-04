@@ -150,6 +150,7 @@ class AdminHomepageSummaryPanelTests(WagtailTestUtils, TestCase): # Inherit from
         response_content = response.content.decode('utf-8')
         
         # Look for text from our welcome panel
-        self.assertIn('Welcome to the Registry of Polar Networks', response_content)
+        import re
+        self.assertRegex(response_content, r'Welcome to the Registry of Polar Networks \(RoPON\) dashboard')
 
 
