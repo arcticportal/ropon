@@ -1,0 +1,32 @@
+{% comment %}
+RoPON Admin Welcome Panel Template
+
+This template provides basic welcome information for Wagtail admin users.
+The content is defined here to separate presentation from code logic.
+
+Uses the existing frontend_url template tag to get the public site URL.
+{% endcomment %}
+{% load i18n ropon_tags %}
+
+<section class="panel summary">
+    <div class="help-text">
+        <h2>{% trans "Welcome to the Registry of Polar Networks (RoPON) dashboard" %}</h2>
+
+        <div class="help-content">
+            <ul>
+                <li>
+                    {% trans "To add, edit, or otherwise manage network information, click on \"Observing Networks\" at left." %}
+                </li>
+                <li>
+                    {% trans "To return to this page, click on the RoPON logo at upper left." %}
+                </li>
+                <li>
+                    {% trans "Visit the Registry of Polar Observing Networks (RoPON) at " %} 
+                    <a href="{% frontend_url %}" target="_blank" rel="noopener noreferrer">
+                        {% frontend_url %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>

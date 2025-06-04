@@ -5,6 +5,7 @@ from wagtail.admin.menu import MenuItem  # Import AdminOnlyMenuItem for menu reg
 from flags.state import flag_enabled
 from ropon_data.reports.aging_networks import AgingObservingNetworksView  # Import the view class for aging networks report
 from wagtail_guide.settings import wagtail_guide_settings
+from ropon.panels.welcome_panel import RoponWelcomePanel  # Import from panels package
 
 # Feature flags definitions
 FLAG_REMOVE_SIDE_PANEL_OPTIONS = 'ROPON.REMOVE_SIDE_PANEL_OPTIONS'
@@ -12,12 +13,34 @@ FLAG_ENABLE_AGING_NETWORKS = 'ROPON.REPORTS.AGING_OBSERVING_NETWORKS'
 FLAG_ENABLE_WAGTAIL_GUIDE = 'ROPON.ENABLE_WAGTAIL_GUIDE'
 FLAG_MODERATOR_USER_MANAGEMENT = 'ROPON.AUTH.MODERATOR_USER_MANAGEMENT'
 
+
+@hooks.register('construct_homepage_panels')
+def add_ropon_welcome_panel(request, panels):
+    """
+    Add the RoPON welcome panel to the Wagtail admin homepage.
+    
+    This panel appears immediately after the top heading panel and provides
+    basic navigation information and links for RoPON administrators.
+    
+    The panel is shown to all authenticated users who have access to the admin.
+    
+    Args:
+        request: HTTP request object
+        panels: List of panel objects to modify in-place
+    """
+    # Add the welcome panel with appropriate ordering
+    panels.append(RoponWelcomePanel())
+
+
 # Hook to remove summary items (statistics panel) from the admin homepage
-@hooks.register('construct_homepage_summary_items')
+# This is registered after the panels hook to ensure proper execution order
+@hooks.register('construct_homepage_summary_items', order=999)
 def remove_homepage_summary_items(request, summary_items):
     """
     Removes all summary items from the Wagtail admin homepage.
     This effectively hides the top statistics/reports panel.
+    
+    Uses high order value to ensure this runs after other summary item hooks.
     """
     summary_items.clear()
 
