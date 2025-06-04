@@ -38,20 +38,14 @@ def get_observing_network_help_content():
     """
     Get the help content for the observing network page from template.
     
-    This function renders the help panel template with the appropriate context.
+    This function renders the help panel template. The template uses the
+    existing frontend_url template tag to get the frontend URL.
     
     Returns:
         str: The rendered HTML content for the help panel
     """
-    from django.conf import settings
-    
-    # Get the frontend URL from settings, with fallback
-    frontend_url = getattr(settings, 'FRONTEND_URL', '')
-    
-    # Render the template with context
-    return render_to_string('ropon_data/help/observing_network_help.html', {
-        'frontend_url': frontend_url
-    })
+    # Render the template - no context needed as template uses frontend_url tag
+    return render_to_string('ropon_data/help/observing_network_help.html')
 
 FLAG_REMOVE_PREVIEW_OPTIONS = 'ROPON.REMOVE_PREVIEW_OPTIONS'
 # ------ Controlled Vocabulary Models --------

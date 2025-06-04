@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n ropon_tags %}
 {% load wagtailadmin_tags %}
  
 <div class="on-help-panel">
@@ -24,7 +24,10 @@
             <b><span class="w-required-mark" data-panel-required="">*</span></b>
             {% trans ") and for as many other fields as possible." %}
         </li>
-        <li>{% blocktrans %}For "Asset Types", see the <a href="{{ frontend_url }}/ropon-pages/faq" target="_blank">FAQ page</a>.{% endblocktrans %}</li>
+        <li>
+            {% trans "For \"Asset Types\", see the" %}
+            <a href="{% frontend_url %}/ropon-pages/faq" target="_blank">{% trans "FAQ page" %}</a>.
+        </li>
         <li>{% trans "At bottom, you can “Save draft” and come back to this later." %}</li>
         <li>{% trans "When done, please remember to submit for moderation by the RoPON administrators. One of them might email you with questions, or might simply publish it live to the RoPON website." %}</li>
         <li>{% trans "“Submit to Moderators approval” option is available by clicking symbol (" %}<svg class="icon icon-arrow-up icon" style="height: 1rem; width: 1rem; display: inline-block;" aria-hidden="true"><use href="#icon-arrow-up"></use></svg>{% trans ") next to “Save draft” button." %}</li>
