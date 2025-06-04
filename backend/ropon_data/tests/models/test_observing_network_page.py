@@ -5,7 +5,7 @@ from wagtail.test.utils import WagtailPageTestCase
 from wagtail.blocks import StreamValue
 from django.core.exceptions import ValidationError
 from home.models import HomePage
-from ropon_data.models import ObservingNetworkPage, ObservingNetworkIndexPage, Organization, ObservingNetworkOrganization, User, get_observing_network_help_content, get_observing_network_help_content
+from ropon_data.models import ObservingNetworkPage, ObservingNetworkIndexPage, Organization, ObservingNetworkOrganization, User, get_observing_network_help_content
 from wagtail.models import Page
 from wagtail.test.utils.form_data import nested_form_data, streamfield
 from uuid import UUID
@@ -17,6 +17,7 @@ User = get_user_model()
 
 class ObservingNetworkPageTests(WagtailPageTestCase):
     def setUp(self):
+        super().setUp()
         self.ROPON_ID_FLAG = 'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS'
 
         self.home_page = Page.objects.get(slug='home')
