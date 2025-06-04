@@ -11,6 +11,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.core.files.images import ImageFile
 from django.utils.html import format_html
+from django.template.loader import render_to_string
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from rest_framework import serializers
 from ropon_data.blocks import SOSOBoundingBoxBlock
@@ -27,9 +28,30 @@ from flags.state import flag_enabled
 
 from .validators import validate_email_or_url, validate_start_year
 from django.conf import settings
+from django.template.loader import render_to_string
 
 
 User = get_user_model()
+
+
+def get_observing_network_help_content():
+    """
+    Get the help content for the observing network page from template.
+    
+    This function renders the help panel template with the appropriate context.
+    
+    Returns:
+        str: The rendered HTML content for the help panel
+    """
+    from django.conf import settings
+    
+    # Get the frontend URL from settings, with fallback
+    frontend_url = getattr(settings, 'FRONTEND_URL', '')
+    
+    # Render the template with context
+    return render_to_string('ropon_data/help/observing_network_help.html', {
+        'frontend_url': frontend_url
+    })
 
 FLAG_REMOVE_PREVIEW_OPTIONS = 'ROPON.REMOVE_PREVIEW_OPTIONS'
 # ------ Controlled Vocabulary Models --------
@@ -397,20 +419,8 @@ class ObservingNetworkPage(Page):
     content_panels =  [
         HelpPanel(
             classname='on-help-panel',
-            heading ="Welcome to the Observing Network Page!",
-            # TODO - move this code to a separate file e.g. a markdown file in ropon_data/docs
-            
-            content = f"""
-                <p>Here you can create and manage observing network entries in the RoPON database.</p>
-                <p>To ensure that the observing network entries in the RoPON are accurate and consistent, please follow these guidelines:</p>
-                <ul>
-                    <li>Fields marked with '*' are required.</li>
-                    <li>For URLs, ensure they are valid and accessible.</li>
-                    <li>For Non-mandatory fields, you can leave them blank if not applicable or if unsure.</li>
-                </ul>
-
-                <p>For detailed instructions on each field, refer to the <a href="{getattr(settings,'FRONTEND_URL',"/")}/ropon-pages/faq">How-to guide</a>.</p>
-            """
+            heading='Welcome to the "Add Observing Network" Page!',
+            content=get_observing_network_help_content()
         ),
         
         FieldPanel('name'),

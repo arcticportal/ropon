@@ -5,7 +5,7 @@ from wagtail.test.utils import WagtailPageTestCase
 from wagtail.blocks import StreamValue
 from django.core.exceptions import ValidationError
 from home.models import HomePage
-from ropon_data.models import ObservingNetworkPage, ObservingNetworkIndexPage, Organization, ObservingNetworkOrganization, User
+from ropon_data.models import ObservingNetworkPage, ObservingNetworkIndexPage, Organization, ObservingNetworkOrganization, User, get_observing_network_help_content, get_observing_network_help_content
 from wagtail.models import Page
 from wagtail.test.utils.form_data import nested_form_data, streamfield
 from uuid import UUID
@@ -787,4 +787,48 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
             # Reset URL configuration
             clear_url_caches()
             set_urlconf(None)
-      
+
+    def test_help_panel_template_functionality(self):
+        """Test that the help panel template is rendered correctly and contains expected content"""
+        # Test that the helper function can render the template correctly
+        help_content = get_observing_network_help_content()
+        
+        # Check that content is not empty
+        self.assertIsNotNone(help_content)
+        self.assertNotEqual(help_content.strip(), '')
+        
+        # Check that the content contains expected elements from the template
+        self.assertIn('Here you can create and manage information for a network\'s landing page', help_content)
+        self.assertIn('<b>observing network</b> – a system or organization that coordinates', help_content)
+        self.assertIn('<b>discovery portal</b> for observing assets', help_content)
+        self.assertIn('Tips and Tricks:', help_content)
+        self.assertIn('FAQ page', help_content)
+        
+        # Check that template variables are properly resolved
+        self.assertIn('/faq', help_content)
+
+    @override_settings(FRONTEND_URL='https://example.com')
+    def test_help_panel_template_with_custom_frontend_url(self):
+        """Test that the help panel template uses the correct FRONTEND_URL setting"""
+        help_content = get_observing_network_help_content()
+        # Check that the custom frontend URL is used
+        self.assertIn('https://example.com/ropon-pages/faq', help_content)
+
+    def test_help_panel_template_fallback_url(self):
+        """Test that the help panel template falls back to default URL when FRONTEND_URL is not set"""
+        from django.conf import settings
+        original_frontend_url = getattr(settings, 'FRONTEND_URL', None)
+        
+        try:
+            if hasattr(settings, 'FRONTEND_URL'):
+                delattr(settings, 'FRONTEND_URL')
+            
+            help_content = get_observing_network_help_content()
+            
+            # Check that the fallback URL is used
+            self.assertIn('/faq', help_content)
+            
+        finally:
+            # Restore original setting
+            if original_frontend_url is not None:
+                settings.FRONTEND_URL = original_frontend_url

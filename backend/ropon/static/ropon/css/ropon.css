@@ -11,3 +11,6 @@
     width: 100%;
 
 }
+.no-split {
+ white-space: nowrap;
+}
