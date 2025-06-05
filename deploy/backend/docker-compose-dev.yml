@@ -1,6 +1,7 @@
 services:
   wagtail:
     image: arcticportal.azurecr.io/ropon/wagtail:dev
+    restart: unless-stopped
     command: ./docker-entrypoint.sh
     environment:
       - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
