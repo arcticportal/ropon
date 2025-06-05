@@ -5,6 +5,7 @@ services:
       dockerfile: deploy/frontend/Dockerfile
       args:
         ANGULAR_ENV: local # Updated from development
+    restart: unless-stopped
     ports:
       - "4200:80" # Nginx serves on 80
     env_file:

@@ -2,13 +2,15 @@
 
 services:
   frontend:
-    image: arcticportal.azurecr.io/ropon/frontend:prd # Production image
+    image: arcticportal.azurecr.io/ropon/frontend:latest # Production image
+    restart: unless-stopped
     environment:
       - ANGULAR_ENV=${ANGULAR_ENV:-production} # just a placeholder
 
 
   backend:
-    image: arcticportal.azurecr.io/ropon/wagtail
+    image: arcticportal.azurecr.io/ropon/wagtail:latest
+    restart: unless-stopped
     command: ./docker-entrypoint.sh
     environment:
       - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}

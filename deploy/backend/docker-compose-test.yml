@@ -3,6 +3,7 @@ services:
     build:
       context: ../../
       dockerfile: deploy/backend/Dockerfile
+    restart: unless-stopped
     command: ./docker-entrypoint.sh
     env_file:
       - .env.test

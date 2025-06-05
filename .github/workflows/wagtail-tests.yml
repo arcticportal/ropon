@@ -5,12 +5,10 @@ on:
     types: [synchronize, opened, reopened]
     paths:
       - backend/**
-      - deploy/backend/**
       - .github/workflows/wagtail-tests.yml
   push:
     paths:
       - backend/**
-      - deploy/backend/**
       - .github/workflows/wagtail-tests.yml
     branches:
       - dev
