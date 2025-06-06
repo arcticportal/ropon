@@ -1,6 +1,5 @@
 # ropon_data/models.py
 
-from email.policy import HTTP
 import uuid
 import os
 import requests
@@ -26,9 +25,10 @@ from wagtail.images.models import Image
 from wagtail.search import index
 from flags.state import flag_enabled
 
-from .validators import validate_email_or_url, validate_start_year
+from .validators import validate_email_or_url, validate_start_year, validate_image_url
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.core.exceptions import ValidationError
 
 
 User = get_user_model()
@@ -344,69 +344,158 @@ class ObservingNetworkPage(Page):
     def date_last_modified(self):
         return self.latest_revision_created_at
 
+    def clean(self):
+        """
+        Validate the model fields, including logo URL validation.
+        
+        This method validates that the logo_url (if provided) can be successfully
+        downloaded before the page is saved. This ensures validation errors are
+        properly displayed in the admin form rather than causing exception pages.
+        
+        Raises:
+            ValidationError: If any field validation fails, including logo download issues.
+        """
+        super().clean()
+        
+        # Validate logo URL by attempting to access it if URL is provided and should be validated
+        if self.logo_url and self._should_validate_logo_url():
+            try:
+                validate_image_url(self.logo_url, timeout=5)
+            except ValidationError as e:
+                # Re-raise with logo_url field targeting for proper form display
+                raise ValidationError({'logo_url': e.message})
+
+    def _should_validate_logo_url(self):
+        """
+        Determine if we should validate the logo URL.
+        
+        We validate when:
+        1. There's no existing logo image, OR
+        2. The logo_url field has changed from its original value
+        
+        Returns:
+            bool: True if logo URL should be validated, False otherwise.
+        """
+        # If no logo image exists, we should validate
+        if not self.logo_image:
+            return True
+            
+        # Check if logo_url field has changed from database value
+        if self.pk:
+            try:
+                original = self.__class__.objects.get(pk=self.pk)
+                return original.logo_url != self.logo_url
+            except self.__class__.DoesNotExist:
+                return True
+        
+        # For new objects, always validate if URL is provided
+        return True
+
     # @transaction.atomic
     def save(self, *args, **kwargs):
         # Ensure that the observing network page is not a child of another observing network page
         self.title = self.name
            
-        # Checks to avoid downloading image twice  when page is published 
-        # This happens because revisions are saved twice when page is published
-        
-        if self.live_revision_id and self.latest_revision_id and self.live_revision_id == self.latest_revision_id:
-            self.download_logo_image_from_url( **kwargs)
+        # Download logo image if validation passed and conditions are met
+        # This happens after clean() validation has passed
+        if self.logo_url and self._should_download_logo(**kwargs):
+            self._download_logo_image()
 
         result = super().save(*args, **kwargs)
-     
+        return result
+        result = super().save(*args, **kwargs)
+        return result
+
+    def _should_download_logo(self, **kwargs):
+        """
+        Determine if we should download the logo image.
         
-        # return result
-
-   
-    def download_logo_image_from_url(self,**kwargs):
+        We download when:
+        1. There's no existing logo image, OR
+        2. The logo_url field has changed, OR  
+        3. We're in a publishing scenario where live_revision_id matches latest_revision_id
+        
+        Args:
+            **kwargs: Additional keyword arguments from save method
+            
+        Returns:
+            bool: True if logo should be downloaded, False otherwise.
         """
-        Download and save the logo image from the URL provided by the user in logo_url field 
+        # Always download if no logo image exists
+        if not self.logo_image:
+            return True
+            
+        # Check if logo_url field has changed
+        if self._has_field_changed('logo_url', **kwargs):
+            return True
+            
+        # Download during publishing (when live and latest revisions match)
+        if self.live_revision_id and self.latest_revision_id and self.live_revision_id == self.latest_revision_id:
+            return True
+            
+        return False
+
+    def _download_logo_image(self):
         """
-
-        if self.logo_url and (not self.logo_image or self._has_field_changed('logo_url',**kwargs)):
-            try:
-                # Try to download image from URL
-                if settings.DEBUG:
-                    print(f"Downloading logo from {self.logo_url}")
-                response = requests.get(self.logo_url)
-                response.raise_for_status()
-
-                # Get filename from URL
-                img_name = os.path.basename(self.logo_url)
-                img_file_name = f"{self.pk}-{self.abbreviation}-{img_name}"
-                # Create a new image object
-                image = Image(title= f"{self.name} Logo", 
-                              file=ImageFile(BytesIO(response.content), name=img_file_name),
-                              uploaded_by_user = self.owner)
-                image._set_image_file_metadata()
-                image.save()
-                self.logo_image = image
-
-            except requests.exceptions.RequestException as e:
-                # Handle any requests related errors (connection, timeout etc)
-                print(f"Error downloading logo from {self.logo_url}: {str(e)}")
-            except Exception as e:
-                # Handle any other unexpected errors
-                print(f"Unexpected error while processing logo: {str(e)}")
-                raise HTTP(500, f"Unexpected error while processing logo: {str(e)}")
-
-    def _has_field_changed(self, field_name,**kwargs):
+        Download and save the logo image from the URL.
+        
+        This method performs the actual download and creates the Image object.
+        It should only be called after URL validation has passed in clean().
         """
-        Check if the field has changed
+        try:
+            if settings.DEBUG:
+                print(f"Downloading logo from {self.logo_url}")
+                
+            response = requests.get(self.logo_url, timeout=10)  # Longer timeout for actual download
+            response.raise_for_status()
+
+            # Get filename from URL
+            img_name = os.path.basename(self.logo_url)
+            img_file_name = f"{self.pk}-{self.abbreviation}-{img_name}"
+            
+            # Create a new image object
+            image = Image(
+                title=f"{self.name} Logo", 
+                file=ImageFile(BytesIO(response.content), name=img_file_name),
+                uploaded_by_user=self.owner
+            )
+            image._set_image_file_metadata()
+            image.save()
+            self.logo_image = image
+            
+            if settings.DEBUG:
+                print(f"Successfully downloaded and saved logo for {self.name}")
+                
+        except Exception as e:
+            # Log the error but don't raise - validation should have caught issues
+            if settings.DEBUG:
+                print(f"Error downloading logo (should have been caught in validation): {str(e)}")
+            # Optionally, we could still raise here if we want to be extra safe
+            # raise ValidationError({'logo_url': f"Failed to download logo: {str(e)}"}) 
+
+    def _has_field_changed(self, field_name, **kwargs):
+        """
+        Check if a field has changed from its database value.
+        
+        Args:
+            field_name (str): Name of the field to check
+            **kwargs: Additional keyword arguments (unused but kept for compatibility)
+            
+        Returns:
+            bool: True if field has changed or object is new, False otherwise
         """
         if self.pk is None:
             return True
-        # Get the previous revision from DB
-        current_obj = self.__class__.objects.get(pk=self.pk)  
-        # Compare the current field value with the previous version's value
-        current_value = getattr(current_obj, field_name)
-        new_value = getattr(self, field_name)
-        if new_value != current_value:
-                return True
-        return False
+            
+        try:
+            # Get the current object from database
+            current_obj = self.__class__.objects.get(pk=self.pk)  
+            # Compare the current field value with the database value
+            current_value = getattr(current_obj, field_name)
+            new_value = getattr(self, field_name)
+            return new_value != current_value
+        except self.__class__.DoesNotExist:
+            return True
 
     promote_panels = []
 
