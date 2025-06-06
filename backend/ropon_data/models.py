@@ -403,8 +403,6 @@ class ObservingNetworkPage(Page):
 
         result = super().save(*args, **kwargs)
         return result
-        result = super().save(*args, **kwargs)
-        return result
 
     def _should_download_logo(self, **kwargs):
         """
