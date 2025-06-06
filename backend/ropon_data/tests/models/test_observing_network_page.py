@@ -1,4 +1,6 @@
 import datetime
+from unittest.mock import patch, Mock
+import requests
 from django.core.cache import cache
 from django.test import override_settings
 from wagtail.test.utils import WagtailPageTestCase
@@ -833,3 +835,153 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
             # Restore original setting
             if original_frontend_url is not None:
                 settings.FRONTEND_URL = original_frontend_url
+
+    @patch('requests.head')
+    @patch('requests.get')
+    def test_download_logo_image_timeout_error(self, mock_get, mock_head):
+        """Test that timeout errors raise ValidationError during clean()"""
+        # Mock timeout error for HEAD request
+        mock_head.side_effect = requests.exceptions.ConnectTimeout(
+            "Connection to example.com timed out. (connect timeout=5)"
+        )
+        
+        # Create a test page
+        page_data = self.get_page_data()
+        page_data['logo_url'] = 'https://example.com/logo.png'
+        
+        page = ObservingNetworkPage(**page_data)
+        page.owner = self.superuser
+        
+        # This should raise ValidationError during clean()
+        with self.assertRaises(ValidationError) as context:
+            page.clean()
+        
+        # Check that the error message contains expected information
+        self.assertIn('logo_url', context.exception.error_dict)
+        error_messages = context.exception.error_dict['logo_url']
+        # error_messages is a list, so we need to get the first error message
+        error_message = str(error_messages[0])
+        self.assertIn('Logo download timed out from https://example.com/logo.png', error_message)
+        self.assertIn('Please check the URL or try again later', error_message)
+
+    @patch('requests.head')
+    @patch('requests.get')
+    def test_download_logo_image_connection_error(self, mock_get, mock_head):
+        """Test that connection errors raise ValidationError during clean()"""
+        # Mock connection error for HEAD request
+        mock_head.side_effect = requests.exceptions.ConnectionError(
+            "HTTPSConnectionPool(host='saon.com', port=443): Max retries exceeded"
+        )
+        
+        # Create a test page
+        page_data = self.get_page_data()
+        page_data['logo_url'] = 'https://saon.com/logo.png'
+        
+        page = ObservingNetworkPage(**page_data)
+        page.owner = self.superuser
+        
+        # This should raise ValidationError during clean()
+        with self.assertRaises(ValidationError) as context:
+            page.clean()
+        
+        # Check that the error message contains expected information
+        self.assertIn('logo_url', context.exception.error_dict)
+        error_messages = context.exception.error_dict['logo_url']
+        # error_messages is a list, so we need to get the first error message
+        error_message = str(error_messages[0])
+        self.assertIn('Unable to connect to https://saon.com/logo.png', error_message)
+        self.assertIn('Please verify the URL is correct and accessible', error_message)
+
+    @patch('requests.head')
+    @patch('requests.get')
+    def test_download_logo_image_http_error(self, mock_get, mock_head):
+        """Test that HTTP errors (404, 500, etc.) raise ValidationError during clean()"""
+        # Create a mock response object
+        mock_response = Mock()
+        mock_response.status_code = 404
+        mock_response.reason = "Not Found"
+        
+        # Create HTTPError with proper response attribute
+        http_error = requests.exceptions.HTTPError("404 Not Found")
+        http_error.response = mock_response
+        
+        # Mock HTTP error for HEAD request
+        mock_head.side_effect = http_error
+        
+        # Create a test page
+        page_data = self.get_page_data()
+        page_data['logo_url'] = 'https://example.com/nonexistent-logo.png'
+        
+        page = ObservingNetworkPage(**page_data)
+        page.owner = self.superuser
+        
+        # This should raise ValidationError during clean()
+        with self.assertRaises(ValidationError) as context:
+            page.clean()
+        
+        # Check that the error message contains expected information
+        self.assertIn('logo_url', context.exception.error_dict)
+        error_messages = context.exception.error_dict['logo_url']
+        # error_messages is a list, so we need to get the first error message
+        error_message = str(error_messages[0])
+        self.assertIn('HTTP error accessing image: https://example.com/nonexistent-logo.png', error_message)
+        self.assertIn('404', error_message)
+        self.assertIn('Not Found', error_message)
+
+    @patch('requests.head')
+    def test_download_logo_image_unexpected_error(self, mock_head):
+        """Test that unexpected errors raise ValidationError during clean()"""
+        # Mock unexpected error
+        mock_head.side_effect = Exception("Unexpected error occurred")
+        
+        # Create a test page
+        page_data = self.get_page_data()
+        page_data['logo_url'] = 'https://example.com/logo.png'
+        
+        page = ObservingNetworkPage(**page_data)
+        page.owner = self.superuser
+        
+        # This should raise ValidationError during clean()
+        with self.assertRaises(ValidationError) as context:
+            page.clean()
+        
+        # Check that the error message contains expected information
+        self.assertIn('logo_url', context.exception.error_dict)
+        error_messages = context.exception.error_dict['logo_url']
+        # error_messages is a list, so we need to get the first error message
+        error_message = str(error_messages[0])
+        self.assertIn('Unexpected error while validating image:', error_message)
+        self.assertIn('Unexpected error occurred', error_message)
+
+    def test_download_logo_image_no_url(self):
+        """Test that no validation occurs when logo_url is empty"""
+        # Create a test page without logo_url
+        page_data = self.get_page_data()
+        page_data['logo_url'] = ''
+        
+        page = ObservingNetworkPage(**page_data)
+        page.owner = self.superuser
+        
+        # This should not raise any exception and should do nothing
+        try:
+            page.clean()
+        except ValidationError:
+            self.fail("clean() raised ValidationError when logo_url is empty!")
+
+    @patch('requests.head')
+    def test_download_logo_image_field_not_changed(self, mock_head):
+        """Test that no validation occurs when logo_url field hasn't changed"""
+        # Create a test page
+        page_data = self.get_page_data()
+        page_data['logo_url'] = 'https://example.com/logo.png'
+        
+        page = ObservingNetworkPage(**page_data)
+        page.owner = self.superuser
+        
+        # Mock that field hasn't changed and logo exists
+        with patch.object(page, '_should_validate_logo_url', return_value=False):
+            # This should not call requests.head since validation is skipped
+            page.clean()
+        
+        # Verify that requests.head was not called
+        mock_head.assert_not_called()

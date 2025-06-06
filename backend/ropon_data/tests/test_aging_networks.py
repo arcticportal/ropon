@@ -28,7 +28,7 @@ class TestAgingNetworksReport(TestCase, WagtailTestUtils):
 
         # Create a mock for the logo download function
         self.logo_download_patcher = mock.patch(
-            'ropon_data.models.ObservingNetworkPage.download_logo_image_from_url',
+            'ropon_data.models.ObservingNetworkPage._download_logo_image',
             return_value=None
         )
         self.mock_download_logo = self.logo_download_patcher.start()

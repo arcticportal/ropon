@@ -47,45 +47,83 @@ def validate_bounding_box(value):
         raise ValidationError('Bounding Box cannot be a line. Eastern longitude cannot be same as western longitude')
     
 
-def validate_image_url(value, valid_extensions=None):
+def validate_image_url(value, valid_extensions=None, timeout=5):
     """
     Validate a URL to ensure it points to a valid image file.
     
     Args:
         value: The URL to validate
         valid_extensions: Optional list of valid file extensions
-                         Defaults to ['.png', '.jpg', '.jpeg', '.svg']
+                         Defaults to ['.png', '.jpg', '.jpeg', '.svg', '.gif', '.webp']
+        timeout: Request timeout in seconds (default: 5)
     
     Raises:
         ValidationError: If the URL is invalid, inaccessible, or doesn't point to an image
     """
-    # Default allowed extensions
+    # Default allowed extensions (expanded list)
     if not valid_extensions:
-        valid_extensions = ['.png', '.jpg', '.jpeg', '.svg']
+        valid_extensions = ['.png', '.jpg', '.jpeg', '.svg', '.gif', '.webp']
     
-    # Validate extension
-    if not any(value.lower().endswith(ext) for ext in valid_extensions):
+    # Skip extension validation if URL doesn't have a clear extension (some CDNs don't use extensions)
+    url_lower = value.lower()
+    has_extension = any(url_lower.endswith(ext) for ext in valid_extensions)
+    
+    # Only validate extension if the URL appears to have a file extension
+    if '.' in url_lower.split('/')[-1] and not has_extension:
         raise ValidationError(
-            _('Invalid image URL. Must be one of: %(extensions)s'),
+            f'Invalid image format. Must be one of: {", ".join(valid_extensions)}',
             code='invalid_image_extension',
-            params={'extensions': ', '.join(valid_extensions)}
         )
     
     # Validate URL accessibility and content type
     try:
-        response = requests.head(value, allow_redirects=True, timeout=2)
-        response.raise_for_status()
+        # First try a HEAD request for efficiency
+        response = requests.head(value, allow_redirects=True, timeout=timeout)
         
-        content_type = response.headers.get('Content-Type', '')
-        if not content_type.startswith('image/'):
-            raise ValidationError(
-                _('URL does not point to an image file'),
-                code='invalid_image_content'
-            )
-    except requests.RequestException as e:
+        # If HEAD request fails or doesn't provide content-type, try GET with range
+        if response.status_code >= 400 or not response.headers.get('content-type', '').startswith('image/'):
+            # Try a partial GET request to verify it's an image
+            headers = {'Range': 'bytes=0-1023'}  # Get first 1KB to check if it's an image
+            response = requests.get(value, timeout=timeout, headers=headers, stream=True)
+            response.raise_for_status()
+            
+            # Check if content-type indicates an image
+            content_type = response.headers.get('content-type', '')
+            if not content_type.startswith('image/'):
+                raise ValidationError(
+                    f'URL does not appear to point to an image file. Content type: {content_type}',
+                    code='invalid_image_content',
+                )
+    
+    except requests.exceptions.Timeout:
         raise ValidationError(
-            _('Cannot access the image URL: %(error)s'),
-            code='inaccessible_url',
-            params={'error': str(e)}
+            f'Logo download timed out from {value}. Please check the URL or try again later.',
+            code='timeout_error',
+        )
+    except requests.exceptions.ConnectionError:
+        raise ValidationError(
+            f'Unable to connect to {value}. Please verify the URL is correct and accessible.',
+            code='connection_error',
+        )
+    except requests.exceptions.HTTPError as e:
+        # Check if we have a response with status code info
+        if hasattr(e, 'response') and e.response is not None:
+            status_info = f"{e.response.status_code} {e.response.reason}"
+        else:
+            status_info = str(e)
+        
+        raise ValidationError(
+            f'HTTP error accessing image: {value} : {status_info}',
+            code='http_error',
+        )
+    except requests.exceptions.RequestException as e:
+        raise ValidationError(
+            f'Failed to access image: {str(e)}',
+            code='request_error',
+        )
+    except Exception as e:
+        raise ValidationError(
+            f'Unexpected error while validating image: {str(e)}',
+            code='unexpected_error',
         )
 
