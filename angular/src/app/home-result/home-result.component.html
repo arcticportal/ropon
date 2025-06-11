@@ -9,7 +9,8 @@
 	</div> -->
 	<div class="col">
 	  <div class="card-body pt-2 pb-2">
-	    <img [src]="util.formatImg(network.logo_image.meta.download_url)" />
+	    @if (network.logo_image) {
+	    <img [src]="util.formatImg(network.logo_image.meta.download_url)" /> }
 	    <h4 class="card-title mb-0">
 	      <a [routerLink]="['/networks', network.ropon_id]">{{
 		network.title}}</a>
