@@ -4,31 +4,31 @@ name: ropon2
 networks: {ropon2: {name: '${COMPOSE_PROJECT_NAME}'}}
 services:
 
- db:
-  container_name: ${COMPOSE_PROJECT_NAME}-db
-  environment: {POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'}
-  image: postgis/postgis:17-3.5-alpine
-  networks: ['${COMPOSE_PROJECT_NAME}']
-  restart: always
-  volumes: ['../postgres:/var/lib/postgresql/data']
-  healthcheck:
-   test: [CMD, pg_isready, -U, postgres]
-   interval: 5s
-   timeout: 5s
-   retries: 3
+ # db:
+ #  container_name: ${COMPOSE_PROJECT_NAME}-db
+ #  environment: {POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'}
+ #  image: postgis/postgis:17-3.5-alpine
+ #  networks: ['${COMPOSE_PROJECT_NAME}']
+ #  restart: always
+ #  volumes: ['../postgres:/var/lib/postgresql/data']
+ #  healthcheck:
+ #   test: [CMD, pg_isready, -U, postgres]
+ #   interval: 5s
+ #   timeout: 5s
+ #   retries: 3
 
- wagtail:
-  container_name: ${COMPOSE_PROJECT_NAME}-wagtail
-  build: {context: ., dockerfile: Dockerfile-wagtail}
-  depends_on: {db: {condition: service_healthy}}
-  #entrypoint: sleep inf
-  env_file: .env
-  networks: ['${COMPOSE_PROJECT_NAME}']
-  #ports: ['172.17.0.1:${WAGTAIL_PORT}:8000']
-  restart: always
-  volumes:
-  - ./l:/usr/local/bin/l:ro
-  - ../wagtail:/home/wagtail
+ # wagtail:
+ #  container_name: ${COMPOSE_PROJECT_NAME}-wagtail
+ #  build: {context: ., dockerfile: Dockerfile-wagtail}
+ #  depends_on: {db: {condition: service_healthy}}
+ #  #entrypoint: sleep inf
+ #  env_file: .env
+ #  networks: ['${COMPOSE_PROJECT_NAME}']
+ #  #ports: ['172.17.0.1:${WAGTAIL_PORT}:8000']
+ #  restart: always
+ #  volumes:
+ #  - ./l:/usr/local/bin/l:ro
+ #  - ../wagtail:/home/wagtail
 
  angular:
   container_name: ${COMPOSE_PROJECT_NAME}-angular
