@@ -25,10 +25,17 @@ export class ContactComponent {
   onSubmit() {
     if (this.contactForm.invalid) return
     this.submissionState = 'submitting'
-    const formData = this.contactForm.value
+    const formData = this.contactForm.value, msg = `
+Name: ${formData.name}
+Email: ${formData.from_email_id}
+------------------------------------------------------------------------
+${formData.message}
+------------------------------------------------------------------------
+(Sent via RoPON Contact Us form)
+`
     this.http.post(
       'https://wagtail.ropon.dev.cntb.arcticportal.org/api/v2/email/contact-us/',
-      formData).subscribe({
+      {...formData, message: msg}).subscribe({
 	next: () => {
 	  this.submissionState = 'success'
 	  this.contactForm.reset() },
