@@ -16,6 +16,24 @@ on:
       - dev
       - main
 
+  workflow_dispatch:
+  # Allows manual triggering of the workflow
+  # Useful for debugging or manual deployments
+    inputs:
+      branch:
+        description: 'Branch to build and push the Docker image for'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - main
+      skip_tests_check:
+        description: 'Skip the tests check before building and pushing the Docker image'
+        required: false
+        default: false
+        type: boolean
+
 jobs:
   debug-workflow:
     runs-on: ubuntu-latest
@@ -31,22 +49,33 @@ jobs:
           echo "$WORKFLOW_CONTEXT"
           echo "Conclusion: ${{ github.event.workflow_run.conclusion }}"
           echo "Event Type: ${{ github.event.workflow_run.event }}"
+          echo "Manual Trigger: ${{ github.event.name == 'workflow_dispatch' }}"
+          echo "Selected Branch: ${{ github.event.inputs.branch || 'N/A' }}"
           
 
 
   build-and-push:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    
+    if: |
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' ) ||
+      (github.event_name == 'workflow_dispatch')
+
     runs-on: ubuntu-latest
 
     steps:
       - name: Get branch name from triggering workflow
         id: branch
         run: |
-          # Extract the branch name from the triggering workflow
-          BRANCH_NAME="${{ github.event.workflow_run.head_branch }}"
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            # For manual dispatch, use the selected branch
+            BRANCH_NAME="${{ github.event.inputs.branch }}"
+            echo "Manual dispatch detected, using branch: ${BRANCH_NAME}"
+          else
+            # For workflow_run, use the triggering workflow's branch
+            BRANCH_NAME="${{ github.event.workflow_run.head_branch }}"
+            echo "Workflow run detected, using branch: ${BRANCH_NAME}"
+          fi
           echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
-          echo "Triggering workflow ran on branch: ${BRANCH_NAME}"
+          echo "Final branch name: ${BRANCH_NAME}"
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -74,12 +103,14 @@ jobs:
             type=raw,value=${{ steps.branch.outputs.branch_name }}
             type=raw,value=latest,enable=${{ steps.branch.outputs.branch_name == 'main' }}
             type=raw,value=${{ steps.branch.outputs.branch_name }}-latest,enable=${{ steps.branch.outputs.branch_name == 'main' || steps.branch.outputs.branch_name == 'dev' }}
+            type=raw,value=manual-${{ steps.branch.outputs.branch_name }}-{{date 'YYYY-MM-DD-HHmmss'}},enable=${{ github.event_name == 'workflow_dispatch' }}
 
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
             org.opencontainers.image.revision=${{ github.event.workflow_run.head_sha }}
             org.opencontainers.image.created=${{ github.event.workflow_run.updated_at }}
             org.opencontainers.image.branch=${{ steps.branch.outputs.branch_name }}
+            org.opencontainers.image.manual-trigger=${{ github.event_name == 'workflow_dispatch' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
