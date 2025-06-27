@@ -19,20 +19,20 @@ on:
   workflow_dispatch:
   # Allows manual triggering of the workflow
   # Useful for debugging or manual deployments
-  inputs:
-    branch:
-      description: 'Branch to build and push the Docker image for'
-      required: true
-      default: 'dev'
-      type: choice
-      options:
-        - dev
-        - main
-    skip_tests_check:
-      description: 'Skip the tests check before building and pushing the Docker image'
-      required: false
-      default: false
-      type: boolean
+    inputs:
+      branch:
+        description: 'Branch to build and push the Docker image for'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - main
+      skip_tests_check:
+        description: 'Skip the tests check before building and pushing the Docker image'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   debug-workflow:
