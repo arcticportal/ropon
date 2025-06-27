@@ -1,0 +1,43 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/postgres
+{
+	"name": "Ropon Wagtail with Postgres",
+	"dockerComposeFile": ["../docker-compose.yml"],
+	"service": "backend",
+	"remoteUser": "vscode",
+	"workspaceFolder": "/workspace",
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// This can be used to network with other containers or the host.
+	"forwardPorts": [8000, 5432],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "pip install --user -r deploy/backend/requirements.dev.txt",
+	"postStartCommand": "sleep 10 && ./backend/manage.py init_setup --create-test-users",
+	
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-azuretools.vscode-docker",
+				"GitHub.vscode-pull-request-github",
+				"batisteo.vscode-django",
+				"GitHub.copilot@prerelease",
+				"github.vscode-github-actions",
+				"github.copilot-workspace@prerelease",
+				"ms-windows-ai-studio.windows-ai-studio",
+				"GitHub.copilot-chat@prerelease",
+				"saoudrizwan.claude-dev",
+				"yzhang.markdown-all-in-one"
+			]
+		}
+	},
+	"shutdownAction": "none",
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}

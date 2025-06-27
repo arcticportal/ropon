@@ -1,0 +1,66 @@
+<div class="row">
+  <div class="col-md-6">
+    <h1>Contact RoPON</h1>
+    <h2>For further information on the RoPON initiative please
+      contact:</h2>
+    <p>Halldór Jóhannsson, Director Arctic Portal.org<br>
+      <a href="mailto:halldor@arcticportal.org">halldor&#64;arcticportal.org</a></p>
+    <h2>For further information on the POAwg please contact:</h2>
+    <p>William Manley, Lead of POAwg, University of Colorado<br>
+      <a href="mailto:william.manley@colorado.edu">william.manley&#64;colorado.edu</a></p>
+    <p>Jan Rene Larsen, SAON executive secretary<br>
+      <a href="mailto:jan.rene.larsen@amap.no">jan.rene.larsen&#64;amap.no</a></p>
+  </div>
+  <div class="col-md-6">
+    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()"
+	  class="contact-form">
+      <div class="form-group">
+	<label for="name">Name</label>
+	<input type="text" id="name" formControlName="name" />
+	<div *ngIf="name?.invalid && (name?.dirty || name?.touched)"
+	     class="error-message">
+	  <div *ngIf="name?.errors?.['required']">Name is required</div>
+	  <div *ngIf="name?.errors?.['minlength']">Name must be at least
+	    2 characters</div>
+	</div>
+      </div>
+      <div class="form-group">
+	<label for="email">Email</label>
+	<input type="email" id="email"
+	       formControlName="from_email_id" />
+	<div *ngIf="email?.invalid && (email?.dirty || email?.touched)"
+	     class="error-message">
+	  <div *ngIf="email?.errors?.['required']">Email is
+	    required</div>
+	  <div *ngIf="email?.errors?.['email']">Please enter a valid
+	    email</div>
+	</div>
+      </div>
+      <div class="form-group">
+	<label for="message">Message</label>
+	<textarea id="message" formControlName="message"
+		  rows="5"></textarea>
+	<div *ngIf="message?.invalid && (message?.dirty || message?.touched)"
+	     class="error-message">
+	  <div *ngIf="message?.errors?.['required']">Message is
+	    required</div>
+	  <div *ngIf="message?.errors?.['minlength']">Message must be at
+	    least 10 characters</div>
+	</div>
+      </div>
+      <button type="submit"
+	      [disabled]="contactForm.invalid || submissionState === 'submitting'">
+	<span *ngIf="submissionState !== 'submitting'">Send
+	  Message</span>
+	<span *ngIf="submissionState === 'submitting'">Sending...</span>
+      </button>
+      <div *ngIf="submissionState === 'success'"
+	   class="success-message">
+	Thank you for your message! We'll get back to you soon.
+      </div>
+      <div *ngIf="submissionState === 'error'" class="error-message">
+	{{ errorMessage }}
+      </div>
+    </form>
+  </div>
+</div>

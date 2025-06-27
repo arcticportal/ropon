@@ -64,6 +64,7 @@ export class HomeResultComponent {
       this.all = d['items'].toSorted((a: Obj, b: Obj) => {
 	var s = a['title'].toLowerCase(), t = b['title'].toLowerCase()
 	return s < t ? -1 : s > t ? 1 : 0 })
+      ;(window as any)._all = this.all
       this.networks = filtered(
 	this.all, this.route.snapshot.queryParams) })
     this.route.queryParams.subscribe(p => {

@@ -1,0 +1,137 @@
+[
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 1,
+    "fields": {
+      "name": "file download",
+      "description": "A method for downloading files directly from a server.",
+      "source_url": "https://en.wikipedia.org/wiki/Download"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 2,
+    "fields": {
+      "name": "API",
+      "description": "Application Programming Interface (API) allows software applications to communicate with each other.",
+      "source_url": "https://en.wikipedia.org/wiki/API"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 3,
+    "fields": {
+      "name": "OGC WMS",
+      "description": "Web Map Service (WMS) is a standard protocol for serving georeferenced map images over the Internet.",
+      "source_url": "https://en.wikipedia.org/wiki/Web_Map_Service"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 4,
+    "fields": {
+      "name": "OGC WFS",
+      "description": "Web Feature Service (WFS) is a standard for serving geospatial features over the Internet.",
+      "source_url": "https://en.wikipedia.org/wiki/Web_Feature_Service"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 5,
+    "fields": {
+      "name": "OGC WCS",
+      "description": "Web Coverage Service (WCS) is a standard for serving raster data over the Internet.",
+      "source_url": "https://en.wikipedia.org/wiki/Web_Coverage_Service"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 6,
+    "fields": {
+      "name": "OGC CSW",
+      "description": "Catalogue Service for the Web (CSW) is a standard for exposing a catalogue of geospatial records.",
+      "source_url": "https://en.wikipedia.org/wiki/Catalog_Service_for_the_Web"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 7,
+    "fields": {
+      "name": "OGC API",
+      "description": "OGC API standards define modular API building blocks to spatially enable Web APIs in a consistent way.",
+      "source_url": "https://ogcapi.ogc.org/"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 8,
+    "fields": {
+      "name": "OData",
+      "description": "Open Data Protocol (OData) is a standard protocol for building and consuming RESTful APIs.",
+      "source_url": "https://en.wikipedia.org/wiki/Open_Data_Protocol"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 9,
+    "fields": {
+      "name": "OAI-PMH",
+      "description": "Open Archives Initiative Protocol for Metadata Harvesting (OAI-PMH) is a protocol for harvesting metadata descriptions.",
+      "source_url": "https://en.wikipedia.org/wiki/Open_Archives_Initiative_Protocol_for_Metadata_Harvesting"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 10,
+    "fields": {
+      "name": "OpenSearch",
+      "description": "OpenSearch is a collection of technologies that allow publishing of search results in a format suitable for syndication and aggregation.",
+      "source_url": "https://en.wikipedia.org/wiki/OpenSearch"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 11,
+    "fields": {
+      "name": "OPeNDAP",
+      "description": "Open-source Project for a Network Data Access Protocol (OPeNDAP) is a protocol for accessing scientific data.",
+      "source_url": "https://en.wikipedia.org/wiki/OPeNDAP"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 12,
+    "fields": {
+      "name": "ArcGIS Feature Service",
+      "description": "ArcGIS Feature Service allows users to access and edit geographic features over the web.",
+      "source_url": "https://enterprise.arcgis.com/en/server/latest/publish-services/windows/what-is-a-feature-service.htm"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 13,
+    "fields": {
+      "name": "ArcGIS Map Service",
+      "description": "ArcGIS Map Service allows users to share maps, layers, and other geographic information over the web.",
+      "source_url": "https://enterprise.arcgis.com/en/server/latest/publish-services/windows/what-is-a-map-service.htm"
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 14,
+    "fields": {
+      "name": "Other",
+      "description": "If none of the above protocols apply",
+      "source_url": ""
+    }
+  },
+  {
+    "model": "ropon_data.accessprotocol",
+    "pk": 15,
+    "fields": {
+      "name": "DCAT-AP",
+      "description": "DCAT Application Profile for data portals in Europe (DCAT-AP) is a specification based on DCAT for describing public sector datasets in Europe.",
+      "source_url": "https://joinup.ec.europa.eu/collection/semantic-interoperability-community-semic/dcat-ap"
+    }
+  }
+]

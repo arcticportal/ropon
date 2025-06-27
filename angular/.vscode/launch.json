@@ -3,18 +3,30 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "ng serve",
+      "name": "NG Edge (Launch)",
+      "type": "msedge",
+      "request": "launch",
+      "preLaunchTask": "npm: start",
+      "url": "http://localhost:4200/",
+      "webRoot": "${workspaceFolder}/src",
+      "trace": true,
+      "sourceMaps": true
+    },
+    {
+      "name": "NG Chrome (Launch)",
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "npm: start",
-      "url": "http://localhost:4200/"
+      "url": "http://localhost:4200/",
+      "webRoot": "${workspaceFolder}/src"
     },
     {
-      "name": "ng test",
+      "name": "NG Test (Launch)",
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "npm: test",
-      "url": "http://localhost:9876/debug.html"
-    }
-  ]
-}
+      "url": "http://localhost:9876/debug.html",
+      "webRoot": "${workspaceFolder}/src"
+    },
+]
+   }

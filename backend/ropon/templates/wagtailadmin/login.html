@@ -1,0 +1,23 @@
+{% extends "wagtailadmin/login.html" %}
+{% load static %}
+{% load ropon_tags %}
+
+
+{% block branding_logo %}
+<a href="{% frontend_url %}">
+    <img class="ropon-login-logo" src="{% static 'ropon/images/ropon-text.png' %}" alt="RoPON Login" />
+</a>
+{% endblock %}
+
+{% block branding_login %}Sign in to RoPON Dashboard{% endblock %}
+
+{% block above_login %}
+    {# Using the frontend_url tag to generate the proper URL for the FAQ page #}
+    <br>If you are a new user, please read the <a href="{% frontend_url %}/ropon-pages/faq">RoPON FAQ</a> before continuing <br></br>
+
+{% endblock %}
+
+{% block below_login %}
+    {# Add message about password reset with admin contact email #}
+ 
+{% endblock %}

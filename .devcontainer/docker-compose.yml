@@ -1,0 +1,54 @@
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile-backend
+
+    volumes:
+      - ..:/workspace
+      - ../../storage:/srv/media
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    network_mode: service:db
+    env_file:
+      - .env.dev
+      
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  db:
+    image: postgis/postgis:17-3.5
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    # environment:
+    #   POSTGRES_USER: ${POSTGRES_USER}
+    #   POSTGRES_DB: ${POSTGRES_DB}
+    #   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    env_file:
+      - .env.dev
+
+    # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile-angular
+    volumes:
+      - ..:/workspace
+    # ports:
+    #   - "4200"
+    env_file:
+      - .env.dev
+    command: sleep infinity
+
+    # network_mode: service:db
+
+volumes:
+  postgres-data:

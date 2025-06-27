@@ -1,0 +1,69 @@
+name: Run Wagtail Tests
+
+on:
+  pull_request:
+    types: [synchronize, opened, reopened]
+    paths:
+      - backend/**
+      - .github/workflows/wagtail-tests.yml
+  push:
+    paths:
+      - backend/**
+      - .github/workflows/wagtail-tests.yml
+    branches:
+      - dev
+      - main
+
+  workflow_dispatch:
+      
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Cancel any in-progress runs of this workflow for the same branch
+  # This is useful to avoid multiple builds for the same branch
+  # and to save resources.
+  cancel-in-progress: true
+
+      
+jobs:
+  # run wagtail tests using django test command
+  wagtail_test:
+    runs-on: ubuntu-latest
+
+  # Using compose to run the tests
+    steps:
+       - name : Checkout code 
+         uses: actions/checkout@v4
+         # Build the containers using docker-compose
+       - name: Build container
+         run: docker compose -f deploy/backend/docker-compose-test.yml build
+        
+        # Pull any required images
+       - name: Pull required images
+         run: docker compose -f deploy/backend/docker-compose-test.yml pull
+        
+        # Run initial setup
+       - name: Initial setup
+         run: docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py init_setup
+       
+         # Run wagtail, django tests
+       - name: Run tests
+         run: |
+          echo "Running tests..."
+          echo "list running containers before tests"
+          docker compose -f deploy/backend/docker-compose-test.yml ps
+          echo "list all containers before tests"
+          docker ps -a
+          docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py test
+          echo "list running containers after tests"
+          docker compose -f deploy/backend/docker-compose-test.yml ps
+          echo "list all containers after tests"
+          docker ps -a
+   
+       - name: Show Docker logs on failure
+         if: failure()
+         run: docker compose -f deploy/backend/docker-compose-test.yml logs
+       
+       - name: Stop services
+         if: always()
+         run: docker compose -f deploy/backend/docker-compose-test.yml down -v --remove-orphans
+  

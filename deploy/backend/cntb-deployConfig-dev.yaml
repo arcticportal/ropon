@@ -1,0 +1,30 @@
+#meta information
+apiVersion: v1.0
+kind: deploy
+
+# Used to build COMPOSE_PROJECT_NAME
+# (app_name or github_repo) + ( instance_type or github_branch)
+app_name: ropon
+instance_type: dev # test or staging or production e.g.
+github_repo: "ropon"
+github_branch: "dev"
+
+# external facing domains configuration. Internal services must be configured using 
+# service names and ports
+service_ingres:
+  wagtail: 
+    hostname: wagtail.ropon.dev.cntb.arcticportal.org
+    ssl_host: wagtail.ropon.dev.cntb.arcticportal.org
+    port: 8000
+  
+secrets:  
+  - name: DB_PASSWORD
+    valueFrom: 
+      cntb:
+        type: password
+        id : 93050
+  - name: ACR_APP_TOKEN
+    valueFrom: 
+      cntb:
+        type: ssh
+        id : 93287
