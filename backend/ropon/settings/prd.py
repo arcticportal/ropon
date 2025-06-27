@@ -1,13 +1,9 @@
 from .base import *
 
-from environs import Env
-
-env = Env()
 DEBUG = False
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
-MEDIA_ROOT = "/srv/media/"
 
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
