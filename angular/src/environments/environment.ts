@@ -1,7 +1,7 @@
 
 export const environment = {
     production: true,
-    frontendDomain: 'https://ropon.arcticportal.org',
-    backendURL: 'https://wagtail.ropon.dev.cntb.arcticportal.org',
+    frontendDomain: 'https://polarobservingregistry.org',
+    backendURL: 'https://dashboard.polarobservingregistry.org',
     googleTagId: 'G-K3ZYKQZDFB',
 };

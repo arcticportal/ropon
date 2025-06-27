@@ -13,6 +13,12 @@ FROM python:3.12-slim
 ENV PYTHONUNBUFFERED=1 \
     PORT=8000
 
+
+# Install system packages required by Wagtail and Django.
+# TODO- are these all need for prod as well ?
+RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-recommends \
+    nano \
+ && rm -rf /var/lib/apt/lists/*
     
 # setup user permissions with ID
 # staff user has ID 1001 and staff group as ID 50 on debian 
@@ -33,16 +39,6 @@ RUN groupadd -g $PGID $PUSER && \
 RUN groupadd -g $DOCKERGID docker
 RUN usermod -aG docker $PUSER
 
-# Install system packages required by Wagtail and Django.
-# TODO- are these all need for prod as well ?
-# RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-recommends \
-#     build-essential \
-#     libpq-dev \
-#     libmariadbclient-dev \
-#     libjpeg62-turbo-dev \
-#     zlib1g-dev \
-#     libwebp-dev \
-#  && rm -rf /var/lib/apt/lists/*
 
 # # Install the application server.
 # RUN pip install "gunicorn==20.0.4"

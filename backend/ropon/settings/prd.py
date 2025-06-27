@@ -1,13 +1,9 @@
 from .base import *
 
-from environs import Env
-
-env = Env()
-DEBUG = False
+DEBUG = True # set to true till production static file system is not configured
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
-MEDIA_ROOT = "/srv/media/"
 
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
