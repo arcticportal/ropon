@@ -1,6 +1,6 @@
 from .base import *
 
-DEBUG = False
+DEBUG = True # set to true till production static file system is not configured
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
