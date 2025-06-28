@@ -2,7 +2,7 @@
 
 services:
   frontend:
-    image: arcticportal.azurecr.io/ropon/frontend:latest # Production image
+    image: arcticportal.azurecr.io/ropon/angular:latest # Production image
     restart: unless-stopped
     environment:
       - ANGULAR_ENV=${ANGULAR_ENV:-production} # just a placeholder
