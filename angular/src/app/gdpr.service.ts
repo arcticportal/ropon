@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../environments/environment';
 
 function gtag(...a: any[]) { (window as any).dataLayer.push(a) }
 
@@ -11,9 +12,9 @@ function deleteCookies(domain: string, ...prefixes: string[]) {
 	'Expires=Thu, 01 Jan 1970 00:00:00 GMT',
 	'Max-Age=0',
 	'Path=/',
-	`Domain=${domain};`].join('; ') } }
+	`Domain=${environment.frontendDomain};`].join('; ') } }
 
-const gtagId = 'G-K3ZYKQZDFB'
+const gtagId = environment.googleTagId || 'G-K3ZYKQZDFB';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +37,7 @@ export class GdprService {
     gtag('event', 'page_view') }
 
   gaDeny() {
-    deleteCookies('ropon.arcticportal.org', '_ga', '_gid')
+    deleteCookies(environment.frontendDomain, '_ga', '_gid')
     gtag('consent', 'update', {
       ad_storage: 'denied', analytics_storage: 'denied'})
     ;(window as any)['ga-disable-' + gtagId] = true }
