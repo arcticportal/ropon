@@ -1,14 +1,17 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import {provideHttpClient} from '@angular/common/http'
 
-import {NgcCookieConsentConfig,
-  provideNgcCookieConsent} from 'ngx-cookieconsent'
+import {
+  NgcCookieConsentConfig,
+  provideNgcCookieConsent
+} from 'ngx-cookieconsent';
 
+import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 
 const cookieConfig: NgcCookieConsentConfig = {
-  cookie: {domain: 'ropon.arcticportal.org'},
+  cookie: {domain: environment.frontendDomain},
   palette: {
     popup: {background: '#000'},
     button: {background: '#f1d600'}},

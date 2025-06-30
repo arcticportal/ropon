@@ -1,9 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import {ActivatedRoute, Params} from '@angular/router'
-import {DomSanitizer, SafeHtml} from '@angular/platform-browser'
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { ActivatedRoute, Params } from '@angular/router';
+import { environment } from '../environments/environment';
 
-export const frontendDomain = 'https://ropon.arcticportal.org'
-export const backendDomain = 'https://wagtail.ropon.dev.cntb.arcticportal.org'
+export const frontendDomain = 'https://'+ environment.frontendDomain
+export const backendDomain = environment.backendURL
+
 export const apiPrefix = 'api/v2'
 export const useCache = true
 
