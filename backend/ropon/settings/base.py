@@ -44,6 +44,7 @@ LOCAL_APPS = [
 ]
 
 DJANGO_APPS = [
+    "whitenoise.runserver_nostatic",
     "taggit",
     'flags',
     "django.contrib.admin",

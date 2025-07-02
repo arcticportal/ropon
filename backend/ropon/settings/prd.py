@@ -1,9 +1,21 @@
 from .base import *
 
-DEBUG = True # set to true till production static file system is not configured
+# Set DEBUG to False as we now have proper static file handling
+DEBUG = False
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
+# WhiteNoise configuration for static files
+MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')  # Add after SecurityMiddleware
+
+# Override the staticfiles storage to use WhiteNoise
+STORAGES["staticfiles"] = {
+    "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+}
+
+# Optional but recommended for production - enables Brotli compression if available
+WHITENOISE_AUTOREFRESH = False
+WHITENOISE_ENABLE_GZIP_COMPRESSION = True
 
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

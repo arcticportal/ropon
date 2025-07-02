@@ -34,7 +34,7 @@ class TestAgingNetworksReport(TestCase, WagtailTestUtils):
         self.mock_download_logo = self.logo_download_patcher.start()
         
         # Use a valid default URL for all test networks
-        self.default_test_logo_url = 'https://polarobservingregistry.org/assets/ropon-text.png'
+        self.default_test_logo_url = 'https://polarobservingregistry.org/logo_CU_Boulder.png'
     
     
         # Create test users
