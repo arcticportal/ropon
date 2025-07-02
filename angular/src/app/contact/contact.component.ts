@@ -1,8 +1,12 @@
+import { NgIf } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component, HostBinding, inject } from '@angular/core';
-import {NgIf} from '@angular/common'
-import {FormBuilder, FormGroup, Validators,
-	ReactiveFormsModule} from '@angular/forms'
-import {HttpClient} from '@angular/common/http'
+import {
+  FormBuilder, FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-contact',
@@ -34,7 +38,7 @@ ${formData.message}
 (Sent via RoPON Contact Us form)
 `
     this.http.post(
-      'https://wagtail.ropon.dev.cntb.arcticportal.org/api/v2/email/contact-us/',
+      environment.backendURL + '/api/v2/email/contact-us/',
       {...formData, message: msg}).subscribe({
 	next: () => {
 	  this.submissionState = 'success'
