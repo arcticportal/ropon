@@ -1,0 +1,120 @@
+name: Ropon Deploy
+
+on:
+  release:
+    types: [released]
+  workflow_dispatch:
+    inputs:
+      deployment_host:
+        description: 'Deployment host'
+        required: true
+        type: choice
+        options:
+          - dev
+          - production
+        default: 'dev'
+      compose_file:
+        description: 'Path to compose file in the repository'
+        required: true
+        default: 'deploy/docker-compose.yml'
+      deployconfig_file:
+        description: 'Path to deployConfig file in the repository'
+        required: true
+        default: 'deploy/deployConfig.json'
+      env_file:
+        description: 'Path to .env file in the repository (optional)'
+        required: false
+      images:
+        description: 'Images string (optional)'
+        required: false
+        default: ''
+      pullImage:
+        description: 'Pull image? (default: true)'
+        required: false
+        type: boolean
+        default: true
+
+env:
+  PROD_COMPOSE_FILE: deploy/prod/docker-compose.yml
+  PROD_DEPLOYCONFIG_FILE: deploy/prod/deployConfig.json
+  PROD_ENV_FILE: deploy/prod/.env
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set Environment
+        id: set_env
+        env:
+          PROD_URL: ${{ vars.APCNTBI_PROD_URL }}
+          PROD_KEY: ${{ secrets.APCNTBI_PROD_API_KEY }}
+          DEV_URL: ${{ vars.APCNTBI_DEV_URL }}
+          DEV_KEY: ${{ secrets.APCNTBI_DEV_API_KEY }}
+        run: |
+          if [[ "${{ github.event_name }}" == "release" || "${{ github.event.inputs.deployment_host }}" == "production" ]]; then
+            echo "env_name=production" >> $GITHUB_OUTPUT
+            echo "api_url=$PROD_URL" >> $GITHUB_OUTPUT
+            echo "api_key=$PROD_KEY" >> $GITHUB_OUTPUT
+          else
+            echo "env_name=dev" >> $GITHUB_OUTPUT
+            echo "api_url=$DEV_URL" >> $GITHUB_OUTPUT
+            echo "api_key=$DEV_KEY" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Prepare file paths
+        id: file_paths
+        run: |
+          if [ "${{ steps.set_env.outputs.env_name }}" == "production" ] && [ "${{ github.event_name }}" == "release" ]; then
+            echo "COMPOSE_PATH=${{ env.PROD_COMPOSE_FILE }}" >> $GITHUB_ENV
+            echo "DEPLOYCONFIG_PATH=${{ env.PROD_DEPLOYCONFIG_FILE }}" >> $GITHUB_ENV
+            echo "ENV_PATH=${{ env.PROD_ENV_FILE }}" >> $GITHUB_ENV
+          else
+            echo "COMPOSE_PATH=${{ github.event.inputs.compose_file }}" >> $GITHUB_ENV
+            echo "DEPLOYCONFIG_PATH=${{ github.event.inputs.deployconfig_file }}" >> $GITHUB_ENV
+            echo "ENV_PATH=${{ github.event.inputs.env_file }}" >> $GITHUB_ENV
+          fi
+
+      - name: Prepare API Payload
+        id: payload
+        run: |
+          # Base payload with required files
+          JSON_PAYLOAD=$(jq -n \
+            --arg composeFile "${{ env.COMPOSE_PATH }}" \
+            --arg deployConfigFile "${{ env.DEPLOYCONFIG_PATH }}" \
+            '{composeFile: $composeFile, deployConfigFile: $deployConfigFile}')
+          
+          # Add optional envFile
+          if [ -f "${{ env.ENV_PATH }}" ]; then
+            JSON_PAYLOAD=$(echo "$JSON_PAYLOAD" | jq --arg envFile "${{ env.ENV_PATH }}" '. + {envFile: $envFile}')
+          fi
+
+          # Add pullImage and images based on trigger
+          if [ "${{ github.event_name }}" == "release" ]; then
+            JSON_PAYLOAD=$(echo "$JSON_PAYLOAD" | jq --argjson pullImage true '. + {pullImage: $pullImage}')
+          else
+            # For manual trigger, use inputs
+            if [ -n "${{ github.event.inputs.images }}" ]; then
+              JSON_PAYLOAD=$(echo "$JSON_PAYLOAD" | jq --arg images "${{ github.event.inputs.images }}" '. + {images: $images}')
+            fi
+            if [ "${{ github.event.inputs.pullImage }}" = "true" ]; then
+              JSON_PAYLOAD=$(echo "$JSON_PAYLOAD" | jq --argjson pullImage true '. + {pullImage: $pullImage}')
+            else
+              JSON_PAYLOAD=$(echo "$JSON_PAYLOAD" | jq --argjson pullImage false '. + {pullImage: $pullImage}')
+            fi
+          fi
+          
+          echo "files_json=$JSON_PAYLOAD" >> $GITHUB_OUTPUT
+
+      - name: Deploy to Server
+        uses: ChristianVincdev/http-request-action@v2.2.0
+        with:
+          url: ${{ steps.set_env.outputs.api_url }}
+          method: 'PUT'
+          headers: |
+            {
+              "X-API-Key": "${{ steps.set_env.outputs.api_key }}"
+            }
+          files: ${{ steps.payload.outputs.files_json }} 
