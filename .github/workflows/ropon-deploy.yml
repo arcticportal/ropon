@@ -16,11 +16,11 @@ on:
       compose_file:
         description: 'Path to compose file in the repository'
         required: true
-        default: 'deploy/docker-compose.yml'
+        default: 'deploy/docker-compose-dev.yml'
       deployconfig_file:
         description: 'Path to deployConfig file in the repository'
         required: true
-        default: 'deploy/deployConfig.json'
+        default: 'deploy/cntb-deployConfig-dev.yaml'
       env_file:
         description: 'Path to .env file in the repository (optional)'
         required: false
@@ -35,9 +35,9 @@ on:
         default: true
 
 env:
-  PROD_COMPOSE_FILE: deploy/prod/docker-compose.yml
-  PROD_DEPLOYCONFIG_FILE: deploy/prod/deployConfig.json
-  PROD_ENV_FILE: deploy/prod/.env
+  PROD_COMPOSE_FILE: deploy/docker-compose-prd.yml
+  PROD_DEPLOYCONFIG_FILE: deploy/cntb-deployConfig-prd.yaml
+  # PROD_ENV_FILE: deploy/.env-prd
 
 jobs:
   deploy:
@@ -109,12 +109,9 @@ jobs:
           echo "files_json=$JSON_PAYLOAD" >> $GITHUB_OUTPUT
 
       - name: Deploy to Server
-        uses: ChristianVincdev/http-request-action@v2.2.0
+        uses: fjogeleit/http-request-action@v1
         with:
           url: ${{ steps.set_env.outputs.api_url }}
           method: 'PUT'
-          headers: |
-            {
-              "X-API-Key": "${{ steps.set_env.outputs.api_key }}"
-            }
+          customHeaders: '{"X-API-Key": "${{ steps.set_env.outputs.api_key }}"}'
           files: ${{ steps.payload.outputs.files_json }} 
