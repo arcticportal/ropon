@@ -106,7 +106,8 @@ jobs:
             fi
           fi
           
-          echo "files_json=$JSON_PAYLOAD" >> $GITHUB_OUTPUT
+          # Compact JSON to a single line for output
+          echo "files_json=$(echo "$JSON_PAYLOAD" | jq -c .)" >> $GITHUB_OUTPUT
 
       - name: Deploy to Server
         uses: fjogeleit/http-request-action@v1
