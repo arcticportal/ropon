@@ -10,7 +10,7 @@ MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')  # Add after 
 
 # Override the staticfiles storage to use WhiteNoise
 STORAGES["staticfiles"] = {
-    "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
 }
 
 # Optional but recommended for production - enables Brotli compression if available
