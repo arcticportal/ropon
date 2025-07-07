@@ -1,4 +1,11 @@
-name: Ropon Deploy (Curl)
+name: Ropon Deploy
+
+# This workflow deploys the Ropon application to the development or production environment.
+# It sends a deployment request to the API endpoint using curl.
+# The deployment result and health check result are saved to the GitHub Actions output.
+# The workflow validates required files and the optional env file.
+# It verifies the deployment and health check results.
+# Temporary files are cleaned up after deployment.
 
 on:
   release:
