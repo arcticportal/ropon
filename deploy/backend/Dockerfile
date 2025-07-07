@@ -1,7 +1,7 @@
 # Initial draft Docker file that should be used to build the Docker image for the project.
 
 # Use an official Python runtime based on Debian 10 "buster" as a parent image.
-FROM python:3.12-bookworm
+FROM python:3.12-slim-bookworm
 
 # Add user that will be used in the container.
 # RUN useradd wagtail
