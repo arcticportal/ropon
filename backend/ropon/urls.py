@@ -1,8 +1,10 @@
 from django.conf import settings
-from django.urls import path, include # Ensure include is imported
+from django.urls import path, include, re_path
 from django.contrib import admin
+from django.views.generic.base import RedirectView
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
+from wagtail import urls as wagtail_urls
 from search import views as search_views
 
 from wagtail.api.v2.router import WagtailAPIRouter
@@ -34,17 +36,20 @@ urlpatterns += [
     path("django-admin/", admin.site.urls),
     # Include custom Page Create and Edit views
     # only if feature flag is enabled
-    path("admin/pages/",include("base.urls")),
+    path("admin/pages/",include("base.urls")), # This was overriding wagtail admin pages. It should be included within the admin path if needed.
 
-    path("admin/", include(wagtailadmin_urls)),
-    path("documents/", include(wagtaildocs_urls)),
-    path("search/", search_views.search, name="search"),
+    # path("documents/", include(wagtaildocs_urls)), # This conflicts with wagtail admin documents
+    # path("search/", search_views.search, name="search"), # This conflicts with wagtail admin search
 
     
     # Include the ropon_email urls under the desired path
     path("api/v2/email/", include("ropon_email.urls", namespace="ropon_email_api")),
 
     path('api/v2/', api_router.urls), # Keep other API router endpoints
+    path("admin/", include(wagtailadmin_urls)),
+
+    # Redirect the root URL ("/") to the admin interface.
+    re_path(r'^$', RedirectView.as_view(url='/admin/', permanent=False), name='index-redirect'),
 
     # For anything not caught by a more specific rule above, hand over to
     # Wagtail's page serving mechanism. This should be the last pattern.
