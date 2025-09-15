@@ -44,4 +44,4 @@ memory-bank/
 .devcontainer/.env.dev
 
 # Devcontainer
-.devcontainer/.env.dev
+.devcontainer/.env.*
