@@ -503,32 +503,37 @@ class ObservingNetworkPage(Page):
             heading='Welcome to the "Add Observing Network" Page!',
             content=get_observing_network_help_content()
         ),
-        
+
+        # Network Information (following metadata model sequence)
         FieldPanel('name'),
         FieldPanel('abbreviation'),
         FieldPanel('description'),
         FieldPanel('website_url'),
         FieldPanel('logo_url'),
-
-         MultipleChooserPanel('network_organizations',
+        MultipleChooserPanel('network_organizations',
                              chooser_field_name='organization',
                              heading='Organizations',
                              label="Organization",
                              panels=None
                          ),
+        FieldPanel('contact'),
+        FieldPanel('data_repository_url'),
+
+        # Observational Scope
         MultiFieldPanel([
             FieldPanel('domains', widget=forms.CheckboxSelectMultiple),
             FieldPanel('disciplines', widget=forms.CheckboxSelectMultiple),
         ], heading="Observational Scope"),
+
+        # Spatial and Temporal Coverage
         MultiFieldPanel([
             FieldPanel('start_year'),
             FieldPanel('regions', widget=forms.CheckboxSelectMultiple),
-            FieldPanel('subregions', widget=forms.CheckboxSelectMultiple),                     
+            FieldPanel('subregions', widget=forms.CheckboxSelectMultiple),
             FieldPanel('geometry_field'),
-            
         ], heading="Spatial and Temporal Coverage"),
-        FieldPanel('contact'),
-        FieldPanel('data_repository_url'),
+
+        # Observing Assets and Asset-Level Metadata Interoperability
         MultiFieldPanel([
             FieldPanel('asset_types', widget=forms.CheckboxSelectMultiple),
             FieldPanel('has_catalog'),
@@ -538,7 +543,7 @@ class ObservingNetworkPage(Page):
             FieldPanel('access_protocols', widget=forms.CheckboxSelectMultiple),
             FieldPanel('metadata_catalog_url'),
         ], heading="Observing Assets"),
-       
+
     ]
 
     admin_panel = [
