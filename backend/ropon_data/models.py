@@ -56,17 +56,21 @@ FLAG_REMOVE_PREVIEW_OPTIONS = 'ROPON.REMOVE_PREVIEW_OPTIONS'
 class ControlledVocabularyModel(models.Model):
     """Base class for all controlled vocabulary models"""
     name = models.CharField(max_length=255)
+    sort_order = models.PositiveIntegerField(default=0, help_text='Order for display. Use 0 for default ordering.')
 
     class Meta:
         abstract = True
+        ordering = ['sort_order', 'id']
 
-    panels = [FieldPanel('name')]
+    panels = [FieldPanel('name'), 
+                                FieldPanel('sort_order')]
 
     def __str__(self):
         return self.name
     
     api_fields = [
         APIField('name'),
+        APIField('sort_order'),
     ]
 
 class Domain(ControlledVocabularyModel):
