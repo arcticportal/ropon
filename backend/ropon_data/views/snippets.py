@@ -40,8 +40,9 @@ org_chooser_viewset = OrganizationChooserViewSet("org_chooser")
 class ControlledVocabularyViewSet(SnippetViewSet):
     """Base viewset for controlled vocabulary models"""
     menu_icon = 'list-ul'
-    list_display = ('name',)
+    list_display = ('name', 'sort_order')
     search_fields = ('name',)
+    ordering = ['sort_order', 'id']
 
 class DomainViewSet(ControlledVocabularyViewSet):
     model = Domain

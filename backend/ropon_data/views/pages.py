@@ -42,7 +42,7 @@ class ObservingNetworkPageViewSet(PageListingViewSet):
     #     ]
 
     columns = PageListingViewSet.columns +[
-        Column('abbreviation', label='Abbreviation', classname='abbreviation'),
+        Column('abbreviation', label='Abbreviation', classname='abbreviation', sort_key='abbreviation'),
     ]
     
     filterset_class = ObservingNetworkFilterSet

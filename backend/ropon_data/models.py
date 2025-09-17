@@ -56,17 +56,21 @@ FLAG_REMOVE_PREVIEW_OPTIONS = 'ROPON.REMOVE_PREVIEW_OPTIONS'
 class ControlledVocabularyModel(models.Model):
     """Base class for all controlled vocabulary models"""
     name = models.CharField(max_length=255)
+    sort_order = models.PositiveIntegerField(default=0, help_text='Order for display. Use 0 for default ordering.')
 
     class Meta:
         abstract = True
+        ordering = ['sort_order', 'id']
 
-    panels = [FieldPanel('name')]
+    panels = [FieldPanel('name'), 
+                                FieldPanel('sort_order')]
 
     def __str__(self):
         return self.name
     
     api_fields = [
         APIField('name'),
+        APIField('sort_order'),
     ]
 
 class Domain(ControlledVocabularyModel):
@@ -282,7 +286,7 @@ class ObservingNetworkPage(Page):
             ('under_development', 'Under Development')
         ],
         verbose_name='Asset Metadata Catalog',
-        help_text='Does the network has a catalog, spreadsheet, list, or other means of tracking details about individual observing assets such as observing sites, mobile platforms, research projects, field campaigns, cruises, programs, etc.?  (This field pertains to observing assets, not scientific datasets). ',
+        help_text='Does the network have a catalog, spreadsheet, list, or other means of tracking details about individual observing assets such as observing sites, mobile platforms, research projects, field campaigns, cruises, programs, etc.?  (This field pertains to observing assets, not scientific datasets). ',
     )
     metadata_access = models.CharField(
         max_length=20,
@@ -503,32 +507,37 @@ class ObservingNetworkPage(Page):
             heading='Welcome to the "Add Observing Network" Page!',
             content=get_observing_network_help_content()
         ),
-        
+
+        # Network Information (following metadata model sequence)
         FieldPanel('name'),
         FieldPanel('abbreviation'),
         FieldPanel('description'),
         FieldPanel('website_url'),
         FieldPanel('logo_url'),
-
-         MultipleChooserPanel('network_organizations',
+        MultipleChooserPanel('network_organizations',
                              chooser_field_name='organization',
                              heading='Organizations',
                              label="Organization",
                              panels=None
                          ),
+        FieldPanel('contact'),
+        FieldPanel('data_repository_url'),
+
+        # Observational Scope
         MultiFieldPanel([
             FieldPanel('domains', widget=forms.CheckboxSelectMultiple),
             FieldPanel('disciplines', widget=forms.CheckboxSelectMultiple),
         ], heading="Observational Scope"),
+
+        # Spatial and Temporal Coverage
         MultiFieldPanel([
             FieldPanel('start_year'),
             FieldPanel('regions', widget=forms.CheckboxSelectMultiple),
-            FieldPanel('subregions', widget=forms.CheckboxSelectMultiple),                     
+            FieldPanel('subregions', widget=forms.CheckboxSelectMultiple),
             FieldPanel('geometry_field'),
-            
         ], heading="Spatial and Temporal Coverage"),
-        FieldPanel('contact'),
-        FieldPanel('data_repository_url'),
+
+        # Observing Assets and Asset-Level Metadata Interoperability
         MultiFieldPanel([
             FieldPanel('asset_types', widget=forms.CheckboxSelectMultiple),
             FieldPanel('has_catalog'),
@@ -538,7 +547,7 @@ class ObservingNetworkPage(Page):
             FieldPanel('access_protocols', widget=forms.CheckboxSelectMultiple),
             FieldPanel('metadata_catalog_url'),
         ], heading="Observing Assets"),
-       
+
     ]
 
     admin_panel = [

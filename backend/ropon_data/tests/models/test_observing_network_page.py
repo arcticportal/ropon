@@ -985,3 +985,47 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         
         # Verify that requests.head was not called
         mock_head.assert_not_called()
+
+    def test_should_hide_submit_for_moderation_function(self):
+        """Test the should_hide_submit_for_moderation permission function"""
+        from ropon_data.permissions import should_hide_submit_for_moderation
+
+        # Create a published page owned by editor
+        page_data = self.get_page_data(valid=True)
+        published_page = ObservingNetworkPage(**page_data)
+        published_page.owner = self.editor
+        self.index_page.add_child(instance=published_page)
+        published_page.save_revision().publish()
+
+        # Create an unpublished page owned by editor
+        unpublished_page = ObservingNetworkPage(**page_data)
+        unpublished_page.owner = self.editor
+        self.index_page.add_child(instance=unpublished_page)
+        unpublished_page.unpublish()  # Ensure the page is actually unpublished
+
+        # Test cases for Editor
+        # 1. Editor editing their own published page - should hide submit
+        self.assertTrue(
+            should_hide_submit_for_moderation(self.editor, published_page),
+            "Editor should not see submit for moderation when editing their own published page"
+        )
+
+        # 2. Editor creating/editing unpublished page - should show submit
+        self.assertFalse(
+            should_hide_submit_for_moderation(self.editor, unpublished_page),
+            "Editor should see submit for moderation when working with unpublished page"
+        )
+
+        # Test cases for Moderator - should always show submit (return False)
+        self.assertFalse(
+            should_hide_submit_for_moderation(self.moderator, published_page),
+            "Moderator should always see submit for moderation option"
+        )
+
+        # Test cases for Superuser - should always show submit (return False)
+        self.assertFalse(
+            should_hide_submit_for_moderation(self.superuser, published_page),
+            "Superuser should always see submit for moderation option"
+        )
+
+       
