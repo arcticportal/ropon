@@ -1,0 +1,406 @@
+name: Ropon Deploy
+
+# This workflow deploys the Ropon application to the development or production environment.
+# It sends a deployment request to the API endpoint using curl.
+# The deployment result and health check result are saved to the GitHub Actions output.
+# The workflow validates required files and the optional env file.
+# It verifies the deployment and health check results.
+# Temporary files are cleaned up after deployment.
+
+on:
+  release:
+    types: [released]
+  workflow_dispatch:
+    inputs:
+      deployment_host:
+        description: 'Deployment host'
+        required: true
+        type: choice
+        options:
+          - dev
+          - production
+        default: 'dev'
+      compose_file:
+        description: 'Path to compose file in the repository'
+        required: true
+        default: 'deploy/docker-compose-dev.yml'
+      deployconfig_file:
+        description: 'Path to deployConfig file in the repository'
+        required: true
+        default: 'deploy/cntb-deployConfig-dev.yaml'
+      env_file:
+        description: 'Path to .env file in the repository (optional)'
+        required: false
+      images:
+        description: 'Images string (optional)'
+        required: false
+        default: ''
+      pullImage:
+        description: 'Pull image? (default: true)'
+        required: false
+        type: boolean
+        default: true
+
+env:
+  PROD_COMPOSE_FILE: deploy/docker-compose-prd.yml
+  PROD_DEPLOYCONFIG_FILE: deploy/cntb-deployConfig-prd.yaml
+  PROD_ENV_FILE: deploy/.env.prd
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set Environment
+        id: set_env
+        env:
+          PROD_URL: ${{ vars.APCNTBI_PROD_URL }}
+          PROD_KEY: ${{ secrets.APCNTBI_PROD_API_KEY }}
+          DEV_URL: ${{ vars.APCNTBI_DEV_URL }}
+          DEV_KEY: ${{ secrets.APCNTBI_DEV_API_KEY }}
+        run: |
+          if [[ "${{ github.event_name }}" == "release" || "${{ github.event.inputs.deployment_host }}" == "production" ]]; then
+            echo "env_name=production" >> $GITHUB_OUTPUT
+            echo "api_url=$PROD_URL" >> $GITHUB_OUTPUT
+            echo "api_key=$PROD_KEY" >> $GITHUB_OUTPUT
+          else
+            echo "env_name=dev" >> $GITHUB_OUTPUT
+            echo "api_url=$DEV_URL" >> $GITHUB_OUTPUT
+            echo "api_key=$DEV_KEY" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Prepare file paths
+        id: file_paths
+        run: |
+          if [ "${{ steps.set_env.outputs.env_name }}" == "production" ] && [ "${{ github.event_name }}" == "release" ]; then
+            echo "COMPOSE_PATH=${{ env.PROD_COMPOSE_FILE }}" >> $GITHUB_ENV
+            echo "DEPLOYCONFIG_PATH=${{ env.PROD_DEPLOYCONFIG_FILE }}" >> $GITHUB_ENV
+            echo "ENV_PATH=${{ env.PROD_ENV_FILE }}" >> $GITHUB_ENV
+          else
+            echo "COMPOSE_PATH=${{ github.event.inputs.compose_file }}" >> $GITHUB_ENV
+            echo "DEPLOYCONFIG_PATH=${{ github.event.inputs.deployconfig_file }}" >> $GITHUB_ENV
+            echo "ENV_PATH=${{ github.event.inputs.env_file }}" >> $GITHUB_ENV
+          fi
+
+      - name: Prepare deployment parameters
+        id: prepare_params
+        run: |
+          # Create absolute file paths (used by multiple steps)
+          COMPOSE_FULL_PATH="${{ github.workspace }}/${COMPOSE_PATH}"
+          DEPLOYCONFIG_FULL_PATH="${{ github.workspace }}/${DEPLOYCONFIG_PATH}"
+          
+          echo "compose_file_path=$COMPOSE_FULL_PATH" >> $GITHUB_OUTPUT
+          echo "deployconfig_file_path=$DEPLOYCONFIG_FULL_PATH" >> $GITHUB_OUTPUT
+          
+          # Determine pullImage value
+          if [ "${{ github.event_name }}" == "release" ]; then
+            PULL_IMAGE="true"
+          else
+            if [ "${{ github.event.inputs.pullImage }}" = "true" ]; then
+              PULL_IMAGE="true"
+            else
+              PULL_IMAGE="false"
+            fi
+          fi
+          
+          echo "pull_image=$PULL_IMAGE" >> $GITHUB_OUTPUT
+          
+          # Handle images parameter
+          if [ -n "${{ github.event.inputs.images }}" ]; then
+            echo "images=${{ github.event.inputs.images }}" >> $GITHUB_OUTPUT
+            echo "has_images=true" >> $GITHUB_OUTPUT
+          else
+            echo "images=" >> $GITHUB_OUTPUT
+            echo "has_images=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check if env file exists and should be included
+          if [ -n "$ENV_PATH" ] && [ -f "${{ github.workspace }}/$ENV_PATH" ]; then
+            ENV_FULL_PATH="${{ github.workspace }}/$ENV_PATH"
+            echo "has_env_file=true" >> $GITHUB_OUTPUT
+            echo "env_file_path=$ENV_FULL_PATH" >> $GITHUB_OUTPUT
+          else
+            echo "has_env_file=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validate required files
+        if: success()
+        run: |
+          echo "🔍 Validating required files..."
+          
+          # Use pre-calculated file paths
+          COMPOSE_FILE="${{ steps.prepare_params.outputs.compose_file_path }}"
+          DEPLOYCONFIG_FILE="${{ steps.prepare_params.outputs.deployconfig_file_path }}"
+          
+          # Detailed validation with comprehensive error messages
+          VALIDATION_ERRORS=""
+          
+          if [ ! -f "$COMPOSE_FILE" ]; then
+            echo "❌ Error: Compose file not found: $COMPOSE_FILE"
+            echo "📂 Available files in deploy directory:"
+            ls -la "${{ github.workspace }}/deploy/" 2>/dev/null || echo "Deploy directory not found"
+            echo "📂 Current working directory contents:"
+            ls -la "${{ github.workspace }}/" 2>/dev/null || echo "Workspace directory not accessible"
+            VALIDATION_ERRORS="$VALIDATION_ERRORS\n- Compose file missing: $COMPOSE_FILE"
+          else
+            echo "✅ Compose file found: $COMPOSE_FILE ($(stat -c%s "$COMPOSE_FILE") bytes)"
+          fi
+          
+          if [ ! -f "$DEPLOYCONFIG_FILE" ]; then
+            echo "❌ Error: Deploy config file not found: $DEPLOYCONFIG_FILE"
+            echo "📂 Available files in deploy directory:"
+            ls -la "${{ github.workspace }}/deploy/" 2>/dev/null || echo "Deploy directory not found"
+            VALIDATION_ERRORS="$VALIDATION_ERRORS\n- Deploy config file missing: $DEPLOYCONFIG_FILE"
+          else
+            echo "✅ Deploy config file found: $DEPLOYCONFIG_FILE ($(stat -c%s "$DEPLOYCONFIG_FILE") bytes)"
+          fi
+          
+          # Check if there were validation errors
+          if [ -n "$VALIDATION_ERRORS" ]; then
+            echo "💥 Validation failed with the following errors:"
+            echo -e "$VALIDATION_ERRORS"
+            echo "🔍 Troubleshooting tips:"
+            echo "  - Verify file paths in workflow inputs"
+            echo "  - Check if files exist in the repository"
+            echo "  - Ensure proper case sensitivity in file names"
+            echo "  - Verify repository structure matches expected paths"
+            exit 1
+          fi
+          
+          echo "✅ All required files validated successfully"
+          echo "📄 Compose file: $COMPOSE_FILE"
+          echo "📄 Deploy config: $DEPLOYCONFIG_FILE"
+          
+          # Validate optional env file if specified
+          if [ "${{ steps.prepare_params.outputs.has_env_file }}" = "true" ]; then
+            ENV_FILE="${{ steps.prepare_params.outputs.env_file_path }}"
+            if [ -f "$ENV_FILE" ]; then
+              echo "📄 Env file: $ENV_FILE ($(stat -c%s "$ENV_FILE") bytes)"
+            else
+              echo "⚠️  Warning: Env file specified but not found: $ENV_FILE"
+              echo "🔍 This may cause deployment issues if the server expects an env file"
+            fi
+          fi
+
+      - name: Build Complete Curl Command
+        id: build_curl_cmd
+        if: success()
+        run: |
+          echo "🔧 Building curl command..."
+          
+          # Build base curl command with options
+          CURL_CMD="curl -X PUT"
+          CURL_CMD="$CURL_CMD -H 'X-API-Key: ${{ steps.set_env.outputs.api_key }}'"
+          CURL_CMD="$CURL_CMD --connect-timeout 30"
+          CURL_CMD="$CURL_CMD --max-time 60"
+          CURL_CMD="$CURL_CMD --retry 2"
+          CURL_CMD="$CURL_CMD --retry-delay 5"
+          CURL_CMD="$CURL_CMD --fail-with-body"
+          CURL_CMD="$CURL_CMD --show-error"
+          CURL_CMD="$CURL_CMD --silent"
+          
+          # Add required files
+          COMPOSE_FILE="${{ steps.prepare_params.outputs.compose_file_path }}"
+          DEPLOYCONFIG_FILE="${{ steps.prepare_params.outputs.deployconfig_file_path }}"
+          
+          CURL_CMD="$CURL_CMD -F 'composeFile=@$COMPOSE_FILE;type=text/yaml'"
+          CURL_CMD="$CURL_CMD -F 'deployConfigFile=@$DEPLOYCONFIG_FILE;type=text/yaml'"
+          
+          # Add env file if present
+          if [ "${{ steps.prepare_params.outputs.has_env_file }}" = "true" ]; then
+            ENV_FILE="${{ steps.prepare_params.outputs.env_file_path }}"
+            CURL_CMD="$CURL_CMD -F 'envFile=@$ENV_FILE;type=text/plain'"
+          fi
+          
+          # Add form data parameters
+          CURL_CMD="$CURL_CMD -F 'pullImage=${{ steps.prepare_params.outputs.pull_image }}'"
+          
+          # Add images parameter if provided
+          if [ "${{ steps.prepare_params.outputs.has_images }}" = "true" ]; then
+            CURL_CMD="$CURL_CMD -F 'images=${{ steps.prepare_params.outputs.images }}'"
+          fi
+          
+          # Add target URL
+          CURL_CMD="$CURL_CMD '${{ steps.set_env.outputs.api_url }}'"
+          
+          # Save the complete command
+          echo "final_cmd<<EOF" >> $GITHUB_OUTPUT
+          echo "$CURL_CMD" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "✅ Curl command built successfully"
+
+      - name: Execute Deployment
+        id: deploy
+        if: success()
+        run: |
+          echo "🚀 Executing deployment..."
+          
+          # Get the final command
+          CURL_CMD="${{ steps.build_curl_cmd.outputs.final_cmd }}"
+          
+          # Create temporary files for response capture
+          RESPONSE_FILE=$(mktemp)
+          HTTP_CODE_FILE=$(mktemp)
+          VERBOSE_LOG_FILE=$(mktemp)
+          
+          echo "📤 Sending request to: ${{ steps.set_env.outputs.api_url }}"
+          echo "🎯 Environment: ${{ steps.set_env.outputs.env_name }}"
+          
+          # Execute curl with output capture
+          if eval "$CURL_CMD -o '$RESPONSE_FILE' -w '%{http_code}' --verbose > '$HTTP_CODE_FILE' 2>'$VERBOSE_LOG_FILE'"; then
+            HTTP_CODE=$(cat "$HTTP_CODE_FILE")
+            RESPONSE_BODY=$(cat "$RESPONSE_FILE")
+            
+            echo "✅ Deployment completed successfully"
+            echo "📊 HTTP Status: $HTTP_CODE"
+            
+            # Save outputs
+            echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
+            echo "response<<EOF" >> $GITHUB_OUTPUT
+            echo "$RESPONSE_BODY" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "success=true" >> $GITHUB_OUTPUT
+            
+          else
+            EXIT_CODE=$?
+            HTTP_CODE=$(cat "$HTTP_CODE_FILE" 2>/dev/null || echo "000")
+            RESPONSE_BODY=$(cat "$RESPONSE_FILE" 2>/dev/null || echo "No response body")
+            VERBOSE_OUTPUT=$(cat "$VERBOSE_LOG_FILE" 2>/dev/null || echo "No verbose output")
+            
+            echo "❌ Deployment failed with exit code: $EXIT_CODE"
+            echo "📊 HTTP Status: $HTTP_CODE"
+            echo "📋 Error Response: $RESPONSE_BODY"
+            
+            # Basic error analysis
+            if [ "$HTTP_CODE" = "401" ]; then
+              echo "🔑 Authentication Failed - Check API key"
+            elif [ "$HTTP_CODE" = "403" ]; then
+              echo "🚫 Authorization Failed - Insufficient permissions"
+            elif [ "$HTTP_CODE" = "404" ]; then
+              echo "🔍 Not Found - Check API endpoint URL"
+            elif [ "$HTTP_CODE" = "500" ]; then
+              echo "💥 Server Error - Internal server problem"
+            fi
+            
+            # Save error outputs
+            echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
+            echo "response<<EOF" >> $GITHUB_OUTPUT
+            echo "$RESPONSE_BODY" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "success=false" >> $GITHUB_OUTPUT
+            
+            # Clean up temp files
+            rm -f "$RESPONSE_FILE" "$HTTP_CODE_FILE" "$VERBOSE_LOG_FILE"
+            exit 1
+          fi
+          
+          # Clean up temp files
+          rm -f "$RESPONSE_FILE" "$HTTP_CODE_FILE" "$VERBOSE_LOG_FILE"
+
+      - name: Verify deployment result
+        if: always()
+        run: |
+          DEPLOY_SUCCESS="${{ steps.deploy.outputs.success }}"
+          DEPLOY_HTTP_CODE="${{ steps.deploy.outputs.http_code }}"
+          
+          if [ "$DEPLOY_SUCCESS" = "true" ]; then
+            echo "✅ Deployment completed successfully!"
+            echo "📊 HTTP Status: $DEPLOY_HTTP_CODE"
+          else
+            echo "❌ Deployment failed!"
+            echo "📊 HTTP Status: $DEPLOY_HTTP_CODE"
+            exit 1
+          fi
+
+      - name: Post-Deployment Health Check
+        id: health_check
+        if: always() && steps.deploy.outputs.success == 'true'
+        run: |
+          echo "🏥 Performing health check..."
+          
+          # Wait for services to start
+          echo "⏳ Waiting 1 seconds for services to initialize..."
+          sleep 1
+          
+          # Construct health check URL
+          BASE_URL="${{ steps.set_env.outputs.api_url }}"
+          HEALTH_CHECK_URL=$(echo "$BASE_URL" | sed -E 's|(\/api\/v1).*|\1|')/docs
+          
+          # Health check with retry logic
+          MAX_ATTEMPTS=3
+          ATTEMPT=1
+          HEALTH_STATUS="unhealthy"
+          
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            echo "🔄 Health check attempt $ATTEMPT of $MAX_ATTEMPTS..."
+            
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              --connect-timeout 10 \
+              --max-time 30 \
+              "$HEALTH_CHECK_URL" 2>/dev/null || echo "000")
+            
+            if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "204" ]; then
+              echo "✅ Health check passed! Service is responding."
+              HEALTH_STATUS="healthy"
+              break
+            else
+              echo "⚠️  Health check failed. HTTP status: $HTTP_STATUS"
+              if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+                echo "⏳ Waiting 15 seconds before retry..."
+                sleep 15
+              fi
+            fi
+            
+            ATTEMPT=$((ATTEMPT + 1))
+          done
+          
+          # Set health status
+          if [ "$HEALTH_STATUS" = "healthy" ]; then
+            echo "🎉 Health check: PASSED"
+            echo "health_status=healthy" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Health check: FAILED"
+            echo "health_status=unhealthy" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "🧹 Cleaning up temporary files..."
+          find /tmp -name "*curl*" -type f -delete 2>/dev/null || true
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "📊 DEPLOYMENT SUMMARY"
+          echo "===================="
+          echo "🎯 Environment: ${{ steps.set_env.outputs.env_name }}"
+          echo " Time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "🏷️  Triggered by: ${{ github.event_name }}"
+          echo ""
+          echo "📁 Files:"
+          echo "  - Compose: ${{ steps.prepare_params.outputs.compose_file_path }}"
+          echo "  - Config: ${{ steps.prepare_params.outputs.deployconfig_file_path }}"
+          echo ""
+          
+          # Deployment result
+          if [ "${{ steps.deploy.outputs.success }}" = "true" ]; then
+            echo "✅ DEPLOYMENT: SUCCESS"
+            echo "📊 HTTP Status: ${{ steps.deploy.outputs.http_code }}"
+            
+            # Health check result
+            if [ "${{ steps.health_check.outputs.health_status }}" = "healthy" ]; then
+              echo "🏥 HEALTH CHECK: PASSED"
+            elif [ -n "${{ steps.health_check.outputs.health_status }}" ]; then
+              echo "🏥 HEALTH CHECK: FAILED"
+            else
+              echo "🏥 HEALTH CHECK: SKIPPED"
+            fi
+          else
+            echo "❌ DEPLOYMENT: FAILED"
+            echo "📊 HTTP Status: ${{ steps.deploy.outputs.http_code }}"
+          fi
+          echo "===================="

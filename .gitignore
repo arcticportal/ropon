@@ -21,6 +21,7 @@ __pycache__/
 /backend/**/__pycache__/
 /backend/static/
 /backend/media/
+/wagtail/
 
 #docker
 /docker/.env
@@ -39,4 +40,13 @@ memory-bank/
 
 #Copilot
 .github/copilot/
+.github/copilot-instructions.md
 .devcontainer/.env.dev
+
+#Claude
+.claude/
+CLAUDE.md
+
+# Devcontainer
+.devcontainer/.env.*
+

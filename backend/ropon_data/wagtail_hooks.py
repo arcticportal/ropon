@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from wagtail.snippets.models import register_snippet
 from wagtail import hooks
 
-from .permissions import can_publish
+from .permissions import can_publish, should_hide_submit_for_moderation
 from .views.pages import ObservingNetworkPageViewSet
 from .views.snippets import ControlledVocabularyGroup, org_chooser_viewset, OrganizationViewSet
 
@@ -32,14 +32,23 @@ def register_observing_network_page_viewset():
 
 
 
-# If ObservingNetworkPage is edited by Editors group and is_owner_authorized is True, and request.user is not owner then remove publish from the page_action_menu
+# Customize page action menu for ObservingNetworkPage based on user permissions
 @hooks.register('construct_page_action_menu')
-def remove_publish_from_page_action_menu(menu_items, request, context):
+def customize_page_action_menu(menu_items, request, context):
     """
-    Removes publish and unpublish actions from the page action menu for unauthorized users.
+    Customizes the page action menu by:
+    1. Removing publish and unpublish actions for unauthorized users
+    2. Removing submit for moderation for Editors editing their own published networks
     """
+    page = context.get('page')
+
+    # Remove publish/unpublish actions for unauthorized users (existing logic)
     if not can_publish(request.user, context):
         menu_items[:] = [item for item in menu_items if item.name not in ['action-publish', 'action-unpublish']]
+
+    # Remove submit for moderation for Editors editing their own published networks (new logic)
+    if should_hide_submit_for_moderation(request.user, page):
+        menu_items[:] = [item for item in menu_items if item.name.lower() != 'action-submit']
 
 
 @hooks.register('construct_explorer_page_queryset')
