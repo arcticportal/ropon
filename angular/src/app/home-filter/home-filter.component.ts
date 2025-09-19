@@ -61,8 +61,8 @@ export class HomeFilterComponent {
       'Instrument Development', 'Meteorology and Climate',
       'Oceanography', 'Social and Human Sciences', 'Space Physics']},
     {name: 'asset_types', label: 'Asset Type', options: [
-      'Sites', 'Mobile platforms', 'Projects', 'Campaigns',
-      'Initiatives']},
+      'Sites', 'Mobile Platforms', 'Satellites', 'Projects',
+      'Campaigns', 'Initiatives']},
     {name: 'has_catalog', label: 'Asset Catalog', options: [
       'yes', 'no', 'under development']}]
 
