@@ -4,7 +4,7 @@
 from wagtail.admin.viewsets.pages import PageListingViewSet
 from wagtail.admin.views.pages.listing import IndexView
 from ropon_data.models import ObservingNetworkPage
-from wagtail.admin.ui.tables import Column
+from wagtail.admin.ui.tables import Column, UserColumn
 
 
 class ObservingNetworkPageIndexView(IndexView):
@@ -43,6 +43,7 @@ class ObservingNetworkPageViewSet(PageListingViewSet):
 
     columns = PageListingViewSet.columns +[
         Column('abbreviation', label='Abbreviation', classname='abbreviation', sort_key='abbreviation'),
+        UserColumn('owner', label='Owner', classname='owner', sort_key='owner'),
     ]
     
     filterset_class = ObservingNetworkFilterSet
