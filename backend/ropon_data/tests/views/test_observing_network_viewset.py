@@ -93,7 +93,7 @@ class ObservingNetworkPageViewSetTests(WagtailPageTestCase):
         # Verify column properties
         self.assertEqual(owner_column.label, 'Owner')
         self.assertEqual(owner_column.classname, 'owner')
-        self.assertEqual(owner_column.sort_key, 'owner__username')
+        self.assertEqual(owner_column.sort_key, 'owner')
 
     def test_viewset_has_abbreviation_column(self):
         """Test that the viewset still includes the Abbreviation column."""
