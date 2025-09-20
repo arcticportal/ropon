@@ -14,17 +14,20 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from environs import Env
 
-env = Env()
-env.read_env()  
-
-
 from .utils import ( build_urls_from_hosts,
                      set_os_path
     )
 
+env = Env()
+env.read_env()  
+
+DEBUG = env.bool("DEBUG", True)
+
+
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
+SECRET_KEY = env.str("DJANGO_SECRET_KEY", 'seccret')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -97,6 +100,11 @@ MIDDLEWARE = [
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
   
 ]
+
+if not DEBUG:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')  # Add after SecurityMiddleware
+    # Override the staticfiles storage to use WhiteNoise
+
 
 ROOT_URLCONF = "ropon.urls"
 
@@ -205,6 +213,16 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
     },
 }
+
+if not DEBUG:
+    # Use WhiteNoise for serving static files in production
+    STORAGES["staticfiles"] = {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    }
+
+    # Optional but recommended for production - enables Brotli compression if available
+    WHITENOISE_AUTOREFRESH = False
+    WHITENOISE_ENABLE_GZIP_COMPRESSION = True
 
 
 # Wagtail settings
@@ -358,3 +376,20 @@ WAGTAIL_GUIDE_SETTINGS = {
     # Whether to hide the core editor guide
     "HIDE_WAGTAIL_CORE_EDITOR_GUIDE": env.bool("WAGTAIL_GUIDE_HIDE_CORE_EDITOR", True),
 }
+
+
+
+
+# Django Email server settings SMTP backend
+# https://docs.djangoproject.com/en/5.1/topics/email/
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env.str('EMAIL_HOST', default='')
+EMAIL_PORT = env.int('EMAIL_PORT', default=465)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=False)
+EMAIL_HOST_USER = env.str('EMAIL_HOST_USER','')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD','')
+EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL', default=True)
+EMAIL_TIMEOUT = env.int('EMAIL_TIMEOUT', default=5)
+DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL', '')
+

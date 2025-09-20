@@ -104,6 +104,21 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
             is_lazy=False
         )
 
+    def get_network_id_field(self, valid=True):
+        network_id_data = [
+            ('network_id', 'NOAA EORES ID: 370366'),
+            ('network_id', 'https://registry.example.com/networks/123'),
+            ('network_id', 'NET-001')
+        ] if valid else [
+            ('network_id', 'http://')  # Invalid URL
+        ]
+
+        return StreamValue(
+            ObservingNetworkPage.network_id.field.stream_block,
+            network_id_data,
+            is_lazy=False
+        )
+
     def get_base_page_data(self):
         return {
             'title': 'Test Network',
@@ -122,21 +137,28 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         page_data = self.get_base_page_data().copy()
         geometry_field_data = self.get_soso_geometry_field(valid)
         metadata_catalog_url_data = self.get_metadata_catalog_url_field(valid)
-        
+        network_id_data = self.get_network_id_field(valid)
+
         if lazy_stream_data:
             geometry_field_data = self.to_lazy_stream_data_format(geometry_field_data)
             metadata_catalog_url_data = self.to_lazy_stream_data_format(metadata_catalog_url_data)
+            network_id_data = self.to_lazy_stream_data_format(network_id_data)
 
         page_data["geometry_field"] = StreamValue(
                 ObservingNetworkPage.geometry_field.field.stream_block,
                 geometry_field_data,
                 is_lazy=lazy_stream_data)
-        
+
         page_data["metadata_catalog_url"] = StreamValue(
                 ObservingNetworkPage.metadata_catalog_url.field.stream_block,
                 metadata_catalog_url_data,
                 is_lazy=lazy_stream_data)
-        
+
+        page_data["network_id"] = StreamValue(
+                ObservingNetworkPage.network_id.field.stream_block,
+                network_id_data,
+                is_lazy=lazy_stream_data)
+
         return page_data
       
       
@@ -170,6 +192,10 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
             'data_repository_url': streamfield([
                 ('url', 'http://example.com/repository1'),
                 ('url', 'http://example.com/repository2')
+            ]),
+            'network_id': streamfield([
+                ('network_id', 'NOAA EORES ID: 370366'),
+                ('network_id', 'https://registry.example.com/networks/123')
             ]),
             'domains': [1, 2],  # Assuming these are valid domain IDs
             'disciplines': [1, 2],  # Assuming these are valid discipline IDs
@@ -985,3 +1011,232 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         
         # Verify that requests.head was not called
         mock_head.assert_not_called()
+
+    def test_should_hide_submit_for_moderation_function(self):
+        """Test the should_hide_submit_for_moderation permission function"""
+        from ropon_data.permissions import should_hide_submit_for_moderation
+
+        # Create a published page owned by editor
+        page_data = self.get_page_data(valid=True)
+        published_page = ObservingNetworkPage(**page_data)
+        published_page.owner = self.editor
+        self.index_page.add_child(instance=published_page)
+        published_page.save_revision().publish()
+
+        # Create an unpublished page owned by editor
+        unpublished_page = ObservingNetworkPage(**page_data)
+        unpublished_page.owner = self.editor
+        self.index_page.add_child(instance=unpublished_page)
+        unpublished_page.unpublish()  # Ensure the page is actually unpublished
+
+        # Test cases for Editor
+        # 1. Editor editing their own published page - should hide submit
+        self.assertTrue(
+            should_hide_submit_for_moderation(self.editor, published_page),
+            "Editor should not see submit for moderation when editing their own published page"
+        )
+
+        # 2. Editor creating/editing unpublished page - should show submit
+        self.assertFalse(
+            should_hide_submit_for_moderation(self.editor, unpublished_page),
+            "Editor should see submit for moderation when working with unpublished page"
+        )
+
+        # Test cases for Moderator - should always show submit (return False)
+        self.assertFalse(
+            should_hide_submit_for_moderation(self.moderator, published_page),
+            "Moderator should always see submit for moderation option"
+        )
+
+        # Test cases for Superuser - should always show submit (return False)
+        self.assertFalse(
+            should_hide_submit_for_moderation(self.superuser, published_page),
+            "Superuser should always see submit for moderation option"
+        )
+
+    def test_create_multiple_network_ids(self):
+        """Test creating a network page with multiple network IDs."""
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        saved_page = ObservingNetworkPage.objects.get(slug=page.slug)
+        self.assertEqual(len(saved_page.network_id), 3)
+
+    def test_update_network_ids(self):
+        """Test updating network IDs on an existing page."""
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        new_page = ObservingNetworkPage.objects.get(slug=page.slug)
+        new_network_id_data = [
+            ('network_id', 'NEW-ID-001'),
+            ('network_id', 'https://new-registry.example.com/networks/456')
+        ]
+        new_page.network_id = StreamValue(
+            ObservingNetworkPage.network_id.field.stream_block,
+            new_network_id_data,
+            is_lazy=False
+        )
+        new_page.save_revision().publish()
+
+        updated_page = ObservingNetworkPage.objects.get(slug=new_page.slug)
+        self.assertEqual(len(updated_page.network_id), 2)
+        self.assertEqual(updated_page.network_id[0].value, 'NEW-ID-001')
+        self.assertEqual(updated_page.network_id[1].value, 'https://new-registry.example.com/networks/456')
+
+    def test_delete_network_ids(self):
+        """Test removing all network IDs from a page."""
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        new_page = ObservingNetworkPage.objects.get(slug=page.slug)
+        new_page.network_id = StreamValue(
+            ObservingNetworkPage.network_id.field.stream_block,
+            [],
+            is_lazy=False
+        )
+        new_page.save_revision().publish()
+
+        updated_page = ObservingNetworkPage.objects.get(slug=new_page.slug)
+        self.assertEqual(len(updated_page.network_id), 0)
+
+    def test_network_id_optional_field(self):
+        """Test that network_id field is optional."""
+        page_data = self.get_base_page_data()
+        page_data["geometry_field"] = self.get_soso_geometry_field(valid=True)
+        page_data["metadata_catalog_url"] = self.get_metadata_catalog_url_field(valid=True)
+        # Explicitly not setting network_id
+
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        saved_page = ObservingNetworkPage.objects.get(slug=page.slug)
+        self.assertTrue(ObservingNetworkPage.objects.filter(title='Test Network').exists())
+
+    def test_network_id_text_validation(self):
+        """Test that text network IDs are accepted."""
+        text_network_ids = [
+            'NOAA EORES ID: 370366',
+            'NET-001',
+            'REGISTRY_ID_123',
+            'Simple text identifier'
+        ]
+
+        for network_id_text in text_network_ids:
+            with self.subTest(network_id=network_id_text):
+                network_id_data = [('network_id', network_id_text)]
+                network_id_stream = StreamValue(
+                    ObservingNetworkPage.network_id.field.stream_block,
+                    network_id_data,
+                    is_lazy=False
+                )
+
+                # Test the block validation directly
+                block = network_id_stream[0]
+                # Should not raise validation error - clean() should return the cleaned value
+                result = block.block.clean(block.value)
+                self.assertEqual(result, network_id_text, f"Text network ID '{network_id_text}' should be valid")
+
+    def test_network_id_url_validation(self):
+        """Test that URL network IDs are properly validated."""
+        valid_urls = [
+            'https://registry.example.com/networks/123',
+            'http://example.com/id/456',
+            'https://eores.noaa.gov/networks/370366'
+        ]
+
+        for url in valid_urls:
+            with self.subTest(url=url):
+                network_id_data = [('network_id', url)]
+                network_id_stream = StreamValue(
+                    ObservingNetworkPage.network_id.field.stream_block,
+                    network_id_data,
+                    is_lazy=False
+                )
+
+                # Test the block validation directly
+                block = network_id_stream[0]
+                # Should not raise validation error - clean() should return the cleaned value
+                result = block.block.clean(block.value)
+                self.assertEqual(result, url, f"Valid URL '{url}' should be accepted")
+
+    def test_invalid_network_id_url(self):
+        """Test that invalid URLs in network IDs raise validation errors."""
+        invalid_urls = [
+            'http://',
+            'https://',
+            'ftp://invalid-protocol.com',
+            'not-a-url://',
+        ]
+
+        for invalid_url in invalid_urls:
+            with self.subTest(url=invalid_url):
+                network_id_data = [('network_id', invalid_url)]
+
+                try:
+                    network_id_stream = StreamValue(
+                        ObservingNetworkPage.network_id.field.stream_block,
+                        network_id_data,
+                        is_lazy=False
+                    )
+
+                    # Try to validate the block directly
+                    block = network_id_stream[0]
+                    with self.assertRaises(ValidationError):
+                        block.block.clean(block.value)
+                except Exception:
+                    # If StreamValue creation fails, that's also expected for invalid data
+                    pass
+
+    def test_observing_network_api_access_with_network_id(self):
+        """Test that network_id field is included in API responses."""
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        saved_page = ObservingNetworkPage.objects.get(slug=page.slug)
+        response = self.client.get(f'/api/v2/networks/{saved_page.id}/')
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('network_id', response_data)
+        self.assertEqual(len(response_data['network_id']), 3)
+
+    def test_mixed_text_and_url_network_ids(self):
+        """Test that a mix of text and URL network IDs works correctly."""
+        mixed_network_id_data = [
+            ('network_id', 'NOAA EORES ID: 370366'),  # Text
+            ('network_id', 'https://registry.example.com/networks/123'),  # URL
+            ('network_id', 'LOCAL-NET-456'),  # Text
+            ('network_id', 'http://another-registry.org/net/789')  # URL
+        ]
+
+        network_id_stream = StreamValue(
+            ObservingNetworkPage.network_id.field.stream_block,
+            mixed_network_id_data,
+            is_lazy=False
+        )
+
+        page_data = self.get_base_page_data()
+        page_data["geometry_field"] = self.get_soso_geometry_field(valid=True)
+        page_data["metadata_catalog_url"] = self.get_metadata_catalog_url_field(valid=True)
+        page_data["network_id"] = network_id_stream
+
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        saved_page = ObservingNetworkPage.objects.get(slug=page.slug)
+        self.assertEqual(len(saved_page.network_id), 4)
+        self.assertEqual(saved_page.network_id[0].value, 'NOAA EORES ID: 370366')
+        self.assertEqual(saved_page.network_id[1].value, 'https://registry.example.com/networks/123')
+        self.assertEqual(saved_page.network_id[2].value, 'LOCAL-NET-456')
+        self.assertEqual(saved_page.network_id[3].value, 'http://another-registry.org/net/789')

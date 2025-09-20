@@ -16,6 +16,20 @@ def validate_email_or_url(value):
             except ValidationError:
                 raise ValidationError("Enter a valid email address or URL.")
 
+def validate_text_or_url(value):
+    """Validate that a given value is either plain text or a valid URL."""
+    if not value:
+        return
+
+    # Check if the value looks like a URL (contains :// or starts with http)
+    if '://' in value or value.lower().startswith(('http://', 'https://')):
+        url_validator = validators.URLValidator(message="Enter a valid URL.")
+        try:
+            url_validator(value)
+        except ValidationError:
+            raise ValidationError("Invalid URL format.")
+    # If it doesn't look like a URL, accept any non-empty text
+
 def validate_start_year(value):
     """Validates that the input year is not in the future by comparing it with the current year."""
     current_year = datetime.datetime.now().year
