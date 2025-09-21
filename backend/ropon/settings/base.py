@@ -19,8 +19,13 @@ from .utils import ( build_urls_from_hosts,
     )
 
 env = Env()
-env.read_env()  
+# Read a .env file if present (no error if missing) so local development can
+# override environment variables without exporting them.
+env.read_env()
 
+# IMPORTANT: Do NOT hard‑code DEBUG later in this file. Environment-specific
+# modules (e.g. dev.py / prd.py) may override this. Default is False for safety.
+# Individual environment .env files can set DEBUG=1 for non-production usage.
 DEBUG = env.bool("DEBUG", True)
 
 
@@ -89,6 +94,8 @@ THIRD_PARTY_APPS = [
 INSTALLED_APPS = DJANGO_APPS + WAGTAIL_APPS + THIRD_PARTY_APPS + LOCAL_APPS 
 
 MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -96,15 +103,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.security.SecurityMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
   
 ]
-
-if not DEBUG:
-    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')  # Add after SecurityMiddleware
-    # Override the staticfiles storage to use WhiteNoise
-
 
 ROOT_URLCONF = "ropon.urls"
 
@@ -116,7 +117,7 @@ TEMPLATES = [
         ],
         "APP_DIRS": True,
         "OPTIONS": {
-            'debug': True,
+            'debug': DEBUG,
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
@@ -209,20 +210,19 @@ STORAGES = {
     # outdated JavaScript / CSS assets being served from cache
     # (e.g. after a Wagtail upgrade).
     # See https://docs.djangoproject.com/en/5.1/ref/contrib/staticfiles/#manifeststaticfilesstorage
+    
+    # Use WhiteNoise for serving static files in production
+    
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+        # "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
-if not DEBUG:
-    # Use WhiteNoise for serving static files in production
-    STORAGES["staticfiles"] = {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    }
 
-    # Optional but recommended for production - enables Brotli compression if available
-    WHITENOISE_AUTOREFRESH = False
-    WHITENOISE_ENABLE_GZIP_COMPRESSION = True
+# Optional but recommended for production - enables Brotli compression if available
+WHITENOISE_AUTOREFRESH = False
+WHITENOISE_ENABLE_GZIP_COMPRESSION = True
 
 
 # Wagtail settings
@@ -287,8 +287,9 @@ CORS_ALLOWED_ORIGINS = build_urls_from_hosts(
                None),
                ['http://localhost:8000'] )
 
-
-DEBUG = True
+# NOTE: An unconditional DEBUG assignment previously existed here overriding
+# environment variables and environment-specific settings. It has been removed
+# to allow proper configuration via env and dev/prd modules.
 
 # Set custom user model
 AUTH_USER_MODEL = 'ropon_auth.RoponUser'
