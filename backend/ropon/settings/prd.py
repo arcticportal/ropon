@@ -3,7 +3,7 @@ from .base import *  # noqa
 # Production overrides.
 # Explicitly ensure DEBUG is False regardless of accidental env leakage.
 
-if not 'DEBUG' in env:
+if not 'DEBUG' in os.environ:
     DEBUG = False  # noqa: F401
 
 
