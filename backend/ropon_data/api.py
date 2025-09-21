@@ -116,7 +116,7 @@ class ControlledVocabularyAPIViewSet(BaseAPIViewSet):
            
 
     # Add "name" to the default listing fields
-    listing_default_fields = BaseAPIViewSet.listing_default_fields + ["name"]
+    listing_default_fields = BaseAPIViewSet.listing_default_fields + ["name", "sort_order"]
 
     def dispatch(self, request, *args, **kwargs):
         model_name = kwargs.get("model_name")
