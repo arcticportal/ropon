@@ -12,6 +12,7 @@ services:
     restart: unless-stopped
     command: ./docker-entrypoint.sh
     environment:
+      - DEBUG=${DEBUG:-true}
       - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME}
