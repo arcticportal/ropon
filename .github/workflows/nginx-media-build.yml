@@ -53,7 +53,7 @@ jobs:
       - name: Build and push Nginx Media Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .deploy/nginx-media
+          context: ./deploy/nginx-media
           file: ./deploy/nginx-media/Dockerfile
           push: ${{ github.event_name == 'push' }} # Only push on direct pushes to main/dev
           tags: ${{ steps.meta.outputs.tags }}
