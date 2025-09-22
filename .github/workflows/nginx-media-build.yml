@@ -1,0 +1,62 @@
+# .github/workflows/nginx-media-build.yml
+name: Nginx Media Docker Build and Push
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'deploy/nginx-media/**'
+      - '.github/workflows/nginx-media-build.yml'
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'deploy/nginx-media/**'
+      - '.github/workflows/nginx-media-build.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Cancel any in-progress runs of this workflow for the same branch
+  cancel-in-progress: true
+
+jobs:
+  build_and_push_nginx_media_docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: arcticportal.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: arcticportal.azurecr.io/ropon/nginx-media
+          tags: |
+            type=raw,value=${{ github.ref_name }}-{{date 'YYYY-MM-DD'}}
+            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
+            type=raw,value=${{ github.ref_name }}-latest,enable=${{ github.ref_name == 'main' || github.ref_name == 'dev' }}
+
+      - name: Build and push Nginx Media Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./deploy/nginx-media
+          file: ./deploy/nginx-media/Dockerfile
+          push: ${{ github.event_name == 'push' }} # Only push on direct pushes to main/dev
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

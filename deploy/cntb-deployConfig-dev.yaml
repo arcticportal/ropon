@@ -12,13 +12,17 @@ github_branch: "dev"
 # external facing domains configuration. Internal services must be configured using 
 # service names and ports
 service_ingres:
-  backend: 
+  backend:
     hostname: wagtail.ropon.dev.cntb.arcticportal.org
     ssl_host: wagtail.ropon.dev.cntb.arcticportal.org
     port: 8000
   frontend:
     hostname: frontend.ropon.dev.cntb.arcticportal.org
     ssl_host: frontend.ropon.dev.cntb.arcticportal.org
+    port: 80
+  nginx-media:
+    hostname: media.ropon.dev.cntb.arcticportal.org
+    ssl_host: media.ropon.dev.cntb.arcticportal.org
     port: 80
 
 secrets:
