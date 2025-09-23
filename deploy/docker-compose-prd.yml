@@ -32,6 +32,7 @@ services:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - MEDIA_ROOT=${MEDIA_ROOT}
+      - MEDIA_URL=${MEDIA_URL}
       - DJANGO_PORT=${DJANGO_PORT:-8000}
       - GUNICORN_PORT=${GUNICORN_PORT:-8000}
       - GUNICORN_WORKERS_PER_CORE=${GUNICORN_WORKERS_PER_CORE:-}
@@ -47,11 +48,28 @@ services:
       - EMAIL_USE_TLS=${EMAIL_USE_TLS:-}
       - EMAIL_USE_SSL=${EMAIL_USE_SSL:-}
       - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL:-}
+  
     depends_on:
       db:
         condition: service_healthy
     networks:
       - backend
+
+  nginx-media:
+    image: arcticportal.azurecr.io/ropon/nginx-media:latest
+    restart: unless-stopped
+    environment:
+      - NGINX_MEDIA_SERVER_NAME=${NGINX_MEDIA_SERVER_NAME}
+      - NGINX_MEDIA_CORS_ALLOWED_ORIGINS=${NGINX_MEDIA_CORS_ALLOWED_ORIGINS}
+      - NGINX_MEDIA_CACHE_EXPIRES=${NGINX_MEDIA_CACHE_EXPIRES}
+      - NGINX_MEDIA_CACHE_MAX_AGE=${NGINX_MEDIA_CACHE_MAX_AGE}
+    volumes:
+      - source: host_media
+        target: /usr/share/nginx/html/media
+        type: volume
+        volume:
+          nocopy: true
+          subpath: ${COMPOSE_PROJECT_NAME}/backend
 
   db:
     image: postgis/postgis:17-3.5
