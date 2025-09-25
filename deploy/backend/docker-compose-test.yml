@@ -12,7 +12,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-
+      redis:
+        condition: service_started
   db:
     image: postgis/postgis:17-3.5
     restart: unless-stopped
@@ -26,8 +27,12 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-  
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
 
 volumes:
   postgres-data:
-    
+  redis_data:

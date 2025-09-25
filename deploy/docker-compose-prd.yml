@@ -48,10 +48,15 @@ services:
       - EMAIL_USE_TLS=${EMAIL_USE_TLS:-}
       - EMAIL_USE_SSL=${EMAIL_USE_SSL:-}
       - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL:-}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_DB=${REDIS_DB:-0}
   
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - backend
 
@@ -70,6 +75,14 @@ services:
         volume:
           nocopy: true
           subpath: ${COMPOSE_PROJECT_NAME}/backend
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
 
   db:
     image: postgis/postgis:17-3.5
@@ -92,6 +105,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   backend:

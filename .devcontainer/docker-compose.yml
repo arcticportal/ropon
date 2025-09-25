@@ -12,10 +12,13 @@ services:
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
 
-    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
-    network_mode: service:db
+    networks:
+      - backend
     env_file:
       - .env.local
+    depends_on:
+      - db
+      - redis
       
     # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
@@ -25,13 +28,15 @@ services:
     restart: unless-stopped
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    # environment:
-    #   POSTGRES_USER: ${POSTGRES_USER}
-    #   POSTGRES_DB: ${POSTGRES_DB}
-    #   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-
+    networks:
+      - backend
     env_file:
       - .env.local
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
 
     # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
@@ -42,13 +47,11 @@ services:
       dockerfile: .devcontainer/Dockerfile-angular
     volumes:
       - ..:/workspace
-    # ports:
-    #   - "4200"
+    networks:
+      - backend
     env_file:
       - .env.local
     command: sleep infinity
-
-    # network_mode: service:db
 
   nginx-media:
     build:
@@ -56,15 +59,23 @@ services:
       dockerfile: .devcontainer/Dockerfile-nginx-media
     volumes:
       - ../../storage/:/usr/share/nginx/html/media:ro
-    # environment:
-    #   - NGINX_MEDIA_SERVER_NAME=${NGINX_MEDIA_SERVER_NAME}
-    #   - NGINX_MEDIA_CORS_ALLOWED_ORIGINS=${NGINX_MEDIA_CORS_ALLOWED_ORIGINS}
-    #   - NGINX_MEDIA_CACHE_EXPIRES=${NGINX_MEDIA_CACHE_EXPIRES}
-    #   - NGINX_MEDIA_CACHE_MAX_AGE=${NGINX_MEDIA_CACHE_MAX_AGE}
+    networks:
+      - backend
     env_file:
       - .env.local
-    network_mode: service:db
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend
 
 
 volumes:
   postgres-data:
+  redis-data:
+
+networks:
+  backend:
