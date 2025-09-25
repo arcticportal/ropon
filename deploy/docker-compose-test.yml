@@ -14,6 +14,8 @@ services:
       - ./frontend/.env.local # Assuming .env.local is for 'local' frontend
     depends_on:
       - backend
+    networks:
+      - backend
   backend:
     build:
       context: ../
@@ -24,9 +26,22 @@ services:
       - ./backend/.env.test # Assuming .env.test is for 'dev' (staging) backend
     ports:
       - "8000:8000" # Use the same host port for test backend
+
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
 
   db:
     image: postgis/postgis:17-3.5
@@ -35,6 +50,8 @@ services:
       - ./backend/.env.test # DB credentials from backend dev (staging) env file
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -43,4 +60,8 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
+
+networks:
+  backend:
 
