@@ -20,7 +20,7 @@ ARG DOCKERGID=1000
 ARG ENVIRONMENT=prd
 
 RUN apt-get update --yes --quiet && \
-    apt-get install --yes --quiet --no-install-recommends nano && \
+    apt-get install --yes --quiet --no-install-recommends nano curl iputils-ping iputils-tracepath dnsutils && \
     rm -rf /var/lib/apt/lists/* && \
     groupadd -g $PGID $PUSER && \
     useradd -u $PID -g $PGID -m -d /home/$PUSER $PUSER && \
