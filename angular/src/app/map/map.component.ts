@@ -12,16 +12,25 @@ import {Obj} from '../util.service'
 
 type Bound = [Coordinate, Coordinate]
 
-function lonLat(box: Obj, x: string, y: string): Coordinate {
+/* function lonLat(box: Obj, x: string, y: string): Coordinate {
   return fromLonLat([box[x].longitude, box[y].latitude]) }
 
-function boxToPoly(box: Obj): Coordinate[] { return [
+function boxToPoly2(box: Obj): Coordinate[] { return [
   lonLat(box, 'southwest', 'southwest'),
   lonLat(box, 'southwest', 'northeast'),
   lonLat(box, 'northeast', 'northeast'),
   lonLat(box, 'northeast', 'southwest'),
-  lonLat(box, 'southwest', 'southwest')] }
+  lonLat(box, 'southwest', 'southwest')] } */
 
+function boxToPoly(box: Obj): Coordinate[] {
+  var [x, y, X, Y] = [
+    box['southwest'].longitude, box['southwest'].latitude,
+    box['northeast'].longitude, box['northeast'].latitude]
+  if (x >= X) X += 360
+  //return [[x, y], [x, Y], [X, Y], [X, y], [x, y]].map(fromLonLat)
+  return [fromLonLat([x, y]), fromLonLat([x, Y]), fromLonLat([X, Y]),
+	  fromLonLat([X, y]), fromLonLat([x, y])] }
+    
 function geometries(boxes: Obj[]): Coordinate[][] {
   return boxes.map(b => boxToPoly(b['value'])) }
 

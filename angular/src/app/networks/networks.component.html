@@ -62,6 +62,17 @@
       <dd class="col-sm-9 col-lg-10">
 	<a [href]="contactHref()" target="_blank">{{contactText()}}</a>
       </dd>
+      <dt class="col-sm-3 col-lg-2">Network IDs</dt>
+      <dd class="col-sm-9 col-lg-10">
+	<ul class="list-unstyled mb-0">
+	  <li *ngFor="let d of network.network_id">
+	    <a [href]="d.value"
+	       target="_blank">{{util.formatUrl(d.value)}}</a>
+	  </li>
+	</ul>
+      </dd>
+      <dt class="col-sm-3 col-lg-2">RoPON Network ID</dt>
+      <dd class="col-sm-9 col-lg-10">{{network.ropon_id}}</dd>
       <dt class="col-sm-3 col-lg-2">Data Repositories</dt>
       <dd class="col-sm-9 col-lg-10">
 	<ul class="list-unstyled mb-0">
@@ -136,7 +147,7 @@
   <div class="col-md-5 col-xxl-4 mt-4 mt-md-0">
     <div class="card shadow-lg h-100">
       <small class="row card-body">
-	<h6 class="col card-title fw-bold">Observing Assets</h6>
+	<h6 class="col card-title fw-bold">About Observing Assets</h6>
 	<p class="col-12 card-text">
 	  Many organizations compile structured information about
 	  “observing assets”: Components of infrastructure such as
