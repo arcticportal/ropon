@@ -289,7 +289,6 @@ class ObservingNetworkPage(Page):
     asset_types = ParentalManyToManyField(
         AssetType,
         blank=True,
-        # null=True,
         verbose_name='Asset Types',
         help_text='Categorization of discrete infrastructure or coordinated activities for observing such as sites, mobile platforms, projects, campaigns, and initiatives.'
     )
