@@ -414,7 +414,7 @@ class ObservingNetworkPage(Page):
     # @transaction.atomic
     def save(self, *args, **kwargs):
         # Ensure that the observing network page is not a child of another observing network page
-        self.title = self.name
+        self.name = self.title
            
         # Download logo image if validation passed and conditions are met
         # This happens after clean() validation has passed
@@ -525,7 +525,10 @@ class ObservingNetworkPage(Page):
         ),
 
         # Network Information (following metadata model sequence)
-        FieldPanel('name'),
+        # FieldPanel('name'),
+        FieldPanel('title',
+                   heading='Network Name',
+                   help_text='The full name of the observing network e.g. Svalbard Integrated Arctic Earth Observing System.'),
         FieldPanel('abbreviation'),
         FieldPanel('description'),
         FieldPanel('website_url'),
