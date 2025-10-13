@@ -9,4 +9,5 @@ environs==14.1.1
 wagtail_guide==2.2.0
 whitenoise[brotli]==6.9.0
 django-redis==6.0.0
+wagtail-cache==3.0.0
 pycurl==7.45.7
