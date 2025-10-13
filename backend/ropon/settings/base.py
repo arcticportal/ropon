@@ -247,21 +247,16 @@ ROPON_ADMIN_EMAIL = env.str('ROPON_ADMIN_EMAIL', 'info@polarobservingregistry.or
 
 
 # Cache Configuration - defaults to local memory, overridden if Redis available
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'TIMEOUT': 300,  # 5 minutes default timeout
-    }
-}
+
 
 # Session Configuration - defaults to database
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 # Override with Redis if REDIS_HOST is configured
 REDIS_HOST = env.str('REDIS_HOST', '')
 if REDIS_HOST:
     REDIS_PORT = env.str('REDIS_PORT', '6379')
-    REDIS_DB = env.str('REDIS_DB', '0')
+    REDIS_DB = env.str('REDIS_DB', '1')
     CACHES = {
         'default': {
             'BACKEND': 'django_redis.cache.RedisCache',
@@ -269,14 +264,14 @@ if REDIS_HOST:
             'OPTIONS': {
                 'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             },
-            # 'TIMEOUT': 60*60*24,  # 1 day default timeout
+            'TIMEOUT': 60*60*24,  # 1 day default timeout
         }
     }
-    SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-    SESSION_CACHE_ALIAS = 'default'
+    # SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+    # SESSION_CACHE_ALIAS = 'default'
 
 # Cache timeout settings
-# CACHE_MIDDLEWARE_SECONDS = 300  # 5 minutes
+# CACHE_MIDDLEWARE_SECONDS = 600  # 10 minutes
 CACHE_MIDDLEWARE_KEY_PREFIX = 'ropon'
 
 # Search
