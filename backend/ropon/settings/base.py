@@ -75,7 +75,7 @@ WAGTAIL_APPS = [
     "wagtail.embeds",
     "wagtail.sites",
     # "wagtail.users",
-    'wagtailcache',
+    # 'wagtailcache',
     "ropon.apps.RoponUsersAppConfig",  # Custom Wagtail users app config
     "wagtail.snippets",
     "wagtail.documents",
@@ -95,8 +95,7 @@ THIRD_PARTY_APPS = [
 INSTALLED_APPS = DJANGO_APPS + WAGTAIL_APPS + THIRD_PARTY_APPS + LOCAL_APPS 
 
 MIDDLEWARE = [
-    # "django.middleware.cache.UpdateCacheMiddleware",
-    "wagtailcache.cache.UpdateCacheMiddleware",
+    "django.middleware.cache.UpdateCacheMiddleware",
     "django.middleware.security.SecurityMiddleware",
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -107,8 +106,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
-    # "django.middleware.cache.FetchFromCacheMiddleware",
-    "wagtailcache.cache.FetchFromCacheMiddleware",
+    "django.middleware.cache.FetchFromCacheMiddleware",
 
 ]
 

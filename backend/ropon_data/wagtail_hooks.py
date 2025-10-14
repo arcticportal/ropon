@@ -11,7 +11,14 @@ from .views.pages import ObservingNetworkPageViewSet
 from .views.snippets import ControlledVocabularyGroup, org_chooser_viewset, OrganizationViewSet
 
 from .models import ObservingNetworkPage
+from django.core.cache import cache
 
+
+# clear cache when a Page is published or unpublished
+@hooks.register('after_publish_page')
+@hooks.register('after_unpublish_page')
+def clear_cache_on_publish_unpublish(request, page):
+    cache.clear()
 
 @hooks.register("register_admin_viewset")
 def register_viewset():
