@@ -48,7 +48,7 @@ LOCAL_APPS = [
     "ropon_pages",
     "ropon",
     "search",
-    "ropon_email", # Add the new email app
+    "ropon_email",
 ]
 
 DJANGO_APPS = [
@@ -74,8 +74,6 @@ WAGTAIL_APPS = [
     "wagtail_guide",
     "wagtail.embeds",
     "wagtail.sites",
-    # "wagtail.users",
-    # 'wagtailcache',
     "ropon.apps.RoponUsersAppConfig",  # Custom Wagtail users app config
     "wagtail.snippets",
     "wagtail.documents",
