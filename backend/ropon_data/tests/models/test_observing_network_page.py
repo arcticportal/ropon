@@ -220,18 +220,18 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
 
     def test_missing_required_fields(self):
         page_data = self.get_page_data(valid=True)
-        page_data.pop('name') # remove required field
+        page_data.pop('title') # remove required field
         page = ObservingNetworkPage(**page_data)
             
         with self.assertRaises(ValidationError) as cm:
         
             self.index_page.add_child(instance=page)
             page.save_revision().publish()
-        self.assertIn('name', cm.exception.error_dict)
+        self.assertIn('title', cm.exception.error_dict)
 
     def test_max_length_fields(self):
         page_data = self.get_page_data(valid=True)
-        page_data['name'] = 'a' * 257  # Exceeds max_length for name field
+        page_data['title'] = 'a' * 257  # Exceeds max_length for name field
         page_data.pop('logo_url')  # Remove logo_url field as it casues below error
         # most probably due to how logo_image is saved
         '''
@@ -245,20 +245,20 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
             self.index_page.add_child(instance=page)
             page.save_revision().publish()
         
-        self.assertIn('name', cm.exception.error_dict)
+        self.assertIn('title', cm.exception.error_dict)
         
 
 
     def test_name_empty_string(self):
         page_data = self.get_page_data(valid=True)
-        page_data['name'] = ''
+        page_data['title'] = ''
         page = ObservingNetworkPage(**page_data)
         
         with self.assertRaises(ValidationError) as cm:
             self.index_page.add_child(instance=page)
             page.save_revision().publish()
 
-        self.assertIn('name', cm.exception.error_dict)
+        self.assertIn('title', cm.exception.error_dict)
     
     def test_start_year_in_future(self):
         page_data = self.get_page_data(valid=True)
@@ -291,11 +291,11 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         page.save_revision().publish()
 
         new_page = ObservingNetworkPage.objects.get(slug=page.slug)
-        
-        new_page.name = 'Updated Name'
-        
+
+        new_page.title = 'Updated Title'
+
         new_page.save_revision().publish()
-        self.assertTrue(ObservingNetworkPage.objects.filter(title='Updated Name').exists())
+        self.assertTrue(ObservingNetworkPage.objects.filter(title='Updated Title').exists())
 
     def test_status_string(self):
         """Test that status string is correctly formatted"""

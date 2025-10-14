@@ -75,6 +75,7 @@ WAGTAIL_APPS = [
     "wagtail.embeds",
     "wagtail.sites",
     # "wagtail.users",
+    'wagtailcache',
     "ropon.apps.RoponUsersAppConfig",  # Custom Wagtail users app config
     "wagtail.snippets",
     "wagtail.documents",
@@ -94,18 +95,20 @@ THIRD_PARTY_APPS = [
 INSTALLED_APPS = DJANGO_APPS + WAGTAIL_APPS + THIRD_PARTY_APPS + LOCAL_APPS 
 
 MIDDLEWARE = [
+    # "django.middleware.cache.UpdateCacheMiddleware",
+    "wagtailcache.cache.UpdateCacheMiddleware",
     "django.middleware.security.SecurityMiddleware",
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    # "django.middleware.cache.UpdateCacheMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # "django.middleware.cache.FetchFromCacheMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    # "django.middleware.cache.FetchFromCacheMiddleware",
+    "wagtailcache.cache.FetchFromCacheMiddleware",
 
 ]
 
@@ -247,21 +250,16 @@ ROPON_ADMIN_EMAIL = env.str('ROPON_ADMIN_EMAIL', 'info@polarobservingregistry.or
 
 
 # Cache Configuration - defaults to local memory, overridden if Redis available
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'TIMEOUT': 300,  # 5 minutes default timeout
-    }
-}
+
 
 # Session Configuration - defaults to database
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 # Override with Redis if REDIS_HOST is configured
 REDIS_HOST = env.str('REDIS_HOST', '')
 if REDIS_HOST:
     REDIS_PORT = env.str('REDIS_PORT', '6379')
-    REDIS_DB = env.str('REDIS_DB', '0')
+    REDIS_DB = env.str('REDIS_DB', '1')
     CACHES = {
         'default': {
             'BACKEND': 'django_redis.cache.RedisCache',
@@ -269,15 +267,10 @@ if REDIS_HOST:
             'OPTIONS': {
                 'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             },
-            # 'TIMEOUT': 60*60*24,  # 1 day default timeout
+            'TIMEOUT': 60*60*24*7,  # 1 day default timeout
+            'KEY_PREFIX': 'ropon'
         }
     }
-    SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-    SESSION_CACHE_ALIAS = 'default'
-
-# Cache timeout settings
-# CACHE_MIDDLEWARE_SECONDS = 300  # 5 minutes
-CACHE_MIDDLEWARE_KEY_PREFIX = 'ropon'
 
 # Search
 # https://docs.wagtail.org/en/stable/topics/search/backends.html
