@@ -64,12 +64,13 @@
       </dd>
       <dt class="col-sm-3 col-lg-2">Network IDs</dt>
       <dd class="col-sm-9 col-lg-10">
-	<ul class="list-unstyled mb-0">
-	  <li *ngFor="let d of network.network_id">
+	@for (d of network.network_id; track $index) {
+	  @if ($index > 0) { <span>, </span> }
+	    @if (util.isUrl(d.value)) {
 	    <a [href]="d.value"
 	       target="_blank">{{util.formatUrl(d.value)}}</a>
-	  </li>
-	</ul>
+	    } @else {
+	    {{d.value}} } }
       </dd>
       <dt class="col-sm-3 col-lg-2">RoPON Network ID</dt>
       <dd class="col-sm-9 col-lg-10">{{network.ropon_id}}</dd>
@@ -168,7 +169,7 @@
       frontendDomain}}/networks/{{network.ropon_id}}</a>
   </small>
   <small class="col-12 ms-3"
-	 *ngIf="network.meta?.first_published_at">
+	 *ngIf="network.meta?.date_last_modified">
     Last Modified: {{modDate()}}
   </small>
   <div class="col-12">

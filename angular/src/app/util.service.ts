@@ -29,6 +29,10 @@ export class UtilService {
   formatImg(s: string): string {
     return !s? '' : s.indexOf('http') >= 0 ? s : this.pathJoin('/', s) }
 
+  isUrl(s: string): boolean {
+    try { new URL(s); return true }
+    catch (_) { return false } }
+
   formatUrl(s: string | null): string {
     return !s ? '' : s.replace(
       /^https?:\/\/(www\.)?|\/(index\.(html?|php))?$/gi, '') }

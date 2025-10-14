@@ -108,5 +108,5 @@ export class NetworksComponent {
     return !s ? '' : s.indexOf('@') < 0 ? this.util.formatUrl(s) : s }
 
   modDate() { return (new Date(
-    this.network.meta.first_published_at)).toUTCString().slice(5, 16) }
+    this.network.meta.date_last_modified)).toUTCString().slice(5, 16) }
 }
