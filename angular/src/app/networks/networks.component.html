@@ -13,8 +13,9 @@
     <div class="card shadow-lg">
       <div class="row g-0">
 	<div class="col-12 col-lg-2 pt-2 pt-lg-0 ps-2 pe-2 pe-lg-0 d-flex justify-content-center align-items-center">
+	  @if (network.logo_image && network.logo_url) {
 	  <img class="img-fluid rounded-start h-75 object-fit-contain"
-	       [src]="util.formatImg(network.logo_url)" />
+	       [src]="util.formatImg(network.logo_url)" /> }
 	</div>
 	<div class="col">
 	  <div class="card-body">
