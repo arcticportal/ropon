@@ -1240,3 +1240,131 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         self.assertEqual(saved_page.network_id[1].value, 'https://registry.example.com/networks/123')
         self.assertEqual(saved_page.network_id[2].value, 'LOCAL-NET-456')
         self.assertEqual(saved_page.network_id[3].value, 'http://another-registry.org/net/789')
+
+    def test_choice_fields_return_display_text_in_api_detail(self):
+        """Test that choice fields return display text instead of raw values in detail API endpoint"""
+        # Test cases for all three choice values
+        test_cases = [
+            ('yes', 'Yes'),
+            ('no', 'No'),
+            ('under_development', 'Under Development')
+        ]
+
+        for choice_value, expected_display in test_cases:
+            with self.subTest(choice_value=choice_value):
+                # Create page with specific choice values
+                page_data = self.get_page_data(valid=True)
+                page_data.update({
+                    'has_catalog': choice_value,
+                    'metadata_access': choice_value,
+                    'machine_readable': choice_value
+                })
+
+                page = ObservingNetworkPage(**page_data)
+                self.index_page.add_child(instance=page)
+                page.save_revision().publish()
+
+                # Test API response
+                response = self.client.get(f'/api/v2/networks/{page.id}/')
+                response_data = response.json()
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response_data['has_catalog'], expected_display)
+                self.assertEqual(response_data['metadata_access'], expected_display)
+                self.assertEqual(response_data['machine_readable'], expected_display)
+
+                # Clean up for next iteration
+                page.delete()
+                # Refresh the index page to maintain tree consistency
+                self.index_page.refresh_from_db()
+
+    def test_choice_fields_return_display_text_in_api_listing(self):
+        """Test that choice fields return display text in listing API endpoint"""
+        # Create page with under_development values (most important test case)
+        page_data = self.get_page_data(valid=True)
+        page_data.update({
+            'has_catalog': 'under_development',
+            'metadata_access': 'under_development',
+            'machine_readable': 'under_development'
+        })
+
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        # Test listing API response
+        response = self.client.get('/api/v2/networks/?fields=has_catalog,metadata_access,machine_readable')
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('items', response_data)
+        self.assertGreater(len(response_data['items']), 0)
+
+        # Find our test page in the results
+        test_page_data = None
+        for item in response_data['items']:
+            if item['id'] == page.id:
+                test_page_data = item
+                break
+
+        self.assertIsNotNone(test_page_data, "Test page should be found in listing results")
+        self.assertEqual(test_page_data['has_catalog'], 'Under Development')
+        self.assertEqual(test_page_data['metadata_access'], 'Under Development')
+        self.assertEqual(test_page_data['machine_readable'], 'Under Development')
+
+    def test_choice_fields_model_get_display_methods(self):
+        """Test that Django's get_FOO_display() methods work correctly on the model"""
+        # Create page with different choice values
+        page_data = self.get_page_data(valid=True)
+        page_data.update({
+            'has_catalog': 'under_development',
+            'metadata_access': 'yes',
+            'machine_readable': 'no'
+        })
+
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        saved_page = ObservingNetworkPage.objects.get(slug=page.slug)
+
+        # Test get_FOO_display() methods directly
+        self.assertEqual(saved_page.get_has_catalog_display(), 'Under Development')
+        self.assertEqual(saved_page.get_metadata_access_display(), 'Yes')
+        self.assertEqual(saved_page.get_machine_readable_display(), 'No')
+
+        # Test raw values are still stored correctly
+        self.assertEqual(saved_page.has_catalog, 'under_development')
+        self.assertEqual(saved_page.metadata_access, 'yes')
+        self.assertEqual(saved_page.machine_readable, 'no')
+
+    def test_choice_fields_backward_compatibility(self):
+        """Test that the API response structure remains the same (field names unchanged)"""
+        page_data = self.get_page_data(valid=True)
+        page_data.update({
+            'has_catalog': 'under_development',
+            'metadata_access': 'under_development',
+            'machine_readable': 'under_development'
+        })
+
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        response = self.client.get(f'/api/v2/networks/{page.id}/')
+        response_data = response.json()
+
+        # Verify field names are preserved (backward compatibility)
+        self.assertIn('has_catalog', response_data)
+        self.assertIn('metadata_access', response_data)
+        self.assertIn('machine_readable', response_data)
+
+        # Verify values are now display text, not raw values
+        self.assertNotEqual(response_data['has_catalog'], 'under_development')
+        self.assertNotEqual(response_data['metadata_access'], 'under_development')
+        self.assertNotEqual(response_data['machine_readable'], 'under_development')
+
+        # Verify correct display text is returned
+        self.assertEqual(response_data['has_catalog'], 'Under Development')
+        self.assertEqual(response_data['metadata_access'], 'Under Development')
+        self.assertEqual(response_data['machine_readable'], 'Under Development')
