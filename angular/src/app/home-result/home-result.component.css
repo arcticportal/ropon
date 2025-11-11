@@ -1,12 +1,12 @@
 a
 { text-decoration: none }
 
-img
-{ /*max-width: 10em;*/
+/*img
+{ max-width: 10em;
   max-height: 3em;
   width: auto;
   height: auto;
-  object-fit: contain }
+  object-fit: contain }*/
 
 .card-title>a
 { color: var(--ropon-blue);

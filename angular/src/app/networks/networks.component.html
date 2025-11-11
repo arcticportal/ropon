@@ -74,7 +74,12 @@
 	    {{d.value}} } }
       </dd>
       <dt class="col-sm-3 col-lg-2">RoPON Network ID</dt>
-      <dd class="col-sm-9 col-lg-10">{{network.ropon_id}}</dd>
+      <dd class="col-sm-9 col-lg-10">
+	<a [routerLink]="['/networks', network.ropon_id]">{{
+	  util.formatUrl(
+	    frontendDomain)}}/networks/{{network.ropon_id}}</a>
+      </dd>
+      <!-- <dd class="col-sm-9 col-lg-10">{{network.ropon_id}}</dd> -->
       <dt class="col-sm-3 col-lg-2">Data Repositories</dt>
       <dd class="col-sm-9 col-lg-10">
 	<ul class="list-unstyled mb-0">
@@ -164,12 +169,12 @@
       </small>
     </div>
   </div>
-  <small class="col-12 ms-3 mt-4">
+  <!-- <small class="col-12 ms-3 mt-4">
     RoPON ID:
     <a [routerLink]="['/networks', network.ropon_id]">{{
       frontendDomain}}/networks/{{network.ropon_id}}</a>
-  </small>
-  <small class="col-12 ms-3"
+  </small> -->
+  <small class="col-12 ms-3 mt-4"
 	 *ngIf="network.meta?.date_last_modified">
     Last Modified: {{modDate()}}
   </small>

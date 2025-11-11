@@ -52,7 +52,7 @@ export class ApiService {
   getList(): Observable<Obj> {
     return this.get(
       'networks',
-      '?fields=logo_image,regions,subregions,domains,disciplines,asset_types,website_url,has_catalog&limit=500') }
+      '?fields=logo_image,regions,subregions,domains,disciplines,asset_types,website_url,has_catalog,abbreviation,organization_name&limit=500') }
 
   getPage(slug: string): Observable<Obj> {
     return this.get('ropon_pages', '?fields=body&slug=' + slug) }

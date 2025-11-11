@@ -5,7 +5,7 @@
       <div class="row g-0">
 	<div class="col-12 col-sm-2 pt-2 pt-sm-0 ps-2 pe-2 pe-sm-0 d-flex justify-content-center align-items-center">
 	  @if (network.logo_image) {
-	  <img class="img-fluid"
+	  <img class="img-fluid object-fit-contain"
 	       [src]="util.formatImg(network.logo_image.meta.download_url)" /> }
 	</div>
 	<div class="col">
