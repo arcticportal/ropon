@@ -64,7 +64,7 @@ export class HomeFilterComponent {
       'Sites', 'Mobile Platforms', 'Satellites', 'Projects',
       'Campaigns', 'Initiatives']},
     {name: 'has_catalog', label: 'Asset Catalog', options: [
-      'yes', 'no', 'under development']}]
+      'Yes', 'No', 'Under Development']}]
 
   ngOnInit2() {
     var r: Obj = {}
