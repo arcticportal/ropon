@@ -13,8 +13,8 @@ github_branch: "main"
 # service names and ports
 service_ingres:
   backend:
-    hostname: dashboard.polarobservingregistry.org,www.dashboard.polarobservingregistry.org
-    ssl_host: dashboard.polarobservingregistry.org,www.dashboard.polarobservingregistry.org
+    hostname: dashboard.polarobservingregistry.org
+    ssl_host: dashboard.polarobservingregistry.org
     port: 8000
   frontend:
     hostname: polarobservingregistry.org,www.polarobservingregistry.org
