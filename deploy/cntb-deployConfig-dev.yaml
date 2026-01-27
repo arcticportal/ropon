@@ -13,8 +13,8 @@ github_branch: "dev"
 # service names and ports
 service_ingres:
   backend:
-    hostname: wagtail.ropon.dev.cntb.arcticportal.org,www.wagtail.ropon.dev.cntb.arcticportal.org
-    ssl_host: wagtail.ropon.dev.cntb.arcticportal.org,www.wagtail.ropon.dev.cntb.arcticportal.org
+    hostname: wagtail.ropon.dev.cntb.arcticportal.org
+    ssl_host: wagtail.ropon.dev.cntb.arcticportal.org
     port: 8000
   frontend:
     hostname: frontend.ropon.dev.cntb.arcticportal.org,www.frontend.ropon.dev.cntb.arcticportal.org
