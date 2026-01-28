@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from flags.state import flag_enabled
 import sys
 from ropon_data.models import (ControlledVocabularyModel, ObservingNetworkPage)
+from ropon_data.serializers import ObservingNetworkPageSerializer
 from flags.urls import flagged_path
 
 ROPON_ID_FLAG = 'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS'
@@ -24,19 +25,24 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
     Both methods will return identical responses.
     """
     model = ObservingNetworkPage
+    base_serializer_class = ObservingNetworkPageSerializer
 
-    listing_default_fields = PagesAPIViewSet.listing_default_fields + [
-        'date_last_modified',
-        'ropon_id'
-    ]
-    meta_fields = ["locale",
-                  "detail_url",
-                  "slug",
-                  "first_published_at",
-                  "date_last_modified",
-                  "alias_of"
-                  ]
+    # Inherit from parent and modify (issue #225):
+    # - Remove 'title', add 'name' as replacement
+    # - Add 'date_last_modified' and 'ropon_id'
+    listing_default_fields = [
+        f for f in PagesAPIViewSet.listing_default_fields if f != 'title'
+    ] + [ 'ropon_id', 'name','date_last_modified' ]
 
+    # Inherit from parent and remove 'slug' (issue #225)
+    # Note: The exclusion list is inlined below because accessing a class-scope variable
+    # inside a list comprehension causes a NameError in Python 3.
+    meta_fields = [
+        f for f in PagesAPIViewSet.meta_fields 
+        if f not in ['type','slug','html_url', 'show_in_menus','seo_title', 'search_description','alias_of','parent']
+    ] + ['date_last_modified']
+
+   
     @classmethod
     def get_urlpatterns(cls):
         '''
@@ -52,26 +58,30 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
         
         return [ropon_id_path,] + super().get_urlpatterns()
     
-    def detail_view(self, request,*args, **kwargs):
+    def detail_view(self, request, *args, **kwargs):
         """
         Retrieve a specific Observing Network by either:
         - Page ID at /api/v2/networks/<id>/
         - RoPON ID at /api/v2/networks/<ropon_id>/
 
         Both methods will return identical responses.
+        The 'title' field is excluded from detail view responses (issue #225).
         """
-        # Check if the lookup value is a UUID
-        
-      
         uuid_value = kwargs.get('ropon_id', False)
         if uuid_value and flag_enabled(ROPON_ID_FLAG):
             sys.stderr.write(f"Using RoPON ID: {uuid_value}\n")
             self.lookup_field = 'ropon_id'
             pk_value = uuid_value
         else:
-            pk_value = kwargs.get(self.lookup_field, False)    
-        
-        return super().detail_view(request, pk_value)
+            pk_value = kwargs.get(self.lookup_field, False)
+
+        response = super().detail_view(request, pk_value)
+
+        # Remove title from detail view response (issue #225)
+        if hasattr(response, 'data') and 'title' in response.data:
+            del response.data['title']
+
+        return response
     
    
 class ControlledVocabularyAPIViewSet(BaseAPIViewSet):
