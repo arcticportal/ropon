@@ -1,9 +1,9 @@
+import { NgFor, NgIf } from '@angular/common';
 import { Component, HostListener, inject } from '@angular/core';
-import {NgFor, NgIf} from '@angular/common'
-import {ActivatedRoute, Params, RouterLink} from '@angular/router'
+import { ActivatedRoute, Params, RouterLink } from '@angular/router';
 
-import {Obj, UtilService} from '../util.service'
-import {ApiService} from '../api.service'
+import { ApiService } from '../api.service';
+import { Obj, UtilService } from '../util.service';
 
 function matchSearch(d: Params, s: string): boolean {
   var k, v
@@ -62,7 +62,7 @@ export class HomeResultComponent {
     this.api.getList().subscribe(d => {
       this.total = d['meta'].total_count,
       this.all = d['items'].toSorted((a: Obj, b: Obj) => {
-	var s = a['title'].toLowerCase(), t = b['title'].toLowerCase()
+	var s = a['name'].toLowerCase(), t = b['name'].toLowerCase()
 	return s < t ? -1 : s > t ? 1 : 0 })
       ;(window as any)._all = this.all
       this.networks = filtered(

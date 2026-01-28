@@ -56,7 +56,7 @@ export class UtilService {
 	  '</div></div><div class="row justify-content-center">',
 	  '<figure class="col-auto" style="aspect-ratio: ',
 	  d.width, ' / ', d.height, '"><img src="',
-	  this.pathJoin(backendDomain, d.url),
+	  this.isUrl(d.url) ? d.url : this.pathJoin(backendDomain, d.url),
 	  '" fill class="img-fluid" />',
 	  '</figure></div><div class="row"><div class="col-12">')
 	break
