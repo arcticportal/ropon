@@ -1,15 +1,17 @@
+import { Location, NgFor, NgIf } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component, HostBinding, inject } from '@angular/core';
-import {Location, NgFor, NgIf} from '@angular/common'
-import {HttpClient} from '@angular/common/http'
-import {ActivatedRoute, ActivationStart, Router,
-  RouterLink} from '@angular/router'
-import {Title} from '@angular/platform-browser'
-import {filter, first, map, Subscription, switchMap} from 'rxjs'
+import { Title } from '@angular/platform-browser';
+import {
+  ActivatedRoute, ActivationStart, Router,
+  RouterLink
+} from '@angular/router';
+import { filter, first, map, Subscription, switchMap } from 'rxjs';
 
-import {frontendDomain, Obj, UtilService} from '../util.service'
-import {ApiService} from '../api.service'
-import {suf} from '../app.routes'
-import {MapComponent} from '../map/map.component'
+import { ApiService } from '../api.service';
+import { suf } from '../app.routes';
+import { MapComponent } from '../map/map.component';
+import { frontendDomain, Obj, UtilService } from '../util.service';
 
 @Component({
   selector: 'app-networks',
@@ -59,7 +61,7 @@ export class NetworksComponent {
 	      this.title.setTitle(d.name + suf) }) })
     this.api.getList().subscribe(d => {
       this.all = d['items'].toSorted((a: Obj, b: Obj) => {
-	var s = a['title'].toLowerCase(), t = b['title'].toLowerCase()
+	var s = a['name'].toLowerCase(), t = b['name'].toLowerCase()
 	return s < t ? -1 : s > t ? 1 : 0 }) }) }
 
   prev() {
