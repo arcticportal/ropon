@@ -32,7 +32,7 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
     # - Add 'date_last_modified' and 'ropon_id'
     listing_default_fields = [
         f for f in PagesAPIViewSet.listing_default_fields if f != 'title'
-    ] + [ 'ropon_id', 'name','date_last_modified' ]
+    ] + [ 'ropon_id', 'name', 'date_last_modified' ]
 
     # Inherit from parent and remove 'slug' (issue #225)
     # Note: The exclusion list is inlined below because accessing a class-scope variable
@@ -42,7 +42,10 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
         if f not in ['type','slug','html_url', 'show_in_menus','seo_title', 'search_description','alias_of','parent']
     ] + ['date_last_modified']
 
-   
+    # remove title field from body fields, add name field for #225
+    body_fields = [f for f in PagesAPIViewSet.body_fields
+                   if f !='title'] + ['name']
+    
     @classmethod
     def get_urlpatterns(cls):
         '''
@@ -77,10 +80,7 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
 
         response = super().detail_view(request, pk_value)
 
-        # Remove title from detail view response (issue #225)
-        if hasattr(response, 'data') and 'title' in response.data:
-            del response.data['title']
-
+   
         return response
     
    
