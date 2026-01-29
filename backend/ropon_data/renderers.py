@@ -31,10 +31,10 @@ class ObservingNetworkCSVRenderer(BaseRenderer):
     CSV_COLUMNS = [
         'name',
         'abbreviation',
+        'ropon_id',
         'description',
         'website_url',
         'logo_url',
-        'ropon_id',
         'organization_name',
         'domains',
         'disciplines',
@@ -52,7 +52,15 @@ class ObservingNetworkCSVRenderer(BaseRenderer):
         'metadata_standards',
         'access_protocols',
         'metadata_catalog_url',
+        'detail_url',
+        'date_last_modified',
     ]
+
+    # Fields that come from 'meta' object in the API response
+    META_FIELDS = {
+        'detail_url',
+        'date_last_modified',
+    }
 
     # Fields that contain lists (M2M relationships)
     LIST_FIELDS = {
@@ -121,9 +129,14 @@ class ObservingNetworkCSVRenderer(BaseRenderer):
             Dictionary with flattened values suitable for CSV
         """
         row = {}
+        meta = item.get('meta', {})
 
         for col in self.CSV_COLUMNS:
-            value = item.get(col)
+            # Check if field comes from meta object
+            if col in self.META_FIELDS:
+                value = meta.get(col)
+            else:
+                value = item.get(col)
 
             if value is None:
                 row[col] = ''
