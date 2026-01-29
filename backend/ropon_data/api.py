@@ -1,13 +1,15 @@
 from wagtail.api.v2.views import PagesAPIViewSet
 from wagtail.api.v2.views import BaseAPIViewSet
 from django.apps import apps
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.urls import path, reverse
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from flags.state import flag_enabled
 import sys
 from ropon_data.models import (ControlledVocabularyModel, ObservingNetworkPage)
 from ropon_data.serializers import ObservingNetworkPageSerializer
+from ropon_data.renderers import ObservingNetworkCSVRenderer
 from flags.urls import flagged_path
 
 ROPON_ID_FLAG = 'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS'
@@ -17,15 +19,20 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
     API endpoint to get Observing Networks information.
 
     List all Observing Networks are available on the root URL.
+    Supports CSV export via ?format=csv query parameter (list view only).
 
     Retrieve a specific Observing Network by either:
     - Page ID at /api/v2/networks/<id>/
     - RoPON ID at /api/v2/networks/<ropon_id>/
 
     Both methods will return identical responses.
+    Note: Detail view only supports JSON format.
     """
     model = ObservingNetworkPage
     base_serializer_class = ObservingNetworkPageSerializer
+
+    # Add CSV renderer for format=csv support (issue #224)
+    renderer_classes = [JSONRenderer, BrowsableAPIRenderer, ObservingNetworkCSVRenderer]
 
     # Inherit from parent and modify (issue #225):
     # - Remove 'title', add 'name' as replacement
@@ -60,7 +67,32 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
         ropon_id_path = flagged_path( ROPON_ID_FLAG , ropon_id_pattern, cls.as_view({"get": "detail_view"}), name="detail", )
         
         return [ropon_id_path,] + super().get_urlpatterns()
-    
+
+    def listing_view(self, request):
+        """
+        List all Observing Networks.
+
+        For CSV format (?format=csv), returns all records without pagination.
+        For JSON format, uses standard Wagtail pagination.
+        """
+        # Check if CSV format is requested
+        if hasattr(request, 'accepted_renderer') and request.accepted_renderer.format == 'csv':
+            # For CSV export, request all fields from the serializer.
+            # The renderer's CSV_COLUMNS controls which fields appear in output,
+            # filtering out unwanted fields like logo_image.
+            request.GET = request.GET.copy()
+            request.GET['fields'] = '*'
+
+            # Return all records without pagination for CSV
+            queryset = self.get_queryset()
+            self.check_query_parameters(queryset)
+            queryset = self.filter_queryset(queryset)
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+
+        # Default behavior for JSON with pagination
+        return super().listing_view(request)
+
     def detail_view(self, request, *args, **kwargs):
         """
         Retrieve a specific Observing Network by either:
@@ -69,7 +101,16 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
 
         Both methods will return identical responses.
         The 'title' field is excluded from detail view responses (issue #225).
+        Note: CSV format is not supported for detail view (issue #224).
         """
+        # Reject CSV format for detail view (issue #224)
+        # Use JsonResponse to force JSON content type regardless of content negotiation
+        if request.query_params.get('format') == 'csv':
+            return JsonResponse(
+                {'error': 'CSV format is not supported for single record views. Use the list endpoint instead. For single record retrieval, use JSON format with /api/v2/networks/<ropon_id>/'},
+                status=400
+            )
+
         uuid_value = kwargs.get('ropon_id', False)
         if uuid_value and flag_enabled(ROPON_ID_FLAG):
             sys.stderr.write(f"Using RoPON ID: {uuid_value}\n")
@@ -80,7 +121,6 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
 
         response = super().detail_view(request, pk_value)
 
-   
         return response
     
    
