@@ -88,6 +88,7 @@ WAGTAIL_APPS = [
 
 THIRD_PARTY_APPS = [
         # 'cookie_consent'
+        'drf_spectacular',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + WAGTAIL_APPS + THIRD_PARTY_APPS + LOCAL_APPS 
@@ -343,7 +344,30 @@ REST_FRAMEWORK = {
         'email': '50/day', # Specific rate for contact form email endpoint
         'anon': '1000/hour', # Default rate for anonymous users (increased)
         'user': '1000/hour' # Default rate for authenticated users (increased)
-    }
+    },
+    # drf-spectacular schema class for OpenAPI documentation
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# drf-spectacular settings for API documentation
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'RoPON API',
+    # 'DESCRIPTION': 'Registry of Polar Observing Networks API - Provides access to observing network data and controlled vocabularies.',
+    'DESCRIPTION': (
+        'Registry of Polar Observing Networks API - Provides public access to observing network data.\n\n'
+        # 'OpenAPI Schema: [JSON](/api/v2/schema.json) | [YAML](/api/v2/schema/)'
+    ),
+    'VERSION': '2.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # Filter endpoints to only include documented ones
+    'PREPROCESSING_HOOKS': ['ropon.schema.preprocessing_filter_spec'],
+    # Apply custom documentation after schema generation (needed for Wagtail viewsets)
+    'POSTPROCESSING_HOOKS': ['ropon.schema.postprocessing_hook'],
+    # Organize endpoints by tags
+    'TAGS': [
+        {'name': 'Networks', 'description': 'Observing Network endpoints'},
+        # {'name': 'Controlled Vocabularies', 'description': 'Controlled vocabulary endpoints (domains, disciplines, regions, etc.)'},
+    ],
 }
 
 

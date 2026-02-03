@@ -14,6 +14,7 @@ from flags.urls import flagged_path
 
 ROPON_ID_FLAG = 'ROPON.DATA.ENABLE_ON_API_ROPONID_DETAILS'
 
+
 class ObservingNetworkPageViewSet(PagesAPIViewSet):
     """
     API endpoint to get Observing Networks information.
@@ -45,14 +46,14 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
     # Note: The exclusion list is inlined below because accessing a class-scope variable
     # inside a list comprehension causes a NameError in Python 3.
     meta_fields = [
-        f for f in PagesAPIViewSet.meta_fields 
+        f for f in PagesAPIViewSet.meta_fields
         if f not in ['type','slug','html_url', 'show_in_menus','seo_title', 'search_description','alias_of','parent']
     ] + ['date_last_modified']
 
     # remove title field from body fields, add name field for #225
     body_fields = [f for f in PagesAPIViewSet.body_fields
                    if f !='title'] + ['name']
-    
+
     @classmethod
     def get_urlpatterns(cls):
         '''
@@ -61,11 +62,11 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
 
         # if not flag_enabled(ROPON_ID_FLAG):
         #     return super().get_urlpatterns()
-        
+
         ropon_id_pattern = "<uuid:ropon_id>/"
         # ropon_id_path = path(ropon_id_pattern, cls.as_view({"get": "detail_view"}), name="detail")
         ropon_id_path = flagged_path( ROPON_ID_FLAG , ropon_id_pattern, cls.as_view({"get": "detail_view"}), name="detail", )
-        
+
         return [ropon_id_path,] + super().get_urlpatterns()
 
     def listing_view(self, request):
@@ -100,8 +101,7 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
         - RoPON ID at /api/v2/networks/<ropon_id>/
 
         Both methods will return identical responses.
-        The 'title' field is excluded from detail view responses (issue #225).
-        Note: CSV format is not supported for detail view (issue #224).
+        Note: CSV format is not supported for detail view.
         """
         # Reject CSV format for detail view (issue #224)
         # Use JsonResponse to force JSON content type regardless of content negotiation
@@ -122,8 +122,8 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
         response = super().detail_view(request, pk_value)
 
         return response
-    
-   
+
+
 class ControlledVocabularyAPIViewSet(BaseAPIViewSet):
     """
     Common API to serve up RoPON controlled vocabulary models
@@ -133,7 +133,7 @@ class ControlledVocabularyAPIViewSet(BaseAPIViewSet):
 
     Details for each specific controlled vocabulary type are available at /cv/<cv_name>/<id>/
     e.g. /cv/domains/1/ or /cv/disciplines/2/
-    
+
     """
 
     model = ControlledVocabularyModel
@@ -152,28 +152,28 @@ class ControlledVocabularyAPIViewSet(BaseAPIViewSet):
 
         submodels = self.get_subclass_model_strings()
         cv_urls = ", ".join([f"{model.lower()}s" for model in submodels])
-            
+
         if model_name is None or model_name == '':
             return self.model
-      
+
         app_label = self.model._meta.app_label
         model_path = f"{app_label}.{model_name[:-1]}"
-        
+
         try:
             return apps.get_model(model_path)
         except LookupError:
             raise Http404(f"Invalid url pattern: {model_name}. Use a specific controlled vocabulary type. \nValid types are: {cv_urls}")
-           
+
 
     # Add "name" to the default listing fields
     listing_default_fields = BaseAPIViewSet.listing_default_fields + ["name", "sort_order"]
 
     def dispatch(self, request, *args, **kwargs):
         model_name = kwargs.get("model_name")
-        
+
         self.model = self.get_class_model(model_name)
         return super().dispatch(request, *args, **kwargs)
-   
+
     @classmethod
     def get_urlpatterns(cls):
         return [
@@ -181,15 +181,15 @@ class ControlledVocabularyAPIViewSet(BaseAPIViewSet):
             path("<str:model_name>/", cls.as_view({"get": "listing_view"}), name="listing"),
             path("<str:model_name>/<int:pk>/", cls.as_view({"get": "detail_view"}), name="detail"),
         ]
-    
-    
+
+
     def listing_view(self, request, *args, **kwargs):
         """
         Wagtail calls listing_view for GETs to /<model_name>/.
         Pull 'model_name' from kwargs and set self.model accordingly.
         """
         model_name = kwargs.get("model_name",None)
-   
+
         if not model_name:
             combined_data = {}
             for submodel_name in self.get_subclass_model_strings():
@@ -200,7 +200,7 @@ class ControlledVocabularyAPIViewSet(BaseAPIViewSet):
                 serializer = self.get_serializer(queryset, many=True)
                 combined_data[plural_name] = serializer.data
             return Response(combined_data)
-   
+
         else:
             self.model = self.get_class_model(model_name)
             return super().listing_view(request)
@@ -215,7 +215,7 @@ class ControlledVocabularyAPIViewSet(BaseAPIViewSet):
         model_name = kwargs.get("model_name", None)
         self.model = self.get_class_model(model_name)
         return super().detail_view(request, pk,)
-    
+
     @classmethod
     def get_object_detail_urlpath(cls, model, pk, namespace=""):
         """
