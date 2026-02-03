@@ -133,7 +133,9 @@ class AccessProtocol(ControlledVocabularyModel):
 
 
 class Organization(index.Indexed, models.Model):
-    name = models.CharField("Organization name", max_length=255)
+    name = models.CharField("Organization name", 
+                            help_text="One or more entities responsible for funding or operation of the observing network. Include acronyms in parentheses. e.g. World Meteorological Organization (WMO)",
+                            max_length=255)
 
     def __str__(self):
         return self.name
@@ -159,7 +161,7 @@ class ObservingNetworkOrganization(Orderable,models.Model):
     organization = models.ForeignKey(
         'ropon_data.Organization',
         on_delete=models.CASCADE,
-        related_name='organizations_networks'
+        related_name='organizations_networks',
     )
 
     panels = [FieldPanel('organization')]
