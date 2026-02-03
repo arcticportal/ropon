@@ -534,8 +534,9 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
 
 
     def test_networks_endpoint_excludes_unnecessary_meta_fields(self):
-        EXCLUDED_META_FIELDS = ['html_url', 'type']
-        
+        # Issue #225: Added 'slug' to excluded meta fields
+        EXCLUDED_META_FIELDS = ['html_url', 'type', 'slug']
+
         page_data = self.get_page_data(valid=True)
         page = ObservingNetworkPage(**page_data)
         self.index_page.add_child(instance=page)
@@ -547,7 +548,7 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('items', response_data)
         self.assertGreater(len(response_data['items']), 0)
-        
+
         for field in EXCLUDED_META_FIELDS:
             self.assertNotIn(field, response_data['items'][0]['meta'])
 
@@ -570,6 +571,114 @@ class ObservingNetworkPageTests(WagtailPageTestCase):
         self.assertEqual(response.status_code, 200)
         for field in EXCLUDED_META_FIELDS:
             self.assertNotIn(field, response_data['meta'])
+
+    # Issue #225 - Tests for slug, title, name, and detail_url changes
+
+    def test_networks_endpoint_excludes_slug_from_meta(self):
+        """Test that slug is excluded from meta fields in listing view (issue #225)"""
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        response = self.client.get('/api/v2/networks/')
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('items', response_data)
+        self.assertGreater(len(response_data['items']), 0)
+
+        # Verify slug is NOT in meta
+        self.assertNotIn('slug', response_data['items'][0]['meta'])
+
+    def test_detail_view_excludes_slug_from_meta(self):
+        """Test that slug is excluded from meta fields in detail view (issue #225)"""
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        response = self.client.get(f'/api/v2/networks/{page.pk}/')
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        # Verify slug is NOT in meta
+        self.assertNotIn('slug', response_data['meta'])
+
+    def test_listing_view_excludes_title(self):
+        """Test that title field is excluded from listing view response (issue #225)"""
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        response = self.client.get('/api/v2/networks/')
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('items', response_data)
+        self.assertGreater(len(response_data['items']), 0)
+
+        # Verify title is NOT in listing response
+        self.assertNotIn('title', response_data['items'][0])
+
+    def test_listing_view_includes_name(self):
+        """Test that name field is included in listing view response (issue #225)"""
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        response = self.client.get('/api/v2/networks/')
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('items', response_data)
+        self.assertGreater(len(response_data['items']), 0)
+
+        # Verify name IS in listing response
+        self.assertIn('name', response_data['items'][0])
+        self.assertEqual(response_data['items'][0]['name'], page.name)
+
+    def test_detail_view_excludes_title(self):
+        """Test that title field is excluded from detail view response (issue #225)"""
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        response = self.client.get(f'/api/v2/networks/{page.pk}/')
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        # Verify title is NOT in detail response
+        self.assertNotIn('title', response_data)
+        # Verify other expected fields are still present
+        self.assertIn('name', response_data)
+        self.assertIn('meta', response_data)
+
+    def test_detail_url_uses_ropon_id(self):
+        """Test that detail_url in meta uses ropon_id instead of pk (issue #225)"""
+        page_data = self.get_page_data(valid=True)
+        page = ObservingNetworkPage(**page_data)
+        self.index_page.add_child(instance=page)
+        page.save_revision().publish()
+
+        # Test listing view
+        response = self.client.get('/api/v2/networks/')
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('items', response_data)
+        self.assertGreater(len(response_data['items']), 0)
+
+        # Verify detail_url contains ropon_id, not pk
+        detail_url = response_data['items'][0]['meta']['detail_url']
+        ropon_id = response_data['items'][0]['ropon_id']
+
+        self.assertIn(str(ropon_id), detail_url)
+        # Verify pk is NOT in the URL (unless pk happens to be in ropon_id)
+        self.assertNotIn(f'/{page.pk}/', detail_url)
 
     def test_api_access_by_pk(self):
         """Test that the API endpoint can be accessed using the pk"""

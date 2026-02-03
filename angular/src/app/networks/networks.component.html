@@ -183,12 +183,12 @@
       @if (prev() >= 0) {
       <div class="col-auto">
 	<a (click)="navigate('/networks/' + all[prev()]['ropon_id'])"
-	   class="btn btn-outline-primary" type="button"><i class="bi-arrow-left"></i> {{all[prev()]['title']}}</a>
+	   class="btn btn-outline-primary" type="button"><i class="bi-arrow-left"></i> {{all[prev()]['name']}}</a>
       </div> }
       @if (next() >= 0) {
       <div class="ms-auto col-auto">
 	<a (click)="navigate('/networks/' + all[next()]['ropon_id'])"
-	   class="btn btn-outline-primary" type="button">{{all[next()]['title']}} <i class="bi-arrow-right"></i></a>
+	   class="btn btn-outline-primary" type="button">{{all[next()]['name']}} <i class="bi-arrow-right"></i></a>
       </div>
       }
     </div>

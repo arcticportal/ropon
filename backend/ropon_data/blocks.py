@@ -15,17 +15,37 @@ from .validators import (
 class GeoPointBlock(StructBlock):
     latitude = FloatBlock(validators=[validate_latitude], label='Latitude')
     longitude = FloatBlock(validators=[validate_longitude], label='Longitude')
-    
+
     class Meta:
         icon = 'site'
         label = 'Geographic Point Coordinates'
         form_classname = 'geopoint-block struct-block'
         label_format = '{latitude} , {longitude}'
 
+    def to_csv_value(self, value):
+        """
+        Return CSV-friendly representation of geographic point.
+
+        Format: "lat lon" (space-separated)
+
+        Args:
+            value: Dictionary with 'latitude' and 'longitude' keys
+
+        Returns:
+            String in format "lat lon" or empty string if no value
+        """
+        if not value:
+            return ''
+        lat = value.get('latitude', '')
+        lon = value.get('longitude', '')
+        if lat == '' or lon == '':
+            return ''
+        return f"{lat} {lon}"
+
 class SOSOBoundingBoxBlock(StructBlock):
     southwest = GeoPointBlock(label='SouthWest Corner')
     northeast = GeoPointBlock(label='NorthEast Corner')
-    
+
     class Meta:
         icon = 'site'
         label = 'Bounding Box'
@@ -34,8 +54,37 @@ class SOSOBoundingBoxBlock(StructBlock):
 
     def clean(self, value):
         cleaned_data = super().clean(value)
-        validate_soso_bounding_box( cleaned_data)
+        validate_soso_bounding_box(cleaned_data)
         return cleaned_data
+
+    def to_csv_value(self, value):
+        """
+        Return CSV-friendly representation of bounding box.
+
+        Format: "sw.lat sw.lon ne.lat ne.lon" (space-separated)
+
+        Args:
+            value: Dictionary with 'southwest' and 'northeast' GeoPoint values
+
+        Returns:
+            String in format "sw.lat sw.lon ne.lat ne.lon" or empty string if no value
+        """
+        if not value:
+            return ''
+
+        sw = value.get('southwest', {})
+        ne = value.get('northeast', {})
+
+        sw_lat = sw.get('latitude', '')
+        sw_lon = sw.get('longitude', '')
+        ne_lat = ne.get('latitude', '')
+        ne_lon = ne.get('longitude', '')
+
+        # Return empty if any coordinate is missing
+        if any(v == '' for v in [sw_lat, sw_lon, ne_lat, ne_lon]):
+            return ''
+
+        return f"{sw_lat} {sw_lon} {ne_lat} {ne_lon}"
 
 
 class NetworkIdBlock(CharBlock):
@@ -49,3 +98,17 @@ class NetworkIdBlock(CharBlock):
     def __init__(self, **kwargs):
         kwargs.setdefault('validators', []).append(validate_text_or_url)
         super().__init__(**kwargs)
+
+    def to_csv_value(self, value):
+        """
+        Return CSV-friendly representation of network ID.
+
+        Args:
+            value: The network ID string
+
+        Returns:
+            The value as-is, or empty string if no value
+        """
+        if value is None:
+            return ''
+        return str(value)
