@@ -161,7 +161,7 @@ class ObservingNetworkOrganization(Orderable,models.Model):
     organization = models.ForeignKey(
         'ropon_data.Organization',
         on_delete=models.CASCADE,
-        related_name='organizations_networks'
+        related_name='organizations_networks',
     )
 
     panels = [FieldPanel('organization')]
@@ -539,7 +539,6 @@ class ObservingNetworkPage(Page):
                              chooser_field_name='organization',
                              heading='Organizations',
                              label="Organization",
-                             help_text="One or more entities responsible for funding or operation of the observing network. Include acronyms in parentheses. e.g. World Meteorological Organization (WMO)",
                              panels=None
                          ),
         FieldPanel('contact'),
