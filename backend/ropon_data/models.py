@@ -622,7 +622,10 @@ class ObservingNetworkPage(OpenAPIModelMixin, Page):
     search_fields = Page.search_fields + [
         index.SearchField('name'),
         index.SearchField('description'),
-        index.SearchField('abbreviation'),
+        index.AutocompleteField('description'),
+        index.SearchField('abbreviation', partial_match=True),
+        index.AutocompleteField('abbreviation'),
+ 
 
     ]
 
