@@ -18,117 +18,36 @@ class SOSOBoundingBoxBlockTests(TestCase):
         self.assertEqual(value['southwest']['latitude'], -60.0)
         self.assertEqual(value['northeast']['latitude'], 60.0)
 
-    def test_invalid_southwest_latitude_negative(self):
+    def test_invalid_coordinate_ranges(self):
+        """Test all invalid coordinate boundary conditions in a single parameterized test"""
         block = SOSOBoundingBoxBlock()
-        with self.assertRaises(ValidationError):
-            block.clean({
-                'southwest': {
-                    'latitude': -91.0,  # invalid
-                    'longitude': -180.0
-                },
-                'northeast': {
-                    'latitude': 60.0,
-                    'longitude': 180.0
+        
+        # Test cases: (corner, coord_type, invalid_value)
+        invalid_cases = [
+            # Southwest latitude violations
+            ('southwest', 'latitude', -91.0),
+            ('southwest', 'latitude', 91.0),
+            # Southwest longitude violations  
+            ('southwest', 'longitude', -181.0),
+            ('southwest', 'longitude', 181.0),
+            # Northeast latitude violations
+            ('northeast', 'latitude', -91.0),
+            ('northeast', 'latitude', 91.0),
+            # Northeast longitude violations
+            ('northeast', 'longitude', -181.0),
+            ('northeast', 'longitude', 181.0),
+        ]
+        
+        for corner, coord_type, invalid_value in invalid_cases:
+            with self.subTest(corner=corner, coord_type=coord_type, value=invalid_value):
+                test_data = {
+                    'southwest': {'latitude': -60.0, 'longitude': -180.0},
+                    'northeast': {'latitude': 60.0, 'longitude': 180.0}
                 }
-            })
-
-    def test_invalid_southwest_latitude_positive(self):
-        block = SOSOBoundingBoxBlock()
-        with self.assertRaises(ValidationError):
-            block.clean({
-                'southwest': {
-                    'latitude': 91.0,  # invalid
-                    'longitude': -180.0
-                },
-                'northeast': {
-                    'latitude': 60.0,
-                    'longitude': 180.0
-                }
-            })
-
-    def test_invalid_southwest_longitude_negative(self):
-        block = SOSOBoundingBoxBlock()
-        with self.assertRaises(ValidationError):
-            block.clean({
-                'southwest': {
-                    'latitude': -60.0,
-                    'longitude': -181.0  # invalid
-                },
-                'northeast': {
-                    'latitude': 60.0,
-                    'longitude': 180.0
-                }
-            })
-
-    def test_invalid_southwest_longitude_positive(self):
-        block = SOSOBoundingBoxBlock()
-        with self.assertRaises(ValidationError):
-            block.clean({
-                'southwest': {
-                    'latitude': -60.0,
-                    'longitude': 181.0  # invalid
-                },
-                'northeast': {
-                    'latitude': 60.0,
-                    'longitude': 180.0
-                }
-            })
-
-    def test_invalid_northeast_latitude_negative(self):
-        block = SOSOBoundingBoxBlock()
-        with self.assertRaises(ValidationError):
-            block.clean({
-                'southwest': {
-                    'latitude': -60.0,
-                    'longitude': -180.0
-                },
-                'northeast': {
-                    'latitude': -91.0,  # invalid
-                    'longitude': 180.0
-                }
-            })
-
-    def test_invalid_northeast_latitude_positive(self):
-        block = SOSOBoundingBoxBlock()
-        with self.assertRaises(ValidationError):
-            block.clean({
-                'southwest': {
-                    'latitude': -60.0,
-                    'longitude': -180.0
-                },
-                'northeast': {
-                    'latitude': 91.0,  # invalid
-                    'longitude': 180.0
-                }
-            })
-
-    def test_invalid_northeast_longitude_negative(self):
-        block = SOSOBoundingBoxBlock()
-        with self.assertRaises(ValidationError):
-            block.clean({
-                'southwest': {
-                    'latitude': -60.0,
-                    'longitude': -180.0
-                },
-                'northeast': {
-                    'latitude': 60.0,
-                    'longitude': -181.0  # invalid
-                }
-            })
-
-    def test_invalid_northeast_longitude_positive(self):
-        block = SOSOBoundingBoxBlock()
-        with self.assertRaises(ValidationError):
-            block.clean({
-                'southwest': {
-                    'latitude': -60.0,
-                    'longitude': -180.0
-                },
-                'northeast': {
-                    'latitude': 60.0,
-                    'longitude': 181.0  # invalid
-                }
-            })
+                test_data[corner][coord_type] = invalid_value
+                
+                with self.assertRaises(ValidationError):
+                    block.clean(test_data)
 
     def test_invalid_northeast_south_of_southwest(self):
         block = SOSOBoundingBoxBlock()
