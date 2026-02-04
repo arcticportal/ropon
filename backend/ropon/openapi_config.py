@@ -2,7 +2,7 @@
 drf-spectacular preprocessing and postprocessing hooks for RoPON API.
 
 This module provides the central schema configuration that orchestrates
-endpoint-specific handlers from each app's schemas.py module.
+endpoint-specific handlers from each app's openapi_schemas.py module.
 
 Wagtail's API viewsets use non-standard method names (listing_view, detail_view)
 that drf-spectacular's extend_schema_view doesn't handle well. We use postprocessing
@@ -118,12 +118,12 @@ def _apply_component_schemas(result: dict) -> None:
     schemas = result['components']['schemas']
 
     # Networks schemas (ropon_data app)
-    from ropon_data.schemas import get_networks_component_schemas
+    from ropon_data.openapi_schemas import get_networks_component_schemas
     schemas.update(get_networks_component_schemas())
 
     # Controlled Vocabularies schemas (ropon_data app)
     # Uncomment when CV documentation is needed:
-    # from ropon_data.schemas import get_cv_component_schemas
+    # from ropon_data.openapi_schemas import get_cv_component_schemas
     # schemas.update(get_cv_component_schemas())
 
 
@@ -135,12 +135,12 @@ def _apply_endpoint_schemas(paths: dict) -> None:
     Add new handlers here as more endpoints are documented.
     """
     # Networks endpoints (ropon_data app)
-    from ropon_data.schemas import apply_networks_schema
+    from ropon_data.openapi_schemas import apply_networks_schema
     apply_networks_schema(paths)
 
     # Controlled Vocabularies endpoints (ropon_data app)
     # Uncomment when CV documentation is needed:
-    # from ropon_data.schemas import apply_cv_schema
+    # from ropon_data.openapi_schemas import apply_cv_schema
     # apply_cv_schema(paths)
 
 

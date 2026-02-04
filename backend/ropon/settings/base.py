@@ -360,9 +360,9 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '2.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     # Filter endpoints to only include documented ones
-    'PREPROCESSING_HOOKS': ['ropon.schema.preprocessing_filter_spec'],
+    'PREPROCESSING_HOOKS': ['ropon.openapi_config.preprocessing_filter_spec'],
     # Apply custom documentation after schema generation (needed for Wagtail viewsets)
-    'POSTPROCESSING_HOOKS': ['ropon.schema.postprocessing_hook'],
+    'POSTPROCESSING_HOOKS': ['ropon.openapi_config.postprocessing_hook'],
     # Organize endpoints by tags
     'TAGS': [
         {'name': 'Networks', 'description': 'Observing Network endpoints'},

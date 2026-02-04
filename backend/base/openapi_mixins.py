@@ -113,6 +113,16 @@ class OpenAPIModelMixin:
 
     Uses _meta.fields introspection for Django fields.
     Calls get_openapi_schema() on StreamField blocks for nested schemas.
+
+    Configuration class attributes (override in subclasses):
+        EXTRA_EXCLUDED_FIELDS: Set of additional field names to exclude
+        INCLUDE_FIELDS: Set of field names to always include (overrides exclusions)
+        M2M_SERIALIZATION_MODE: How M2M fields are serialized ('string_array' or 'object_array')
+        SKIP_STREAMFIELDS: If True, skip StreamField auto-generation (handle manually)
+        SKIP_FOREIGNKEYS: If True, skip ForeignKey auto-generation (handle manually)
+
+    Customization hooks (override in subclasses):
+        _add_custom_properties(properties): Add model-specific properties after auto-generation
     """
 
     # Django field type -> OpenAPI type mapping
@@ -129,23 +139,56 @@ class OpenAPIModelMixin:
         'DateTimeField': {'type': 'string', 'format': 'date-time'},
     }
 
-    # Fields to exclude from auto-generation (Wagtail internals)
-    EXCLUDED_FIELDS = {
-        'id', 'pk', 'page_ptr', 'content_type', 'path', 'depth',
+    # Base fields to exclude from auto-generation (Wagtail/Django internals)
+    BASE_EXCLUDED_FIELDS = {
+        'pk', 'page_ptr', 'content_type', 'path', 'depth',
         'numchild', 'translation_key', 'locale', 'alias_of',
         'draft_title', 'has_unpublished_changes', 'expired',
         'expire_at', 'go_live_at', 'live', 'locked', 'locked_at',
-        'locked_by', 'latest_revision', 'live_revision',
+        'locked_by', 'latest_revision', 'live_revision', 'latest_revision_created_at',
+        'revision', 'workflow_states',
+        'aliases', 'revisions', 'subscribers', 'comments',
+        'sites_rooted_here', 'aliases_of_me', 'group_permissions',
+        'view_restrictions', 'url_path', 'owner', 'first_published_at', 'last_published_at',
+        'slug', 'seo_title', 'show_in_menus', 'search_description',
     }
+
+    # Additional fields to exclude (override in subclasses)
+    EXTRA_EXCLUDED_FIELDS: set = set()
+
+    # Fields to explicitly include even if in exclusion lists
+    INCLUDE_FIELDS: set = {'id'}
+
+    # M2M serialization mode: 'string_array' (StringRelatedField) or 'object_array'
+    M2M_SERIALIZATION_MODE: str = 'object_array'
+
+    # Skip certain field types for manual handling
+    SKIP_STREAMFIELDS: bool = False
+    SKIP_FOREIGNKEYS: bool = False
+
+    # Legacy compatibility: keep EXCLUDED_FIELDS as alias
+    @classmethod
+    def _get_excluded_fields(cls) -> set:
+        """Get combined set of excluded fields."""
+        # Support both old EXCLUDED_FIELDS and new BASE_EXCLUDED_FIELDS + EXTRA_EXCLUDED_FIELDS
+        excluded = cls.BASE_EXCLUDED_FIELDS.copy()
+        excluded.update(cls.EXTRA_EXCLUDED_FIELDS)
+        # Legacy support: if subclass defines EXCLUDED_FIELDS, use it
+        if hasattr(cls, 'EXCLUDED_FIELDS') and cls.EXCLUDED_FIELDS != OpenAPIModelMixin.BASE_EXCLUDED_FIELDS:
+            excluded.update(getattr(cls, 'EXCLUDED_FIELDS', set()))
+        return excluded - cls.INCLUDE_FIELDS
 
     @classmethod
     def get_openapi_schema(cls) -> dict:
         """Generate OpenAPI schema by introspecting model fields."""
         properties = {}
+        excluded = cls._get_excluded_fields()
 
         for field in cls._meta.get_fields():
-            # Skip excluded fields
-            if field.name in cls.EXCLUDED_FIELDS:
+            field_name = field.name
+
+            # Skip excluded fields (unless explicitly included)
+            if field_name in excluded and field_name not in cls.INCLUDE_FIELDS:
                 continue
 
             # Skip reverse relations
@@ -154,7 +197,10 @@ class OpenAPIModelMixin:
 
             schema = cls._field_to_schema(field)
             if schema:
-                properties[field.name] = schema
+                properties[field_name] = schema
+
+        # Allow subclasses to add custom properties
+        cls._add_custom_properties(properties)
 
         return {
             'type': 'object',
@@ -163,10 +209,25 @@ class OpenAPIModelMixin:
         }
 
     @classmethod
+    def _add_custom_properties(cls, properties: dict) -> None:
+        """
+        Hook for subclasses to add model-specific properties.
+
+        Override this method to add StreamField schemas with $ref,
+        computed fields, or other custom properties.
+
+        Args:
+            properties: Dict to modify in place with additional properties.
+        """
+        pass  # Default: no custom properties
+
+    @classmethod
     def _field_to_schema(cls, field) -> dict:
         """Convert a Django field to OpenAPI schema."""
         # Handle StreamField - delegate to block's schema
         if isinstance(field, StreamField):
+            if cls.SKIP_STREAMFIELDS:
+                return None  # Handle manually in _add_custom_properties
             # Get first block type for simplicity
             # (extend if multiple block types needed)
             if field.stream_block.child_blocks:
@@ -180,15 +241,34 @@ class OpenAPIModelMixin:
 
         # Handle M2M relationships
         if field.many_to_many:
-            return {
-                'type': 'array',
-                'items': {'type': 'object'},
-                'description': f'{field.name} references'
-            }
+            if cls.M2M_SERIALIZATION_MODE == 'string_array':
+                return {
+                    'type': 'array',
+                    'items': {'type': 'string'},
+                    'description': str(field.help_text) if hasattr(field, 'help_text') and field.help_text else f'{field.verbose_name} values.'
+                }
+            else:
+                return {
+                    'type': 'array',
+                    'items': {'type': 'object'},
+                    'description': f'{field.name} references'
+                }
 
         # Handle ForeignKey
         if field.is_relation:
+            if cls.SKIP_FOREIGNKEYS:
+                return None  # Handle manually in _add_custom_properties
             return {'type': 'object', 'description': f'{field.name} reference'}
+
+        # Handle choice fields -> enum
+        if hasattr(field, 'choices') and field.choices:
+            schema = {
+                'type': 'string',
+                'enum': [c[1] for c in field.choices],
+            }
+            if hasattr(field, 'help_text') and field.help_text:
+                schema['description'] = str(field.help_text)
+            return schema
 
         # Map standard Django fields
         internal_type = field.get_internal_type()
@@ -198,6 +278,10 @@ class OpenAPIModelMixin:
             # Add max_length constraint
             if hasattr(field, 'max_length') and field.max_length:
                 schema['maxLength'] = field.max_length
+
+            # Add nullable support
+            if hasattr(field, 'null') and field.null:
+                schema['nullable'] = True
 
             # Add help_text as description
             if field.help_text:

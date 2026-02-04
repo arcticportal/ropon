@@ -2,7 +2,7 @@
 OpenAPI schema postprocessing handlers for ropon_data endpoints.
 
 This module contains postprocessing handlers that customize the OpenAPI schema
-for ropon_data API endpoints. These are called by ropon.schema.postprocessing_hook.
+for ropon_data API endpoints. These are called by ropon.openapi_config.postprocessing_hook.
 
 Why postprocessing handlers instead of decorators?
     Wagtail's API viewsets use non-standard method names (listing_view, detail_view)
@@ -10,13 +10,13 @@ Why postprocessing handlers instead of decorators?
     Postprocessing handlers modify the schema after generation, which works reliably.
 
 Usage:
-    # In ropon.schema._apply_endpoint_schemas():
-    from ropon_data.schemas import apply_networks_schema, apply_cv_schema
+    # In ropon.openapi_config._apply_endpoint_schemas():
+    from ropon_data.openapi_schemas import apply_networks_schema, apply_cv_schema
     apply_networks_schema(paths)
     apply_cv_schema(paths)
 
-    # In ropon.schema._apply_component_schemas():
-    from ropon_data.schemas import get_networks_component_schemas
+    # In ropon.openapi_config._apply_component_schemas():
+    from ropon_data.openapi_schemas import get_networks_component_schemas
     schemas.update(get_networks_component_schemas())
 """
 
@@ -44,6 +44,8 @@ def get_networks_component_schemas() -> dict:
 
         # Auto-generated from block classes (with StreamField wrapper format)
         'SOSOBoundingBox': SOSOBoundingBoxBlock.get_openapi_schema(include_streamfield_wrapper=True),
+        # NOTE: NetworkIdBlock and UrlBlock schemas are generated inline in ObservingNetworkPage.get_openapi_schema()
+        # rather than as separate component schemas, as they're only used in array context.
         # 'NetworkIdBlock': NetworkIdBlock.get_openapi_schema(),
         # 'UrlBlock': get_url_block_schema('url'),
 
@@ -69,10 +71,19 @@ def get_networks_component_schemas() -> dict:
                     'format': 'date-time',
                     'description': 'Timestamp when the network was last modified.',
                     'example': '2025-10-10T14:23:02.573619Z'
+                },
+                'last_modified_by': {
+                    'type': 'string',
+                    'description': 'Full name of the user who last modified this network.',
+                    'example': 'John Doe'
                 }
             }
         },
 
+        # TODO: Enable LogoImage schema when logo_image field is exposed in API
+        # Currently excluded from ObservingNetworkPage fields list. To enable:
+        # 1. Remove 'logo_image' from EXCLUDED_FIELDS in ObservingNetworkPage.get_openapi_schema()
+        # 2. Uncomment this schema and the logo_image property reference in the model
         # 'LogoImage': {
         #     'type': 'object',
         #     'nullable': True,
@@ -282,7 +293,10 @@ def get_cv_component_schemas() -> dict:
     Returns:
         Dict of schema name -> schema definition to add to components/schemas.
     """
-    # TODO: Add CV schemas when needed
+    # TODO: Implement CV (Controlled Vocabularies) schemas
+    # CV endpoints: /api/v2/cv/, /api/v2/cv/{cv_type}/, /api/v2/cv/{cv_type}/{pk}/
+    # Models: Domain, Discipline, Region, SubRegion, AssetType, MetadataStandard, AccessProtocol
+    # See ControlledVocabularyAPIViewSet in ropon_data/api.py for endpoint structure
     return {}
 
 
@@ -295,5 +309,8 @@ def apply_cv_schema(paths: dict) -> None:
 
     Note: Currently a stub. Implement when CV documentation is needed.
     """
-    # TODO: Add CV endpoint schema customizations when needed
+    # TODO: Implement CV endpoint schema customizations
+    # CV endpoints: /api/v2/cv/, /api/v2/cv/{cv_type}/, /api/v2/cv/{cv_type}/{pk}/
+    # Models: Domain, Discipline, Region, SubRegion, AssetType, MetadataStandard, AccessProtocol
+    # See ControlledVocabularyAPIViewSet in ropon_data/api.py for endpoint structure
     pass

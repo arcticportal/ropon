@@ -179,7 +179,10 @@ class ObservingNetworkOrganization(Orderable,models.Model):
 
     
 
-class ObservingNetworkPage(Page):
+from base.openapi_mixins import OpenAPIModelMixin
+
+
+class ObservingNetworkPage(OpenAPIModelMixin, Page):
     # Network information
     name = models.CharField(
         max_length=255, 
@@ -359,7 +362,7 @@ class ObservingNetworkPage(Page):
     @property
     @admin.display(description='Last Modified By')
     def last_modified_by(self):
-        return self.latest_revision.user
+        return self.latest_revision.user.get_full_name() #if self.latest_revision and self.latest_revision.user else 'System'
 
     @property
     @admin.display(description='Date Last Modified')
@@ -606,6 +609,7 @@ class ObservingNetworkPage(Page):
         APIField('metadata_standards',serializers.StringRelatedField(many=True, read_only=True)),
         APIField('access_protocols',serializers.StringRelatedField(many=True, read_only=True)),
         APIField('metadata_catalog_url'),
+        APIField('last_modified_by')
 
     ]
 
@@ -636,77 +640,51 @@ class ObservingNetworkPage(Page):
         status = self.status_string or ''
         return status.upper()
 
+    # ==========================================================================
+    # OpenAPI Schema Configuration (uses OpenAPIModelMixin)
+    # ==========================================================================
+
+    # Additional fields to exclude beyond the base Wagtail internals
+    EXTRA_EXCLUDED_FIELDS = {
+        'title', 
+        'observingnetworkindexpage',  'is_owner_authorized', 'logo_image',
+        # StreamFields handled manually in _add_custom_properties
+        'geometry_field', 'data_repository_url', 'metadata_catalog_url', 'network_id',
+    }
+
+    # API serializes M2M as string arrays via StringRelatedField
+    M2M_SERIALIZATION_MODE = 'string_array'
+
+    # Skip StreamFields and ForeignKeys for manual handling
+    SKIP_STREAMFIELDS = True
+    SKIP_FOREIGNKEYS = True
+
     @classmethod
-    def get_openapi_schema(cls) -> dict:
+    def _add_custom_properties(cls, properties: dict) -> None:
         """
-        Generate OpenAPI schema for API response.
+        Add StreamField schemas and Wagtail-specific properties.
 
-        Combines:
-        - Auto-introspected Django fields
-        - Block schemas from StreamField blocks
-        - Manual definitions for M2M and Wagtail-specific fields
+        This hook is called by OpenAPIModelMixin.get_openapi_schema() after
+        auto-generating properties from Django fields.
         """
-        from ropon_data.blocks import (
-            SOSOBoundingBoxBlock, NetworkIdBlock, get_url_block_schema
-        )
+        from ropon_data.blocks import NetworkIdBlock, get_url_block_schema
 
-        properties = {}
-
-        # Auto-generate basic field schemas from model fields
-        for field in cls._meta.get_fields():
-            field_name = field.name
-
-            # Skip Wagtail internal fields and non-relevant fields
-            if field_name in ['page_ptr', 'title','path', 'depth', 'numchild',
-                              'content_type', 'live', 'has_unpublished_changes',
-                              'url_path', 'owner', 'go_live_at', 'expire_at',
-                              'expired', 'locked', 'locked_at', 'locked_by',
-                              'first_published_at', 'last_published_at',
-                              'live_revision', 'alias_of', 'latest_revision',
-                              'translation_key', 'locale', 'slug', 'seo_title',
-                              'show_in_menus', 'search_description', 'draft_title',
-                              'observingnetworkindexpage', 'revision', 'workflow_states',
-                              'aliases', 'revisions', 'subscribers', 'comments',
-                              'sites_rooted_here', 'aliases_of_me', 'sites_rooted_here',
-                              'group_permissions', 'view_restrictions', 'is_owner_authorized',
-                              'logo_image']:
-                continue
-
-            # Skip StreamFields (handled separately with block schemas)
-            if hasattr(field, 'stream_block'):
-                continue
-
-            # Handle M2M fields (API serializes as string arrays via StringRelatedField)
-            if field.many_to_many:
-                properties[field_name] = {
-                    'type': 'array',
-                    'items': {'type': 'string'},
-                    'description': str(field.help_text) if hasattr(field, 'help_text') and field.help_text else f'{field.verbose_name} values.'
-                }
-                continue
-
-            # Skip other relation fields (ForeignKey, reverse relations - handled separately)
-            if field.is_relation:
-                continue
-
-            # Generate schema for basic fields
-            properties[field_name] = cls._field_to_schema(field)
-
-        # Add StreamField schemas from block classes
+        # StreamField schemas using $ref for component reuse
+        # NOTE: Alternative approach using inline schema:
         # properties['geometry_field'] = {
         #     'type': 'array',
         #     'items': SOSOBoundingBoxBlock.get_openapi_schema(include_streamfield_wrapper=True),
-        #     'description': 'Spatial coverage of the network as delineated by one or more bounding boxes. Each box is defined as a pair of latitude and longitude coordinates for the southwest and northeast corners.Spatial coverage of the network as delineated by one or more bounding boxes. Each box is defined as a pair of latitude and longitude coordinates for the southwest and northeast corners.'
+        #     'description': '...'
         # }
         properties['geometry_field'] = {
             'type': 'array',
-            '$ref': '#/components/schemas/SOSOBoundingBox',
-            'description': 'Spatial coverage of the network as delineated by one or more bounding boxes. Each box is defined as a pair of latitude and longitude coordinates for the southwest and northeast corners.Spatial coverage of the network as delineated by one or more bounding boxes. Each box is defined as a pair of latitude and longitude coordinates for the southwest and northeast corners.'
+            'items': {'$ref': '#/components/schemas/SOSOBoundingBox'},
+            'description': 'Spatial coverage of the network as delineated by one or more bounding boxes. Each box is defined as a pair of latitude and longitude coordinates for the southwest and northeast corners.'
         }
         properties['data_repository_url'] = {
             'type': 'array',
             'items': get_url_block_schema('url'),
-            'description': 'One or more links to data repositories hosting scientific data from the network (such as the Polar Data Catalogue, NSF Arctic Data Center, or PANGAEA).  (This field pertains to scientific datasets, not observing assets).'
+            'description': 'One or more links to data repositories hosting scientific data from the network (such as the Polar Data Catalogue, NSF Arctic Data Center, or PANGAEA). (This field pertains to scientific datasets, not observing assets).'
         }
         properties['metadata_catalog_url'] = {
             'type': 'array',
@@ -729,51 +707,8 @@ class ObservingNetworkPage(Page):
         # Wagtail-specific nested objects
         properties['id'] = {'type': 'integer', 'description': 'Page ID.'}
         properties['meta'] = {'$ref': '#/components/schemas/ObservingNetworkMeta'}
+        # TODO: Enable logo_image when LogoImage component schema is added in openapi_schemas.py
         # properties['logo_image'] = {'$ref': '#/components/schemas/LogoImage'}
-
-        return {
-            'type': 'object',
-            'description': 'Observing Network registered in RoPON.',
-            'properties': properties
-        }
-
-    @staticmethod
-    def _field_to_schema(field) -> dict:
-        """Map Django field to OpenAPI schema."""
-        from django.db import models as django_models
-        from wagtail.fields import StreamField
-
-        type_map = {
-            django_models.CharField: {'type': 'string'},
-            django_models.TextField: {'type': 'string'},
-            django_models.IntegerField: {'type': 'integer'},
-            django_models.URLField: {'type': 'string', 'format': 'uri'},
-            django_models.UUIDField: {'type': 'string', 'format': 'uuid'},
-            django_models.DateTimeField: {'type': 'string', 'format': 'date-time'},
-            django_models.BooleanField: {'type': 'boolean'},
-        }
-
-        # Handle choice fields -> enum
-        if hasattr(field, 'choices') and field.choices:
-            return {
-                'type': 'string',
-                'enum': [c[1] for c in field.choices],
-                'description': str(field.help_text) if hasattr(field, 'help_text') and field.help_text else None
-            }
-
-        # Map field type
-        for field_class, schema in type_map.items():
-            if isinstance(field, field_class):
-                result = schema.copy()
-                if hasattr(field, 'max_length') and field.max_length:
-                    result['maxLength'] = field.max_length
-                if hasattr(field, 'null') and field.null:
-                    result['nullable'] = True
-                if hasattr(field, 'help_text') and field.help_text:
-                    result['description'] = str(field.help_text)
-                return result
-
-        return {'type': 'string'}
 
     class Meta:
         verbose_name = 'Observing Network'

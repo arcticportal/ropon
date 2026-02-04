@@ -1,5 +1,5 @@
 from wagtail.blocks import StructBlock, FloatBlock, CharBlock
-from base.openapi import OpenAPIBlockMixin
+from base.openapi_mixins import OpenAPIBlockMixin
 from .validators import (
     validate_soso_bounding_box,
     validate_latitude,

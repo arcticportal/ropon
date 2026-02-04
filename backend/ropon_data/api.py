@@ -48,7 +48,7 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
     meta_fields = [
         f for f in PagesAPIViewSet.meta_fields
         if f not in ['type','slug','html_url', 'show_in_menus','seo_title', 'search_description','alias_of','parent']
-    ] + ['date_last_modified']
+    ] + ['date_last_modified', 'last_modified_by']
 
     # remove title field from body fields, add name field for #225
     body_fields = [f for f in PagesAPIViewSet.body_fields
