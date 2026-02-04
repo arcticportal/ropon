@@ -83,13 +83,15 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
             # filtering out unwanted fields like logo_image.
             request.GET = request.GET.copy()
             request.GET['fields'] = '*'
-
+            FILE_NAME = "observing_networks_list.csv"
             # Return all records without pagination for CSV
             queryset = self.get_queryset()
             self.check_query_parameters(queryset)
             queryset = self.filter_queryset(queryset)
             serializer = self.get_serializer(queryset, many=True)
-            return Response(serializer.data)
+            response = Response(serializer.data)
+            response['Content-Disposition'] = f'attachment; filename="{FILE_NAME}"'
+            return response
 
         # Default behavior for JSON with pagination
         return super().listing_view(request)
