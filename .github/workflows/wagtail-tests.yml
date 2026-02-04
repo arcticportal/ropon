@@ -53,7 +53,7 @@ jobs:
           docker compose -f deploy/backend/docker-compose-test.yml ps
           echo "list all containers before tests"
           docker ps -a
-          docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py test
+          docker compose -f deploy/backend/docker-compose-test.yml run -e DJANGO_SETTINGS_MODULE=ropon.settings.test wagtail python manage.py test --parallel
           echo "list running containers after tests"
           docker compose -f deploy/backend/docker-compose-test.yml ps
           echo "list all containers after tests"
