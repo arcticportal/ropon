@@ -57,51 +57,36 @@ class AdminHomepageSummaryPanelTests(WagtailTestUtils, TestCase): # Inherit from
         self.admin_home_url = reverse('wagtailadmin_home')
         self.factory = RequestFactory()
 
-    def test_admin_homepage_summary_panel_removed_for_moderator(self):
+    def test_admin_homepage_summary_panel_removed_for_non_superusers(self):
         """
-        Test that the summary panel is not present on the admin homepage for moderators.
+        Test that the summary panel is not present on the admin homepage for moderators and editors.
         """
-        self.login(self.moderator_user) # Use self.login() from WagtailTestUtils
-        response = self.client.get(self.admin_home_url)
+        for user, user_type in [(self.moderator_user, 'moderators'), (self.editor_user, 'editors')]:
+            with self.subTest(user_type=user_type):
+                self.login(user)
+                response = self.client.get(self.admin_home_url)
 
-        self.assertEqual(response.status_code, 200)
-        # Check that the summary items are not in the context or are empty
-        summary_items = response.context.get('summary_items', [])
-        # The hook should clear all summary items, so we expect an empty list
-        self.assertEqual(len(summary_items), 0, "Summary items should be empty for moderators")
+                self.assertEqual(response.status_code, 200)
+                # Check that the summary items are not in the context or are empty
+                summary_items = response.context.get('summary_items', [])
+                # The hook should clear all summary items, so we expect an empty list
+                self.assertEqual(len(summary_items), 0, f"Summary items should be empty for {user_type}")
 
-    def test_admin_homepage_summary_panel_removed_for_editor(self):
-        """
-        Test that the summary panel is not present on the admin homepage for editors.
-        """
-        self.login(self.editor_user) # Use self.login() from WagtailTestUtils
-        response = self.client.get(self.admin_home_url)
-
-        self.assertEqual(response.status_code, 200)
-        # Check that the summary items are not in the context or are empty
-        summary_items = response.context.get('summary_items', [])
-        # The hook should clear all summary items, so we expect an empty list
-        self.assertEqual(len(summary_items), 0, "Summary items should be empty for editors")
-
-    def test_welcome_panel_component_creation(self):
-        """Test that the welcome panel component can be created."""
+    def test_welcome_panel_functionality(self):
+        """Test welcome panel component creation and context data."""
+        # Test component creation
         panel = RoponWelcomePanel()
         self.assertEqual(panel.template_name, 'ropon/panels/welcome_panel.html')
         self.assertEqual(panel.order, 150)
         
-    def test_welcome_panel_context_data(self):
-        """Test that the panel provides the correct context data."""
+        # Test context data
         request = self.factory.get('/admin/')
         request.user = self.moderator_user
-        
-        panel = RoponWelcomePanel()
         parent_context = {
             'request': request,
             'user': self.moderator_user,
         }
-        
         context = panel.get_context_data(parent_context)
-        
         # The panel no longer adds custom context variables
         # It relies on template tags for dynamic content
         self.assertIsInstance(context, dict)
