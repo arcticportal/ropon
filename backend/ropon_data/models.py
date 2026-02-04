@@ -362,7 +362,7 @@ class ObservingNetworkPage(OpenAPIModelMixin, Page):
     @property
     @admin.display(description='Last Modified By')
     def last_modified_by(self):
-        return self.latest_revision.user.get_full_name() #if self.latest_revision and self.latest_revision.user else 'System'
+        return self.latest_revision.user.get_full_name() if self.latest_revision and self.latest_revision.user else 'System'
 
     @property
     @admin.display(description='Date Last Modified')

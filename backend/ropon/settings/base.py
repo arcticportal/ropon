@@ -345,8 +345,8 @@ REST_FRAMEWORK = {
         'anon': '1000/hour', # Default rate for anonymous users (increased)
         'user': '1000/hour' # Default rate for authenticated users (increased)
     },
-    # drf-spectacular schema class for OpenAPI documentation
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    # Custom AutoSchema class for OpenAPI documentation (handles Wagtail viewsets)
+    'DEFAULT_SCHEMA_CLASS': 'ropon.openapi_config.RoponAutoSchema',
 }
 
 # drf-spectacular settings for API documentation
@@ -357,6 +357,7 @@ SPECTACULAR_SETTINGS = {
         'Registry of Polar Observing Networks API - Provides public access to observing network data.\n\n'
         # 'OpenAPI Schema: [JSON](/api/v2/schema.json) | [YAML](/api/v2/schema/)'
     ),
+
     'VERSION': '2.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     # Filter endpoints to only include documented ones

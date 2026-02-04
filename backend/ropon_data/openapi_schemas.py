@@ -230,8 +230,7 @@ def apply_networks_schema(paths: dict) -> None:
 
 **Response Format:** JSON only. CSV format is not supported for detail views. Use the list endpoint for CSV export.
 
-**Query Parameters:**
-- `fields`: Comma-separated list of fields to include in the response."""
+"""
 
         networks_ropon['parameters'] = [
             {
@@ -245,12 +244,12 @@ def apply_networks_schema(paths: dict) -> None:
                     'maxLength': 255
                 }
             },
-            {
-                'name': 'fields',
-                'in': 'query',
-                'description': 'Comma-separated list of fields to include. Use `*` for all fields.',
-                'schema': {'type': 'string'}
-            },
+            # {
+            #     'name': 'fields',
+            #     'in': 'query',
+            #     'description': 'Comma-separated list of fields to include. Use `*` for all fields.',
+            #     'schema': {'type': 'string'}
+            # },
         ]
 
         # Add response schema

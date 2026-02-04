@@ -12,7 +12,66 @@ Architecture:
     - Preprocessing: Filter which endpoints appear in documentation
     - Postprocessing: Apply endpoint-specific documentation from app schemas
     - Each app (ropon_data, etc.) owns its own schema definitions
+    - Custom AutoSchema: Handles operationId collisions for dual URL patterns
 """
+
+from drf_spectacular.openapi import AutoSchema
+
+
+# =============================================================================
+# Custom AutoSchema Class
+# =============================================================================
+
+class RoponAutoSchema(AutoSchema):
+    """
+    Custom AutoSchema that generates unique operationIds based on path parameters.
+
+    This prevents collisions between endpoints like:
+    - /api/v2/networks/{id}/ -> networks_retrieve_by_id
+    - /api/v2/networks/{ropon_id}/ -> networks_retrieve_by_ropon_id
+
+    Without this, both would generate 'api_v2_networks_retrieve' causing collisions.
+    """
+
+    def get_operation_id(self):
+        """
+        Generate a unique operationId that includes path parameter names.
+        """
+        # Get the path from the view
+        path = self.path
+
+        # Extract path segments (excluding parameters)
+        path_parts = [p for p in path.strip('/').split('/') if p and not p.startswith('{')]
+
+        # Extract parameter names from path
+        param_parts = []
+        for p in path.strip('/').split('/'):
+            if p.startswith('{') and p.endswith('}'):
+                param_parts.append(p[1:-1])  # Extract param name without braces
+
+        # Build base name from path (e.g., 'api/v2/networks' -> 'networks')
+        base_name = path_parts[-1] if path_parts else 'root'
+
+        # Determine action based on method and parameters
+        method = self.method.lower()
+        if method == 'get':
+            if param_parts:
+                # Detail view - include parameter name to avoid collisions
+                action = f"retrieve_by_{'_'.join(param_parts)}"
+            else:
+                action = 'list'
+        elif method == 'post':
+            action = 'create'
+        elif method == 'put':
+            action = 'update'
+        elif method == 'patch':
+            action = 'partial_update'
+        elif method == 'delete':
+            action = 'destroy'
+        else:
+            action = method
+
+        return f"{base_name}_{action}"
 
 # =============================================================================
 # Configuration
