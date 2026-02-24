@@ -8,6 +8,9 @@ from wagtail.admin.ui.tables import Column, UserColumn
 
 
 class ObservingNetworkPageIndexView(IndexView):
+
+    search_fields = ('name', 'description', 'abbreviation')
+  
     def get_base_queryset(self):
         queryset = super().get_base_queryset()
         if self.request.user.groups.filter(name='Editors').exists():

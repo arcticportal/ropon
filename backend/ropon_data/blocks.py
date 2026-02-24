@@ -1,8 +1,5 @@
-from cProfile import label
-from tokenize import group
-from wsgiref.validate import validator
 from wagtail.blocks import StructBlock, FloatBlock, CharBlock
-from django.core.exceptions import ValidationError
+from base.openapi_mixins import OpenAPIBlockMixin
 from .validators import (
     validate_soso_bounding_box,
     validate_latitude,
@@ -12,30 +9,79 @@ from .validators import (
 )
 
 
-class GeoPointBlock(StructBlock):
+class GeoPointBlock(OpenAPIBlockMixin, StructBlock):
     latitude = FloatBlock(validators=[validate_latitude], label='Latitude')
     longitude = FloatBlock(validators=[validate_longitude], label='Longitude')
-    
+
     class Meta:
         icon = 'site'
         label = 'Geographic Point Coordinates'
         form_classname = 'geopoint-block struct-block'
         label_format = '{latitude} , {longitude}'
 
-class SOSOBoundingBoxBlock(StructBlock):
+    def to_csv_value(self, value):
+        """
+        Return CSV-friendly representation of geographic point.
+
+        Format: "lat lon" (space-separated)
+
+        Args:
+            value: Dictionary with 'latitude' and 'longitude' keys
+
+        Returns:
+            String in format "lat lon" or empty string if no value
+        """
+        if not value:
+            return ''
+        lat = value.get('latitude', '')
+        lon = value.get('longitude', '')
+        if lat == '' or lon == '':
+            return ''
+        return f"{lat} {lon}"
+
+class SOSOBoundingBoxBlock(OpenAPIBlockMixin, StructBlock):
     southwest = GeoPointBlock(label='SouthWest Corner')
     northeast = GeoPointBlock(label='NorthEast Corner')
-    
+
     class Meta:
         icon = 'site'
-        label = 'Bounding Box'
+        label = 'SOSO Bounding Box'
         form_classname = 'soso-bounding-box-block struct-block'
         label_format = 'BBox - {southwest} ; {northeast}'
 
     def clean(self, value):
         cleaned_data = super().clean(value)
-        validate_soso_bounding_box( cleaned_data)
+        validate_soso_bounding_box(cleaned_data)
         return cleaned_data
+
+    def to_csv_value(self, value):
+        """
+        Return CSV-friendly representation of bounding box.
+
+        Format: "sw.lat sw.lon ne.lat ne.lon" (space-separated)
+
+        Args:
+            value: Dictionary with 'southwest' and 'northeast' GeoPoint values
+
+        Returns:
+            String in format "sw.lat sw.lon ne.lat ne.lon" or empty string if no value
+        """
+        if not value:
+            return ''
+
+        sw = value.get('southwest', {})
+        ne = value.get('northeast', {})
+
+        sw_lat = sw.get('latitude', '')
+        sw_lon = sw.get('longitude', '')
+        ne_lat = ne.get('latitude', '')
+        ne_lon = ne.get('longitude', '')
+
+        # Return empty if any coordinate is missing
+        if any(v == '' for v in [sw_lat, sw_lon, ne_lat, ne_lon]):
+            return ''
+
+        return f"{sw_lat} {sw_lon} {ne_lat} {ne_lon}"
 
 
 class NetworkIdBlock(CharBlock):
@@ -49,3 +95,74 @@ class NetworkIdBlock(CharBlock):
     def __init__(self, **kwargs):
         kwargs.setdefault('validators', []).append(validate_text_or_url)
         super().__init__(**kwargs)
+
+    @classmethod
+    def get_openapi_schema(cls) -> dict:
+        """Return OpenAPI schema for this block (StreamField item format)."""
+        return {
+            'type': 'object',
+            'description': 'Network identifier (text or URL).',
+            'properties': {
+                'type': {
+                    'type': 'string',
+                    'enum': ['network_id']
+                },
+                'value': {
+                    'type': 'string',
+                    'description': 'Network ID value (text or URL).'
+                },
+                'id': {
+                    'type': 'string',
+                    'format': 'uuid'
+                }
+            }
+        }
+
+    def to_csv_value(self, value):
+        """
+        Return CSV-friendly representation of network ID.
+
+        Args:
+            value: The network ID string
+
+        Returns:
+            The value as-is, or empty string if no value
+        """
+        if value is None:
+            return ''
+        return str(value)
+
+
+# =============================================================================
+# Helper functions for OpenAPI schema generation
+# =============================================================================
+
+def get_url_block_schema(block_type_name: str = 'url') -> dict:
+    """
+    Return OpenAPI schema for Wagtail's URLBlock in StreamField format.
+
+    Args:
+        block_type_name: The type name used in StreamField (default: 'url')
+
+    Returns:
+        OpenAPI schema dict for URL block items
+    """
+    return {
+        'type': 'object',
+        'description': 'URL block containing a link.',
+        'properties': {
+            'type': {
+                'type': 'string',
+                'enum': [block_type_name]
+            },
+            'value': {
+                'type': 'string',
+                'format': 'uri',
+                'description': 'URL value.'
+            },
+            'id': {
+                'type': 'string',
+                'format': 'uuid'
+            }
+        }
+    }

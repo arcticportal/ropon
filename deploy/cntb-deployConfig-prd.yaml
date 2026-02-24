@@ -17,8 +17,8 @@ service_ingres:
     ssl_host: dashboard.polarobservingregistry.org
     port: 8000
   frontend:
-    hostname: polarobservingregistry.org
-    ssl_host: polarobservingregistry.org
+    hostname: polarobservingregistry.org,www.polarobservingregistry.org
+    ssl_host: polarobservingregistry.org,www.polarobservingregistry.org
     port: 80
   nginx-media:
     hostname: media.polarobservingregistry.org

@@ -133,7 +133,9 @@ class AccessProtocol(ControlledVocabularyModel):
 
 
 class Organization(index.Indexed, models.Model):
-    name = models.CharField("Organization name", max_length=255)
+    name = models.CharField("Organization name", 
+                            help_text="One or more entities responsible for funding or operation of the observing network. Include acronyms in parentheses. e.g. World Meteorological Organization (WMO)",
+                            max_length=255)
 
     def __str__(self):
         return self.name
@@ -159,7 +161,7 @@ class ObservingNetworkOrganization(Orderable,models.Model):
     organization = models.ForeignKey(
         'ropon_data.Organization',
         on_delete=models.CASCADE,
-        related_name='organizations_networks'
+        related_name='organizations_networks',
     )
 
     panels = [FieldPanel('organization')]
@@ -177,7 +179,10 @@ class ObservingNetworkOrganization(Orderable,models.Model):
 
     
 
-class ObservingNetworkPage(Page):
+from base.openapi_mixins import OpenAPIModelMixin
+
+
+class ObservingNetworkPage(OpenAPIModelMixin, Page):
     # Network information
     name = models.CharField(
         max_length=255, 
@@ -357,7 +362,7 @@ class ObservingNetworkPage(Page):
     @property
     @admin.display(description='Last Modified By')
     def last_modified_by(self):
-        return self.latest_revision.user
+        return self.latest_revision.user.get_full_name() if self.latest_revision and self.latest_revision.user else 'System'
 
     @property
     @admin.display(description='Date Last Modified')
@@ -604,6 +609,7 @@ class ObservingNetworkPage(Page):
         APIField('metadata_standards',serializers.StringRelatedField(many=True, read_only=True)),
         APIField('access_protocols',serializers.StringRelatedField(many=True, read_only=True)),
         APIField('metadata_catalog_url'),
+        APIField('last_modified_by')
 
     ]
 
@@ -616,7 +622,10 @@ class ObservingNetworkPage(Page):
     search_fields = Page.search_fields + [
         index.SearchField('name'),
         index.SearchField('description'),
-        index.SearchField('abbreviation'),
+        index.AutocompleteField('description'),
+        index.SearchField('abbreviation', partial_match=True),
+        index.AutocompleteField('abbreviation'),
+ 
 
     ]
 
@@ -633,6 +642,76 @@ class ObservingNetworkPage(Page):
     def status(self):
         status = self.status_string or ''
         return status.upper()
+
+    # ==========================================================================
+    # OpenAPI Schema Configuration (uses OpenAPIModelMixin)
+    # ==========================================================================
+
+    # Additional fields to exclude beyond the base Wagtail internals
+    EXTRA_EXCLUDED_FIELDS = {
+        'title', 
+        'observingnetworkindexpage',  'is_owner_authorized', 'logo_image',
+        # StreamFields handled manually in _add_custom_properties
+        'geometry_field', 'data_repository_url', 'metadata_catalog_url', 'network_id',
+    }
+
+    # API serializes M2M as string arrays via StringRelatedField
+    M2M_SERIALIZATION_MODE = 'string_array'
+
+    # Skip StreamFields and ForeignKeys for manual handling
+    SKIP_STREAMFIELDS = True
+    SKIP_FOREIGNKEYS = True
+
+    @classmethod
+    def _add_custom_properties(cls, properties: dict) -> None:
+        """
+        Add StreamField schemas and Wagtail-specific properties.
+
+        This hook is called by OpenAPIModelMixin.get_openapi_schema() after
+        auto-generating properties from Django fields.
+        """
+        from ropon_data.blocks import NetworkIdBlock, get_url_block_schema
+
+        # StreamField schemas using $ref for component reuse
+        # NOTE: Alternative approach using inline schema:
+        # properties['geometry_field'] = {
+        #     'type': 'array',
+        #     'items': SOSOBoundingBoxBlock.get_openapi_schema(include_streamfield_wrapper=True),
+        #     'description': '...'
+        # }
+        properties['geometry_field'] = {
+            'type': 'array',
+            'items': {'$ref': '#/components/schemas/SOSOBoundingBox'},
+            'description': 'Spatial coverage of the network as delineated by one or more bounding boxes. Each box is defined as a pair of latitude and longitude coordinates for the southwest and northeast corners.'
+        }
+        properties['data_repository_url'] = {
+            'type': 'array',
+            'items': get_url_block_schema('url'),
+            'description': 'One or more links to data repositories hosting scientific data from the network (such as the Polar Data Catalogue, NSF Arctic Data Center, or PANGAEA). (This field pertains to scientific datasets, not observing assets).'
+        }
+        properties['metadata_catalog_url'] = {
+            'type': 'array',
+            'items': get_url_block_schema('url'),
+            'description': "Link to one or more webpages presenting a network's catalog, spreadsheet, list, or other documentation about observing assets."
+        }
+        properties['network_id'] = {
+            'type': 'array',
+            'items': NetworkIdBlock.get_openapi_schema(),
+            'description': 'An identifier for the network generated by an organization, registry, or catalog (Text or URL). e.g. network identifiers from ROR, DEIMS-SDR, RRID, Zenodo Communities, NOAA EORES, etc.'
+        }
+
+        # Special case: organization_name uses a different source (network_organizations reverse relation)
+        properties['organization_name'] = {
+            'type': 'array',
+            'items': {'type': 'string'},
+            'description': 'Organizations associated with this network.'
+        }
+
+        # Wagtail-specific nested objects
+        properties['id'] = {'type': 'integer', 'description': 'Page ID.'}
+        properties['meta'] = {'$ref': '#/components/schemas/ObservingNetworkMeta'}
+        # TODO: Enable logo_image when LogoImage component schema is added in openapi_schemas.py
+        # properties['logo_image'] = {'$ref': '#/components/schemas/LogoImage'}
 
     class Meta:
         verbose_name = 'Observing Network'

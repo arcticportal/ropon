@@ -6,9 +6,15 @@ from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
 from wagtail import urls as wagtail_urls
 from search import views as search_views
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView,
+)
+from drf_spectacular.renderers import OpenApiJsonRenderer, OpenApiYamlRenderer
 
 from wagtail.api.v2.router import WagtailAPIRouter
-from ropon_data.api import (ObservingNetworkPageViewSet, 
+from ropon_data.api import (ObservingNetworkPageViewSet,
                             ControlledVocabularyAPIViewSet
                             )
 from ropon_pages.api import RoponPagesAPIViewSet
@@ -41,7 +47,15 @@ urlpatterns += [
     # path("documents/", include(wagtaildocs_urls)), # This conflicts with wagtail admin documents
     # path("search/", search_views.search, name="search"), # This conflicts with wagtail admin search
 
-    
+    # API Documentation endpoints (drf-spectacular)
+    # OpenAPI schema - JSON by default, YAML available at /schema.yaml
+    path('api/v2/schema/', SpectacularAPIView.as_view(renderer_classes=[OpenApiJsonRenderer]), name='schema'),
+    path('api/v2/schema.yaml', SpectacularAPIView.as_view(renderer_classes=[OpenApiYamlRenderer]), name='schema-yaml'),
+    # Swagger UI - interactive documentation
+    path('api/v2/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    # ReDoc - clean, read-only documentation
+    path('api/v2/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+
     # Include the ropon_email urls under the desired path
     path("api/v2/email/", include("ropon_email.urls", namespace="ropon_email_api")),
 
