@@ -59,7 +59,7 @@ export class NetworksComponent {
 	      this.title.setTitle(d.name + suf) }) })
     this.api.getList().subscribe(d => {
       this.all = d['items'].toSorted((a: Obj, b: Obj) => {
-	var s = a['title'].toLowerCase(), t = b['title'].toLowerCase()
+	var s = a['name'].toLowerCase(), t = b['name'].toLowerCase()
 	return s < t ? -1 : s > t ? 1 : 0 }) }) }
 
   prev() {
