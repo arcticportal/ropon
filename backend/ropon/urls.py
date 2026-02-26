@@ -3,13 +3,8 @@ from django.urls import path, include, re_path
 from django.contrib import admin
 from django.views.generic.base import RedirectView
 from wagtail.admin import urls as wagtailadmin_urls
-from wagtail.documents import urls as wagtaildocs_urls
-from wagtail import urls as wagtail_urls
-from search import views as search_views
 from drf_spectacular.views import (
     SpectacularAPIView,
-    SpectacularSwaggerView,
-    SpectacularRedocView,
 )
 from drf_spectacular.renderers import OpenApiJsonRenderer, OpenApiYamlRenderer
 
@@ -52,9 +47,9 @@ urlpatterns += [
     path('api/v2/schema/', SpectacularAPIView.as_view(renderer_classes=[OpenApiJsonRenderer]), name='schema'),
     path('api/v2/schema.yaml', SpectacularAPIView.as_view(renderer_classes=[OpenApiYamlRenderer]), name='schema-yaml'),
     # Swagger UI - interactive documentation
-    path('api/v2/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    # path('api/v2/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     # ReDoc - clean, read-only documentation
-    path('api/v2/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    # path('api/v2/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
     # Include the ropon_email urls under the desired path
     path("api/v2/email/", include("ropon_email.urls", namespace="ropon_email_api")),
