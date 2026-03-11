@@ -45,7 +45,7 @@
 	      <a class="text-decoration-none text-reset"
 		 [queryParams]="changedQuery(d.name, s)"
 		 [routerLink]="[]"><i class="fs-4" [ngClass]="stylRadio(d.name, s)"></i>
-		{{s}}</a>
+		{{s}} ({{count()(s)}})</a>
 	    </li>
 	  </ul>
 	</div>

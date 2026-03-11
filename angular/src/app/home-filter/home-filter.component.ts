@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router'
 import {NgClass, NgFor, NgIf, NgStyle} from '@angular/common'
 
@@ -92,7 +92,10 @@ export class HomeFilterComponent {
 	  if (typeof d[k] == 'string') r[k][d[k]] = null
 	  else for (v of d[k]) r[k][v] = null
       for (d of this.order) for (v of d.options)
-	if (v in r[d.name]) this.filters[d.name].list.push(v) }) }
+	if (v in r[d.name]) this.filters[d.name].list.push(v)
+      //this.updateCount()
+    })
+    ;(window as any)._res = () => this.api.result }
 
   qp() { return this.route.snapshot.queryParams }
 
@@ -125,4 +128,17 @@ export class HomeFilterComponent {
     return 'bi-record' + (this.selected(k, String(v)) ? '2' : '') }
 
   toggle(k: string) { this.filters[k].show = !this.filters[k].show }
+
+  count = computed(() => {
+    var k, v, c: Obj = {}
+    for (var d of this.api.result()) for (k in this.filters) {
+      if (typeof d[k] == 'string') {
+	v = d[k]
+	if (!(v in c)) c[v] = 0
+	++c[v] }
+      else for (v of d[k]) {
+	if (!(v in c)) c[v] = 0
+	++c[v] } }
+    return (k: string) => k in c ? c[k] : 0 })
+
 }

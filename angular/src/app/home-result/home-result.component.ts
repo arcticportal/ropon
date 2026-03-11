@@ -1,9 +1,9 @@
-import { NgFor, NgIf } from '@angular/common';
 import { Component, HostListener, inject } from '@angular/core';
-import { ActivatedRoute, Params, RouterLink } from '@angular/router';
+import {NgFor, NgIf} from '@angular/common'
+import {ActivatedRoute, Params, RouterLink} from '@angular/router'
 
-import { ApiService } from '../api.service';
-import { Obj, UtilService } from '../util.service';
+import {Obj, UtilService} from '../util.service'
+import {ApiService} from '../api.service'
 
 function matchSearch(d: Params, s: string): boolean {
   var k, v
@@ -66,9 +66,11 @@ export class HomeResultComponent {
 	return s < t ? -1 : s > t ? 1 : 0 })
       ;(window as any)._all = this.all
       this.networks = filtered(
-	this.all, this.route.snapshot.queryParams) })
+	this.all, this.route.snapshot.queryParams)
+      this.api.result.set(this.networks) })
     this.route.queryParams.subscribe(p => {
-      this.networks = filtered(this.all, p) }) }
+      this.networks = filtered(this.all, p)
+      this.api.result.set(this.networks) }) }
 
   count(): string {
     if (!this.total) return ''
