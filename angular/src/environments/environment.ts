@@ -3,5 +3,5 @@ export const environment = {
     production: true,
     frontendDomain: 'polarobservingregistry.org',
     backendURL: 'https://dashboard.polarobservingregistry.org',
-    googleTagId: 'G-K3ZYKQZDFB',
+    googleTagId: 'G-V91HKB2L1X',
 };

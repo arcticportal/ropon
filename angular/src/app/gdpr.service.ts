@@ -20,25 +20,50 @@ const gtagId = environment.googleTagId || 'G-K3ZYKQZDFB';
   providedIn: 'root'
 })
 export class GdprService {
+  private consented = false
 
   constructor() { }
 
   gaLoad() {
-    // look at als/src/app/gdpr.service.ts
     var w = window as any
     w.dataLayer = w.dataLayer || []
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied' })
+    var s = document.createElement('script')
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gtagId
+    s.async = true
+    document.head.appendChild(s)
     gtag('js', new Date())
-    gtag('config', gtagId) }
+    gtag('config', gtagId, { send_page_view: false }) }
 
   gaAllow() {
-    (window as any)['ga-disable-' + gtagId] = false
+    this.consented = true
+    ;(window as any)['ga-disable-' + gtagId] = false
     gtag('consent', 'update', {
-      ad_storage: 'granted', analytics_storage: 'granted'})
-    gtag('event', 'page_view') }
+      ad_storage: 'granted',
+      ad_user_data: 'granted',
+      ad_personalization: 'granted',
+      analytics_storage: 'granted' })
+    gtag('event', 'page_view', {
+      page_path: window.location.pathname,
+      page_title: document.title }) }
 
   gaDeny() {
+    this.consented = false
     deleteCookies(environment.frontendDomain, '_ga', '_gid')
     gtag('consent', 'update', {
-      ad_storage: 'denied', analytics_storage: 'denied'})
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied' })
     ;(window as any)['ga-disable-' + gtagId] = true }
+
+  trackPageView(url: string, title: string) {
+    if (this.consented)
+      gtag('event', 'page_view', {
+        page_path: url,
+        page_title: title }) }
 }
