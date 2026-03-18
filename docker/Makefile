@@ -46,6 +46,4 @@ loaddb:
 	sudo chown ${USER} postgres.tar.zst
 
 subst:
-	for tmp in app.config gdpr.service util.service;\
-	  do ./subst ../angular/src/app/$$tmp.ts.template\
-	       >../angular/src/app/$$tmp.ts; done
+	@true

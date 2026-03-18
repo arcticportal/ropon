@@ -1,3 +1,6 @@
+// DEPRECATED: This template is no longer used and will be deleted.
+// The canonical file is app.config.ts, which imports from Angular's environment.ts.
+// The subst target in docker/Makefile has been made a no-op.
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import {provideHttpClient} from '@angular/common/http'
