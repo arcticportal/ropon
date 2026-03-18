@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import {
   first, forkJoin, map, Observable, of, switchMap,
   tap
@@ -17,6 +17,7 @@ export class ApiService {
   private http = inject(CachedHttpService)
   private util = inject(UtilService)
   private db: Obj = {}
+  result = signal<Obj[]>([])
 
   constructor() { }
 
