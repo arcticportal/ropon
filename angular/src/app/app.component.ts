@@ -1,14 +1,13 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import {Subscription} from 'rxjs'
+import { Subscription } from 'rxjs';
 
-import {NgcCookieConsentService} from 'ngx-cookieconsent'
+import { NgcCookieConsentService } from 'ngx-cookieconsent';
 
-import {CookieConsentService} from './cookie-consent.service'
-import {GdprService} from './gdpr.service'
+import { GdprService } from './gdpr.service';
 
-import {HeaderComponent} from './header/header.component'
-import {FooterComponent} from './footer/footer.component'
+import { FooterComponent } from './footer/footer.component';
+import { HeaderComponent } from './header/header.component';
 
 @Component({
   selector: 'app-root',
@@ -29,9 +28,11 @@ export class AppComponent implements OnInit, OnDestroy {
     this.gdpr.gaLoad()
 
     this.statusChangeSubscription = c.statusChange$.subscribe(event => {
-      // FIXME: load first if not already
       if (event.status == 'allow') this.gdpr.gaAllow()
-      else this.gdpr.gaDeny() }) }
+      else this.gdpr.gaDeny() })
+
+    if (c.hasConsented()) this.gdpr.gaAllow()
+    else if (c.hasAnswered()) this.gdpr.gaDeny() }
 
   ngOnDestroy() {
     this.statusChangeSubscription.unsubscribe() }
