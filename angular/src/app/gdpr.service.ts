@@ -24,9 +24,14 @@ export class GdprService {
   constructor() { }
 
   gaLoad() {
-    // look at als/src/app/gdpr.service.ts
     var w = window as any
     w.dataLayer = w.dataLayer || []
+    gtag('consent', 'default', {
+      ad_storage: 'denied', analytics_storage: 'denied' })
+    var s = document.createElement('script')
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gtagId
+    s.async = true
+    document.head.appendChild(s)
     gtag('js', new Date())
     gtag('config', gtagId) }
 
