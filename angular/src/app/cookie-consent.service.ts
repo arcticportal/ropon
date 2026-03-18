@@ -1,3 +1,6 @@
+// UNUSED: This service is not referenced anywhere in the app.
+// Consent management is handled by ngx-cookieconsent (in app.config.ts) and GdprService.
+// Will be removed in a future cleanup.
 import { Injectable, inject } from '@angular/core';
 import {HttpClient} from '@angular/common/http'
 import {Observable} from 'rxjs'

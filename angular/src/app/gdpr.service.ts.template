@@ -1,3 +1,6 @@
+// DEPRECATED: This template is no longer used and will be deleted.
+// The canonical file is gdpr.service.ts, which imports from Angular's environment.ts.
+// The subst target in docker/Makefile has been made a no-op.
 import { Injectable } from '@angular/core';
 
 function gtag(...a: any[]) { (window as any).dataLayer.push(a) }

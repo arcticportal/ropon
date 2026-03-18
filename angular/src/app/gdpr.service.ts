@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
 
-function gtag(...a: any[]) { (window as any).dataLayer.push(a) }
+// eslint-disable-next-line prefer-rest-params
+function gtag(..._args: any[]) { (window as any).dataLayer.push(arguments) }
 
 function deleteCookies(domain: string, ...prefixes: string[]) {
   for (var c of document.cookie.split('; ')) {
