@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import {
-  first, forkJoin, map, Observable, of, switchMap,
+  first, forkJoin, map, Observable, of, shareReplay, switchMap,
   tap
 } from 'rxjs';
 
@@ -17,6 +17,7 @@ export class ApiService {
   private http = inject(CachedHttpService)
   private util = inject(UtilService)
   private db: Obj = {}
+  private list$: Observable<Obj> | null = null
   result = signal<Obj[]>([])
 
   constructor() { }
@@ -51,9 +52,12 @@ export class ApiService {
 	  first()) }
 
   getList(): Observable<Obj> {
-    return this.get(
-      'networks',
-      '?fields=logo_image,regions,subregions,domains,disciplines,asset_types,website_url,has_catalog,abbreviation,organization_name&limit=500') }
+    if (!this.list$)
+      this.list$ = this.get(
+        'networks',
+        '?fields=logo_image,regions,subregions,domains,disciplines,asset_types,website_url,has_catalog,abbreviation,organization_name&limit=500'
+      ).pipe(shareReplay(1))
+    return this.list$ }
 
   getPage(slug: string): Observable<Obj> {
     return this.get('ropon_pages', '?fields=body&slug=' + slug) }
