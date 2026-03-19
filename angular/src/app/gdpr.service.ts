@@ -32,7 +32,8 @@ export class GdprService {
       ad_storage: 'denied',
       ad_user_data: 'denied',
       ad_personalization: 'denied',
-      analytics_storage: 'denied' })
+      analytics_storage: 'denied',
+      wait_for_update: 500 })
     var s = document.createElement('script')
     s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gtagId
     s.async = true
@@ -42,7 +43,6 @@ export class GdprService {
 
   gaAllow() {
     this.consented = true
-    ;(window as any)['ga-disable-' + gtagId] = false
     gtag('consent', 'update', {
       ad_storage: 'granted',
       ad_user_data: 'granted',
@@ -59,12 +59,11 @@ export class GdprService {
       ad_storage: 'denied',
       ad_user_data: 'denied',
       ad_personalization: 'denied',
-      analytics_storage: 'denied' })
-    ;(window as any)['ga-disable-' + gtagId] = true }
+      analytics_storage: 'denied' }) }
 
-  trackPageView(url: string, title: string) {
+  trackPageView(url?: string, title?: string) {
     if (this.consented)
       gtag('event', 'page_view', {
-        page_path: url,
-        page_title: title }) }
+        page_path: url ?? window.location.pathname,
+        page_title: title ?? document.title }) }
 }
