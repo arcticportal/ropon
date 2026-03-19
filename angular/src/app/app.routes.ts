@@ -4,14 +4,18 @@ import {HomeComponent} from './home/home.component'
 import {NetworksComponent} from './networks/networks.component'
 import {PagesComponent} from './pages/pages.component'
 import {ContactComponent} from './contact/contact.component'
+import {networkResolver} from './network.resolver'
+import {pageResolver} from './page.resolver'
 
 export const suf = ' | RoPON'
 
 export const routes: Routes = [
   {path: '', component: HomeComponent,
    title: 'Registry of Polar Observing Networks'},
-  {path: 'networks/:ropon_id', component: NetworksComponent},
-  {path: 'ropon-pages/:slug', component: PagesComponent},
+  {path: 'networks/:ropon_id', component: NetworksComponent,
+   resolve: {network: networkResolver}},
+  {path: 'ropon-pages/:slug', component: PagesComponent,
+   resolve: {page: pageResolver}},
   {path: 'contact', component: ContactComponent,
    title: 'Contact RoPON' + suf},
 ];

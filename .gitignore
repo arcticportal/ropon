@@ -46,6 +46,7 @@ memory-bank/
 #Claude
 .claude/
 CLAUDE.md
+memory/
 
 # Devcontainer
 .devcontainer/.env.*

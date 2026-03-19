@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, TitleStrategy } from '@angular/router';
 
 import {
   NgcCookieConsentConfig,
@@ -9,6 +9,7 @@ import {
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import { AppTitleStrategy } from './app-title.strategy';
 
 const cookieConfig: NgcCookieConsentConfig = {
   cookie: {domain: environment.frontendDomain},
@@ -23,5 +24,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(),
-    provideNgcCookieConsent(cookieConfig)]
+    provideNgcCookieConsent(cookieConfig),
+    {provide: TitleStrategy, useClass: AppTitleStrategy}]
 };
