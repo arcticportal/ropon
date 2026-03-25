@@ -1,9 +1,9 @@
-import { Component, inject, computed } from '@angular/core';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router'
-import {NgClass, NgFor, NgIf, NgStyle} from '@angular/common'
+import { NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
+import { Component, computed, inject } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {ApiService} from '../api.service'
-import {Obj, UtilService} from '../util.service'
+import { ApiService } from '../api.service';
+import { Obj, UtilService } from '../util.service';
 
 @Component({
   selector: 'app-home-filter',
@@ -89,8 +89,9 @@ export class HomeFilterComponent {
       var k, v
       for (var d of a['items'])
 	for (k in r)
-	  if (typeof d[k] == 'string') r[k][d[k]] = null
-	  else for (v of d[k]) r[k][v] = null
+    if (typeof d[k] == 'string') r[k][d[k]] = null
+    else if (Array.isArray(d[k]))
+      for (v of d[k]) if (v != null) r[k][v] = null
       for (d of this.order) for (v of d.options)
 	if (v in r[d.name]) this.filters[d.name].list.push(v)
       //this.updateCount()
@@ -136,7 +137,8 @@ export class HomeFilterComponent {
 	v = d[k]
 	if (!(v in c)) c[v] = 0
 	++c[v] }
-      else for (v of d[k]) {
+  else if (Array.isArray(d[k])) for (v of d[k]) {
+    if (v == null) continue
 	if (!(v in c)) c[v] = 0
 	++c[v] } }
     return (k: string) => k in c ? c[k] : 0 })

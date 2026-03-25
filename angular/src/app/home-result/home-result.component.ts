@@ -1,9 +1,9 @@
+import { NgFor, NgIf } from '@angular/common';
 import { Component, HostListener, inject } from '@angular/core';
-import {NgFor, NgIf} from '@angular/common'
-import {ActivatedRoute, Params, RouterLink} from '@angular/router'
+import { ActivatedRoute, Params, RouterLink } from '@angular/router';
 
-import {Obj, UtilService} from '../util.service'
-import {ApiService} from '../api.service'
+import { ApiService } from '../api.service';
+import { Obj, UtilService } from '../util.service';
 
 function matchSearch(d: Params, s: string): boolean {
   var k, v
@@ -19,8 +19,10 @@ function matchSearch(d: Params, s: string): boolean {
   return f(d) }
 
 function match(d: Params, k: string, v: any): boolean {
-  return k == 'search' ? matchSearch(d, v) :
-    typeof d[k] == 'object' ? d[k].includes(v) : d[k] == v }
+  if (k == 'search') return matchSearch(d, v)
+  var x = d[k]
+  if (x == null) return false
+  return Array.isArray(x) ? x.includes(v) : x == v }
 
 function filtered(a: Obj[], p: Params): Obj[] {
   var k
