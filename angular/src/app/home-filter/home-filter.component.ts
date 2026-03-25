@@ -1,9 +1,9 @@
-import { Component, inject, computed } from '@angular/core';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router'
-import {NgClass, NgFor, NgIf, NgStyle} from '@angular/common'
+import { NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
+import { Component, computed, inject } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {ApiService} from '../api.service'
-import {Obj, UtilService} from '../util.service'
+import { ApiService } from '../api.service';
+import { Obj, UtilService } from '../util.service';
 
 @Component({
   selector: 'app-home-filter',

@@ -1,9 +1,9 @@
+import { NgFor, NgIf } from '@angular/common';
 import { Component, HostListener, inject } from '@angular/core';
-import {NgFor, NgIf} from '@angular/common'
-import {ActivatedRoute, Params, RouterLink} from '@angular/router'
+import { ActivatedRoute, Params, RouterLink } from '@angular/router';
 
-import {Obj, UtilService} from '../util.service'
-import {ApiService} from '../api.service'
+import { ApiService } from '../api.service';
+import { Obj, UtilService } from '../util.service';
 
 function matchSearch(d: Params, s: string): boolean {
   var k, v
