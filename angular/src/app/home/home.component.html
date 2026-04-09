@@ -11,7 +11,7 @@
     </div> -->
   </p>
   @if (window.innerWidth >= 992) {
-  <aside class="col-sm-4 col-md-3">
+  <aside class="col-sm-4 col-md-3 sticky-sidebar">
     <app-home-filter />
     <div class="d-grid mt-5">
       <a href="https://docs.google.com/forms/d/e/1FAIpQLScMiZuUXeNc8Pe0YFM-CMeXTzKNSvRP5j1xy07zMH8400WzCw/viewform?usp=sf_link"
@@ -20,7 +20,7 @@
     </div>
   </aside>
   <div class="col">
-    <div class="row">
+    <div class="sticky-search row">
       <div class="col position-relative">
 	<div class="input-group">
 	  <input type="text" class="form-control" [formControl]="ctrl"
@@ -31,6 +31,8 @@
 	   (click)="ctrl.setValue('')"></i>
       </div>
       <div class="col-auto pt-1">{{result ? result.count() : ''}}</div>
+    </div>
+    <div class="row">
       <app-home-result class="col-12" />
     </div>
   </div> }

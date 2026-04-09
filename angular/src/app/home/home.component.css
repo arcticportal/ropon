@@ -51,3 +51,18 @@ i
   --bs-btn-active-border-color: var(--ropon-blue);
   --bs-btn-disabled-bg: var(--ropon-blue);
   --bs-btn-disabled-border-color: var(--ropon-blue) }
+
+@media (min-width: 992px)
+{ .sticky-sidebar
+  { position: sticky;
+    top: 1rem;
+    align-self: flex-start;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto }
+
+  .sticky-search
+  { position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: white;
+    padding-block: 0.5rem } }
