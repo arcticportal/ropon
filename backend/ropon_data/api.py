@@ -7,6 +7,7 @@ from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from flags.state import flag_enabled
 import sys
+from datetime import datetime
 from ropon_data.models import (ControlledVocabularyModel, ObservingNetworkPage)
 from ropon_data.serializers import ObservingNetworkPageSerializer
 from ropon_data.renderers import ObservingNetworkCSVRenderer
@@ -83,7 +84,9 @@ class ObservingNetworkPageViewSet(PagesAPIViewSet):
             # filtering out unwanted fields like logo_image.
             request.GET = request.GET.copy()
             request.GET['fields'] = '*'
-            FILE_NAME = "observing_networks_list.csv"
+            # Generate filename with current date in YYYYMMDD format for version tracking
+            current_date = datetime.now().strftime('%Y%m%d')
+            FILE_NAME = f"RoPON_observing_networks_{current_date}.csv"
             # Return all records without pagination for CSV
             queryset = self.get_queryset()
             self.check_query_parameters(queryset)
