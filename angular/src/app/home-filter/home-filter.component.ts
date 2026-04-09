@@ -1,5 +1,5 @@
 import { NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, EventEmitter, Output, computed, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { ApiService } from '../api.service';
@@ -13,6 +13,7 @@ import { Obj, UtilService } from '../util.service';
   styleUrl: './home-filter.component.css'
 })
 export class HomeFilterComponent {
+  @Output() mobileExpandedChange = new EventEmitter<boolean>()
   private route = inject(ActivatedRoute)
   private router = inject(Router)
   private api = inject(ApiService)
@@ -127,6 +128,10 @@ export class HomeFilterComponent {
 
   stylRadio(k: string, v: any) {
     return 'bi-record' + (this.selected(k, String(v)) ? '2' : '') }
+
+  toggleMobile() {
+    this.show = !this.show
+    this.mobileExpandedChange.emit(this.show) }
 
   toggle(k: string) { this.filters[k].show = !this.filters[k].show }
 

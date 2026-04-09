@@ -37,16 +37,19 @@
     </div>
   </div> }
   @else {
-  <div class="col-12 position-relative">
-    <div class="input-group">
-      <input type="text" class="form-control" [formControl]="ctrl"
-	     placeholder="Search observing networks"
-	     aria-label="Search" />
+  <div class="mobile-sticky-bar col-12" [class.mobile-bar-hidden]="mobileBarHidden">
+    <div class="position-relative">
+      <div class="input-group">
+        <input type="text" class="form-control" [formControl]="ctrl"
+	       placeholder="Search observing networks"
+	       aria-label="Search" />
+      </div>
+      <i [class]="'bi-' + (ctrl.value ? 'x' : 'search')"
+	 (click)="ctrl.setValue('')"></i>
     </div>
-	<i [class]="'bi-' + (ctrl.value ? 'x' : 'search')"
-	   (click)="ctrl.setValue('')"></i>
+    <app-home-filter class="d-block mt-2"
+	     (mobileExpandedChange)="onMobileFilterExpanded($event)" />
   </div>
-  <app-home-filter class="col-12 mt-3" />
   <div class="ms-auto col-auto mt-2">{{
     result ? result.count() : ''}}</div>
   <app-home-result class="col-12" />

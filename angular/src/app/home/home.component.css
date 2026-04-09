@@ -52,6 +52,18 @@ i
   --bs-btn-disabled-bg: var(--ropon-blue);
   --bs-btn-disabled-border-color: var(--ropon-blue) }
 
+@media (max-width: 991.98px)
+{ .mobile-sticky-bar
+  { position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: white;
+    padding-block: 0.5rem;
+    transition: transform 0.25s ease }
+
+  .mobile-bar-hidden
+  { transform: translateY(-110%) } }
+
 @media (min-width: 992px)
 { .sticky-sidebar
   { position: sticky;
