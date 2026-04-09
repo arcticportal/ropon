@@ -200,7 +200,7 @@ class ObservingNetworkPage(OpenAPIModelMixin, Page):
     )
     description = models.TextField(
         verbose_name='Network Description',
-        help_text='Short summary of the observing network, including geographic or thematic scope.'
+        help_text='Short summary of the observing network, including geographic or thematic scope. Enter as a single paragraph.'
     )
     website_url = models.URLField(
         verbose_name='Network Website',
