@@ -11,7 +11,7 @@
     </div> -->
   </p>
   @if (window.innerWidth >= 992) {
-  <aside class="col-sm-4 col-md-3">
+  <aside class="col-sm-4 col-md-3 sticky-sidebar">
     <app-home-filter />
     <div class="d-grid mt-5">
       <a href="https://docs.google.com/forms/d/e/1FAIpQLScMiZuUXeNc8Pe0YFM-CMeXTzKNSvRP5j1xy07zMH8400WzCw/viewform?usp=sf_link"
@@ -20,7 +20,7 @@
     </div>
   </aside>
   <div class="col">
-    <div class="row">
+    <div class="sticky-search row">
       <div class="col position-relative">
 	<div class="input-group">
 	  <input type="text" class="form-control" [formControl]="ctrl"
@@ -31,20 +31,25 @@
 	   (click)="ctrl.setValue('')"></i>
       </div>
       <div class="col-auto pt-1">{{result ? result.count() : ''}}</div>
+    </div>
+    <div class="row">
       <app-home-result class="col-12" />
     </div>
   </div> }
   @else {
-  <div class="col-12 position-relative">
-    <div class="input-group">
-      <input type="text" class="form-control" [formControl]="ctrl"
-	     placeholder="Search observing networks"
-	     aria-label="Search" />
+  <div class="mobile-sticky-bar col-12" [class.mobile-bar-hidden]="mobileBarHidden">
+    <div class="position-relative">
+      <div class="input-group">
+        <input type="text" class="form-control" [formControl]="ctrl"
+	       placeholder="Search observing networks"
+	       aria-label="Search" />
+      </div>
+      <i [class]="'bi-' + (ctrl.value ? 'x' : 'search')"
+	 (click)="ctrl.setValue('')"></i>
     </div>
-	<i [class]="'bi-' + (ctrl.value ? 'x' : 'search')"
-	   (click)="ctrl.setValue('')"></i>
+    <app-home-filter class="d-block mt-2"
+	     (mobileExpandedChange)="onMobileFilterExpanded($event)" />
   </div>
-  <app-home-filter class="col-12 mt-3" />
   <div class="ms-auto col-auto mt-2">{{
     result ? result.count() : ''}}</div>
   <app-home-result class="col-12" />

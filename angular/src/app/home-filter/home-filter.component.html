@@ -20,7 +20,7 @@
       <h4 class="mb-0">Filter by</h4>
       @if (window.innerWidth < 992) {
       <i [class]="'mt-1 ms-2 bi-chevron-' + (show ? 'up' : 'down')"
-	 (click)="show = !show" ></i> }
+	 (click)="toggleMobile()" ></i> }
       @if (show || window.innerWidth >= 992) {
       <img src="/ClearALL_Icon.png" class="ms-auto"
 	   (click)="clear()" /> }
