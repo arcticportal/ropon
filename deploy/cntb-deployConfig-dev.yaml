@@ -25,14 +25,3 @@ service_ingres:
     ssl_host: media.ropon.dev.cntb.arcticportal.org
     port: 80
 
-secrets:
-  - name: DB_PASSWORD
-    valueFrom:
-      cntb:
-        type: password
-        id : 93050
-  - name: ACR_APP_TOKEN
-    valueFrom: 
-      cntb:
-        type: ssh
-        id : 93287
