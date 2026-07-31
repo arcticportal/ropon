@@ -1,5 +1,8 @@
 name: Build and Push Wagtail Docker Image
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   # Cancel any in-progress runs of this workflow for the same branch
