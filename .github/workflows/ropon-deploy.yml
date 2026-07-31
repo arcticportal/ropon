@@ -46,8 +46,15 @@ env:
   PROD_DEPLOYCONFIG_FILE: deploy/cntb-deployConfig-prd.yaml
   PROD_ENV_FILE: deploy/.env.prd
 
+# Read-only default token; deployment uses repository/env secrets via curl only.
+permissions:
+  contents: read
+
 jobs:
   deploy:
+    # Gate the deploy behind a GitHub Environment approval + branch restriction.
+    # 'production' env for releases / production host, otherwise 'dev'.
+    environment: ${{ (github.event_name == 'release' || github.event.inputs.deployment_host == 'production') && 'production' || 'dev' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
