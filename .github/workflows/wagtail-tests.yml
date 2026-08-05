@@ -1,16 +1,8 @@
 name: Run Wagtail Tests
 
-# Reusable: called by .github/workflows/ci.yml on PRs, and by push below.
+# Reusable: called by .github/workflows/ci.yml (PR tests gate).
 on:
   workflow_call:
-  push:
-    paths:
-      - backend/**
-      - .github/workflows/wagtail-tests.yml
-    branches:
-      - dev
-      - main
-
   workflow_dispatch:
 
 permissions:
