@@ -1,11 +1,8 @@
 name: Run Wagtail Tests
 
+# Reusable: called by .github/workflows/ci.yml on PRs, and by push below.
 on:
-  pull_request:
-    types: [synchronize, opened, reopened]
-    paths:
-      - backend/**
-      - .github/workflows/wagtail-tests.yml
+  workflow_call:
   push:
     paths:
       - backend/**
@@ -15,7 +12,10 @@ on:
       - main
 
   workflow_dispatch:
-      
+
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   # Cancel any in-progress runs of this workflow for the same branch

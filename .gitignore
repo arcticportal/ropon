@@ -48,6 +48,12 @@ memory-bank/
 CLAUDE.md
 memory/
 
+#Coding agents
+AGENTS.md
+
 # Devcontainer
 .devcontainer/.env.*
 
+# Environment variables
+.env
+.env.*

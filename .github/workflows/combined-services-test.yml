@@ -12,7 +12,9 @@ name: Combined Services Health Check
 # and check their health.
 # It also includes steps to stop the services and remove any orphaned containers.
 
+# Reusable: called by .github/workflows/ci.yml on PRs, and by push below.
 on:
+  workflow_call:
   push:
     branches:
       - main
@@ -26,19 +28,9 @@ on:
       - 'backend/**'
       - 'deploy/backend/.env.test'
       - '.github/workflows/combined-services-test.yml'
-  pull_request:
-    branches:
-      - main
-      - dev
-    paths:
-      - 'angular/**'
-      - 'deploy/frontend/Dockerfile'
-      - 'deploy/frontend/nginx.conf'
-      - 'deploy/frontend/.env.test'
-      - 'deploy/docker-compose-test.yml'
-      - 'backend/**'
-      - 'deploy/backend/.env.test'
-      - '.github/workflows/combined-services-test.yml'
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
