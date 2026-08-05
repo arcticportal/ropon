@@ -1,10 +1,17 @@
-# PR gate: detects changed paths and runs only the relevant jobs,
-# then aggregates their results into a single `gate` check.
-# Require the `gate` job in your branch ruleset.
+# PR gate + merge router: detects changed paths via dorny/paths-filter and runs
+# only the relevant reusable workflows, then aggregates results into a single
+# `gate` check. Require the `gate` job in your branch ruleset.
+#
+# Single source of truth for "what changed -> what runs":
+#   - PR:        tests + combined smoke + build-only (no image pushes)
+#   - push/merge: only the changed area's image build+push
+# Child workflows are reusable-only (no standalone push/workflow_run triggers).
 name: CI Gate
 
 on:
   pull_request:
+    branches: [main, dev]
+  push:
     branches: [main, dev]
   workflow_dispatch:
 
@@ -17,68 +24,87 @@ concurrency:
 
 jobs:
   # Detect which areas changed so downstream jobs can skip themselves.
+  # dorny/paths-filter handles pull_request/push/workflow_dispatch uniformly,
+  # comparing against the PR base / previous branch tip / HEAD^ respectively.
   changes:
     runs-on: ubuntu-latest
     outputs:
-      backend: ${{ steps.r.outputs.backend }}
-      angular: ${{ steps.r.outputs.angular }}
-      deploy: ${{ steps.r.outputs.deploy }}
-      nginx_media: ${{ steps.r.outputs.nginx_media }}
+      backend: ${{ steps.f.outputs.backend }}
+      angular: ${{ steps.f.outputs.angular }}
+      deploy: ${{ steps.f.outputs.deploy }}
+      nginx_media: ${{ steps.f.outputs.nginx_media }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Detect changed paths
-        id: r
-        run: |
-          BASE="${{ github.event.pull_request.base.sha }}"
-          # Fallback for workflow_dispatch (no PR base): compare to previous commit.
-          [ -n "$BASE" ] || BASE="HEAD^"
-          changed=$(git diff --name-only "$BASE"...HEAD)
-          echo "Changed files:"
-          echo "$changed"
-          {
-            printf 'backend=%s\n' "$(printf '%s\n' "$changed" | grep -q '^backend/' && echo true || echo false)"
-            printf 'angular=%s\n' "$(printf '%s\n' "$changed" | grep -q '^angular/' && echo true || echo false)"
-            printf 'deploy=%s\n' "$(printf '%s\n' "$changed" | grep -Eq '^deploy/(frontend|backend|nginx-media|docker-compose-test)' && echo true || echo false)"
-            printf 'nginx_media=%s\n' "$(printf '%s\n' "$changed" | grep -q '^deploy/nginx-media/' && echo true || echo false)"
-          } >> "$GITHUB_OUTPUT"
+        id: f
+        # Pinned to v3 HEAD for supply-chain safety (repo holds secrets).
+        uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            angular:
+              - 'angular/**'
+            deploy:
+              - 'deploy/frontend/**'
+              - 'deploy/backend/**'
+              - 'deploy/nginx-media/**'
+              - 'deploy/docker-compose-test*'
+            nginx_media:
+              - 'deploy/nginx-media/**'
 
-  # Backend changes -> run wagtail tests.
+  # Backend changes on a PR -> run wagtail tests. Not re-run on merge (PR gated).
   backend-tests:
     needs: changes
-    if: needs.changes.outputs.backend == 'true'
+    if: github.event_name == 'pull_request' && needs.changes.outputs.backend == 'true'
     uses: ./.github/workflows/wagtail-tests.yml
 
-  # Angular changes -> verify the image builds (no push on PRs).
+  # Frontend/backend/deploy changes on a PR -> combined health check.
+  combined:
+    needs: changes
+    if: github.event_name == 'pull_request' && (needs.changes.outputs.backend == 'true' || needs.changes.outputs.angular == 'true' || needs.changes.outputs.deploy == 'true')
+    uses: ./.github/workflows/combined-services-test.yml
+
+  # Angular changes -> build-only on PR, build+push on merge.
   angular-build:
     needs: changes
     if: needs.changes.outputs.angular == 'true'
     uses: ./.github/workflows/angular-build.yml
+    with:
+      push: ${{ github.event_name == 'push' }}
+    secrets: inherit
 
-  # Frontend and/or backend and/or test compose changes -> combined health check.
-  combined:
-    needs: changes
-    if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.angular == 'true' || needs.changes.outputs.deploy == 'true'
-    uses: ./.github/workflows/combined-services-test.yml
-
-  # nginx-media changes -> verify the image builds (no push on PRs).
+  # nginx-media changes -> build-only on PR, build+push on merge.
   nginx-media-build:
     needs: changes
     if: needs.changes.outputs.nginx_media == 'true'
     uses: ./.github/workflows/nginx-media-build.yml
+    with:
+      push: ${{ github.event_name == 'push' }}
+    secrets: inherit
+
+  # Backend changes -> build-only on PR, build+push on merge.
+  wagtail-build:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    uses: ./.github/workflows/wagtail-dev-build.yml
+    with:
+      push: ${{ github.event_name == 'push' }}
+    secrets: inherit
 
   # Single required check: green only if every job that ran passed.
   # Skipped jobs (path not changed) are ignored.
   gate:
-    needs: [backend-tests, angular-build, combined, nginx-media-build]
+    needs: [backend-tests, combined, angular-build, nginx-media-build, wagtail-build]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Aggregate results
         run: |
-          for r in "${{ needs.backend-tests.result }}" "${{ needs.angular-build.result }}" "${{ needs.combined.result }}" "${{ needs.nginx-media-build.result }}"; do
+          for r in "${{ needs.backend-tests.result }}" "${{ needs.combined.result }}" "${{ needs.angular-build.result }}" "${{ needs.nginx-media-build.result }}" "${{ needs.wagtail-build.result }}"; do
             echo "result=$r"
             if [ "$r" = "failure" ] || [ "$r" = "cancelled" ]; then
               echo "blocked by a failed/cancelled job"

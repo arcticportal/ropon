@@ -1,27 +1,19 @@
 name: Run Wagtail Tests
 
-# Reusable: called by .github/workflows/ci.yml on PRs, and by push below.
+# Reusable: called by .github/workflows/ci.yml (PR tests gate).
 on:
   workflow_call:
-  push:
-    paths:
-      - backend/**
-      - .github/workflows/wagtail-tests.yml
-    branches:
-      - dev
-      - main
-
   workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  # Cancel any in-progress runs of this workflow for the same branch
-  # This is useful to avoid multiple builds for the same branch
-  # and to save resources.
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   # Cancel any in-progress runs of this workflow for the same branch
+#   # This is useful to avoid multiple builds for the same branch
+#   # and to save resources.
+#   cancel-in-progress: true
 
       
 jobs:
