@@ -75,6 +75,7 @@ jobs:
     uses: ./.github/workflows/angular-build.yml
     with:
       push: ${{ github.event_name == 'push' }}
+    secrets: inherit
 
   # nginx-media changes -> build-only on PR, build+push on merge.
   nginx-media-build:
@@ -83,6 +84,7 @@ jobs:
     uses: ./.github/workflows/nginx-media-build.yml
     with:
       push: ${{ github.event_name == 'push' }}
+    secrets: inherit
 
   # Backend changes -> build-only on PR, build+push on merge.
   wagtail-build:
@@ -91,6 +93,7 @@ jobs:
     uses: ./.github/workflows/wagtail-dev-build.yml
     with:
       push: ${{ github.event_name == 'push' }}
+    secrets: inherit
 
   # Single required check: green only if every job that ran passed.
   # Skipped jobs (path not changed) are ignored.
