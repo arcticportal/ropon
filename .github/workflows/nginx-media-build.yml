@@ -15,10 +15,10 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  # Cancel any in-progress runs of this workflow for the same branch
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   # Cancel any in-progress runs of this workflow for the same branch
+#   cancel-in-progress: true
 
 jobs:
   build_and_push_nginx_media_docker:

@@ -17,12 +17,12 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  # Cancel any in-progress runs of this workflow for the same branch
-  # This is useful to avoid multiple builds for the same branch
-  # and to save resources.
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   # Cancel any in-progress runs of this workflow for the same branch
+#   # This is useful to avoid multiple builds for the same branch
+#   # and to save resources.
+#   cancel-in-progress: true
 
 jobs:
   build_and_push_angular_docker:
