@@ -27,6 +27,19 @@ h3
 b
 { font-weight: var(--ropon-bold) }
 
+/* Honeypot wrapper: positioned off-screen AND shrunk to 1px AND overflow
+   hidden, so a bot must inspect multiple properties to detect the trap. */
+.hp-wrapper {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden }
+
+.hp-wrapper input {
+  position: absolute;
+  left: -9999px }
+
 /* contact form */
 .contact-form {
   max-width: 600px;
