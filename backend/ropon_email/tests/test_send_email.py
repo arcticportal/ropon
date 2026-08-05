@@ -298,6 +298,99 @@ class SendContactEmailAPIViewTestCase(TestCase):
         DEFAULT_FROM_EMAIL='noreply@ropon.org'
     )
     @patch('ropon_email.views.EmailMessage')
+    def test_honeypot_filled_returns_silent_success(self, mock_email_message):
+        """
+        A submission that fills a honeypot candidate field is treated as a bot.
+
+        Verifies the response is a silent HTTP 200 carrying the SAME success
+        body as a real submission (so the bot can't tell it was caught) and
+        that no email is actually sent.
+        """
+        # Arrange: fill one of the honeypot candidate fields
+        data = dict(self.valid_data, website='https://spam.example')
+
+        # Act
+        response = self.client.post(self.url, data, format='json')
+
+        # Assert: silent 200 with real-looking body, no email sent
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"message": "Email sent successfully."})
+        mock_email_message.assert_not_called()
+
+    @override_settings(
+        ROPON_ADMIN_EMAIL='admin@ropon.org',
+        DEFAULT_FROM_EMAIL='noreply@ropon.org'
+    )
+    @patch('ropon_email.views.EmailMessage')
+    def test_timing_too_fast_returns_silent_success(self, mock_email_message):
+        """
+        A submission whose _ts is only milliseconds old (faster than
+        MIN_FORM_SECONDS) is treated as a bot: silent 200, no email sent.
+        """
+        # Arrange: _ts stamped "now" -> near-zero elapsed
+        data = dict(self.valid_data, _ts=int(time.time() * 1000))
+
+        # Act
+        response = self.client.post(self.url, data, format='json')
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"message": "Email sent successfully."})
+        mock_email_message.assert_not_called()
+
+    @override_settings(
+        ROPON_ADMIN_EMAIL='admin@ropon.org',
+        DEFAULT_FROM_EMAIL='noreply@ropon.org'
+    )
+    @patch('ropon_email.views.EmailMessage')
+    def test_timing_old_enough_sends(self, mock_email_message):
+        """
+        A submission with an _ts comfortably older than MIN_FORM_SECONDS passes
+        the timing check and sends normally. Guards against the check being too
+        aggressive.
+        """
+        # Arrange
+        mock_email_instance = MagicMock()
+        mock_email_message.return_value = mock_email_instance
+        # _ts 10s in the past -> elapsed well above the 3s threshold
+        data = dict(self.valid_data, _ts=int(time.time() * 1000) - 10000)
+
+        # Act
+        response = self.client.post(self.url, data, format='json')
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"message": "Email sent successfully."})
+        mock_email_instance.send.assert_called_once_with(fail_silently=False)
+
+    @override_settings(
+        ROPON_ADMIN_EMAIL='admin@ropon.org',
+        DEFAULT_FROM_EMAIL='noreply@ropon.org'
+    )
+    @patch('ropon_email.views.EmailMessage')
+    def test_timing_missing_still_sends(self, mock_email_message):
+        """
+        A submission carrying no _ts (fail-open) sends normally. Documents that
+        the timing check never blocks when the timestamp is absent -- this is
+        what keeps the behavior safe for clients that don't send timing.
+        """
+        # Arrange
+        mock_email_instance = MagicMock()
+        mock_email_message.return_value = mock_email_instance
+
+        # Act: valid_data has no _ts
+        response = self.client.post(self.url, self.valid_data, format='json')
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"message": "Email sent successfully."})
+        mock_email_instance.send.assert_called_once_with(fail_silently=False)
+
+    @override_settings(
+        ROPON_ADMIN_EMAIL='admin@ropon.org',
+        DEFAULT_FROM_EMAIL='noreply@ropon.org'
+    )
+    @patch('ropon_email.views.EmailMessage')
     @patch('rest_framework.throttling.SimpleRateThrottle.timer') # Patch the throttle's timer method
     def test_throttling(self, mock_timer, mock_email_message): # Add mock_timer back
         """

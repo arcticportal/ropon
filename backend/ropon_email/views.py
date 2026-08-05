@@ -42,8 +42,18 @@ class SendContactEmailAPIView(APIView):
         Returns:
             Response: JSON response indicating success or failure.
         """
-        serializer = ContactFormSerializer(data=request.data)
+        # context lets the serializer's validate() read the raw payload
+        # (honeypot field + _ts timing) which DRF otherwise strips.
+        serializer = ContactFormSerializer(
+            data=request.data, context={'request': request})
         if serializer.is_valid():
+            # Silent 200 for suspected bots: same body as real success so the
+            # bot cannot distinguish a blocked hit from a real one. No email
+            # is sent.
+            if getattr(serializer, 'bot_detected', False):
+                return Response(
+                    {"message": "Email sent successfully."},
+                    status=status.HTTP_200_OK)
             name = serializer.validated_data['name']
             reply_to_email = serializer.validated_data['from_email_id']
             message_body = serializer.validated_data['message']

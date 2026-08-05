@@ -26,6 +26,24 @@ export class ContactComponent {
     from_email_id: ['', [Validators.required, Validators.email]],
     message: ['', [Validators.required, Validators.minLength(10)]]})
 
+  // Honeypot candidate field names. The backend (ropon_email/serializers.py
+  // HONEYPOT_FIELDS) treats ANY of these being non-empty as a bot. The backend
+  // never fetches this list, so a bot can't learn the full set in one request.
+  // MUST stay in sync with that backend constant.
+  private honeypotCandidates = ['website', 'url', 'homepage', 'company', 'phone_alt', 'fax']
+  // One candidate is rendered at random per mount so the trap field name isn't
+  // predictable across visits.
+  honeypotField = this.honeypotCandidates[Math.floor(Math.random() * this.honeypotCandidates.length)]
+  // Epoch ms stamped at construction (~component mount); sent as _ts. Backend
+  // rejects submissions faster than MIN_FORM_SECONDS (fail-open if absent).
+  private formLoadedAt = Date.now()
+
+  constructor() {
+    // Register the honeypot under its random name so its value flows into the
+    // POST payload under that key. Real users never touch it -> empty -> OK.
+    this.contactForm.addControl(this.honeypotField, this.fb.control(''))
+  }
+
   onSubmit() {
     if (this.contactForm.invalid) return
     this.submissionState = 'submitting'
@@ -39,7 +57,7 @@ ${formData.message}
 `
     this.http.post(
       environment.backendURL + '/api/v2/email/contact-us/',
-      {...formData, message: msg}).subscribe({
+      {...formData, message: msg, _ts: this.formLoadedAt}).subscribe({
 	next: () => {
 	  this.submissionState = 'success'
 	  this.contactForm.reset() },

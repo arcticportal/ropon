@@ -47,6 +47,15 @@
 	    least 10 characters</div>
 	</div>
       </div>
+      <!-- Honeypot field: hidden from humans via CSS + a11y attrs. Name is
+           randomized per mount (honeypotField). Bots that fill every field
+           trip it; backend silently drops the submission. -->
+      <div class="hp-wrapper" aria-hidden="true">
+	<label [for]="honeypotField">Leave this empty</label>
+	<input [id]="honeypotField" type="text"
+	       [formControlName]="honeypotField" tabindex="-1"
+	       autocomplete="off" />
+      </div>
       <button type="submit"
 	      [disabled]="contactForm.invalid || submissionState === 'submitting'">
 	<span *ngIf="submissionState !== 'submitting'">Send
