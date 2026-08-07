@@ -49,7 +49,7 @@
       </div>
       <!-- Honeypot field: hidden from humans via CSS + a11y attrs. Name is
            randomized per mount (honeypotField). Bots that fill every field
-           trip it; backend silently drops the submission. -->
+           trip it; backend silently drops the submission. Aligned with backend honeypot validation -->
       <div class="hp-wrapper" aria-hidden="true">
 	<label [for]="honeypotField">Leave this empty</label>
 	<input [id]="honeypotField" type="text"

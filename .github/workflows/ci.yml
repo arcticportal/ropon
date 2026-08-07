@@ -43,6 +43,12 @@ jobs:
         # Pinned to v3 HEAD for supply-chain safety (repo holds secrets).
         uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590
         with:
+          # dorny falls back to repository.default_branch (= 'dev' here) when 'base'
+          # is unset. On a push to 'main' that diffs dev...main, which is empty once dev
+          # is merged into main, so no changes are detected and build jobs never run.
+          # Force base = pushed branch on push so dorny diffs github.event.before..head
+          # (PR runs ignore 'base' and use the PR file API, so this is push-only).
+          base: ${{ github.event_name == 'push' && github.ref_name || '' }}
           filters: |
             backend:
               - 'backend/**'

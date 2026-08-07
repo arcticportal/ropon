@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 # Honeypot candidate field names. The frontend renders ONE of these at random
 # per form mount (see angular/src/app/contact/contact.component.ts honeypotCandidates).
 # MUST stay in sync between the two lists. We never expose this set over the API,
-# otherwise a bot could learn the full candidate set at once.
+# otherwise a bot could learn the full candidate set at once. 
 HONEYPOT_FIELDS = ['website', 'url', 'homepage', 'company', 'phone_alt', 'fax']
 
 # Minimum time (seconds) a human is expected to spend on the form. Submissions
