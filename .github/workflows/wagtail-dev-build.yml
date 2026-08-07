@@ -57,8 +57,15 @@ jobs:
             BRANCH_NAME="${{ github.event.inputs.branch }}"
             echo "Manual dispatch detected, using branch: ${BRANCH_NAME}"
           else
-            # For workflow_call, use the caller's branch (dev/main)
-            BRANCH_NAME="${{ github.ref_name }}"
+            # For workflow_call, use the caller's branch. ref_name is the branch
+            # on push but "<pr>/merge" on pull_request, so prefer head_ref there
+            # (image isn't pushed on PRs anyway; tags are build-only).
+            HEAD_REF="${{ github.head_ref }}"
+            if [ -n "$HEAD_REF" ]; then
+              BRANCH_NAME="$HEAD_REF"
+            else
+              BRANCH_NAME="${{ github.ref_name }}"
+            fi
             echo "Workflow call detected, using branch: ${BRANCH_NAME}"
           fi
           echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
@@ -67,8 +74,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # Checkout the specific branch that triggered the workflow
-          ref: ${{ steps.branch.outputs.branch_name }}
+          # Manual dispatch checks out the selected branch. For ci.yml calls,
+          # github.ref_name is "<pr>/merge" on pull requests (not a fetchable
+          # branch), so use github.ref (refs/pull/<n>/merge on PRs,
+          # refs/heads/<branch> on push) instead.
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.branch || github.ref }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
