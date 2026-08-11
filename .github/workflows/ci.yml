@@ -23,6 +23,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # main only receives promotions from dev; block any other PR source branch.
+  # Mirrors the same check in arcticportal/posh's ci.yml.
+  main-source-check:
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: PRs to main must come from dev
+        run: |
+          if [ "${{ github.head_ref }}" != "dev" ]; then
+            echo "::error::PRs targeting main must originate from the dev branch (head: ${{ github.head_ref }})"
+            exit 1
+          fi
+          echo "promotion PR from dev - ok"
+
   # Detect which areas changed so downstream jobs can skip themselves.
   # dorny/paths-filter handles pull_request/push/workflow_dispatch uniformly,
   # comparing against the PR base / previous branch tip / HEAD^ respectively.
@@ -104,13 +118,13 @@ jobs:
   # Single required check: green only if every job that ran passed.
   # Skipped jobs (path not changed) are ignored.
   gate:
-    needs: [backend-tests, combined, angular-build, nginx-media-build, wagtail-build]
+    needs: [main-source-check, backend-tests, combined, angular-build, nginx-media-build, wagtail-build]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Aggregate results
         run: |
-          for r in "${{ needs.backend-tests.result }}" "${{ needs.combined.result }}" "${{ needs.angular-build.result }}" "${{ needs.nginx-media-build.result }}" "${{ needs.wagtail-build.result }}"; do
+          for r in "${{ needs.main-source-check.result }}" "${{ needs.backend-tests.result }}" "${{ needs.combined.result }}" "${{ needs.angular-build.result }}" "${{ needs.nginx-media-build.result }}" "${{ needs.wagtail-build.result }}"; do
             echo "result=$r"
             if [ "$r" = "failure" ] || [ "$r" = "cancelled" ]; then
               echo "blocked by a failed/cancelled job"
