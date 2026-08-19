@@ -174,9 +174,6 @@ All runtime configuration is environment-driven (loaded via `environs`, which au
 `DJANGO_ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `CORS_ALLOWED_ORIGINS`, and `REDIS_HOST`.
 See the example env files under `deploy/backend/` and `deploy/frontend/` for the full list.
 
-> [!TIP]
-> For deeper development guidance — exact test commands, conventions, and gotchas — see
-> [`AGENTS.md`](./AGENTS.md).
 
 ## Project structure
 
@@ -208,11 +205,6 @@ docker compose -f deploy/backend/docker-compose-test.yml run wagtail python mana
 docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py test
 ```
 
-Frontend tests use Karma + Jasmine (require Chrome):
-
-```bash
-cd angular && npm test
-```
 
 ## Resources
 
