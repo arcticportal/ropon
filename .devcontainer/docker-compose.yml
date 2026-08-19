@@ -11,7 +11,11 @@ services:
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
-
+    # Docker-published ports bind on the WSL2 host directly (the engine runs
+    # in WSL2); "forwardPorts" in devcontainer.json separately exposes them
+    # on the Windows host. Both access paths coexist.
+    ports:
+      - "8000:8000"
     # network_mode: service:db
     # networks:
     #   - backend
@@ -29,6 +33,11 @@ services:
     restart: unless-stopped
     ports:
       - "5432:5432"
+      # 4200 is published HERE, not on the frontend service: frontend uses
+      # network_mode: service:db, so it shares this netns and Docker ignores
+      # ports declared there. This is what makes the Angular dev server
+      # reachable from the WSL2 host (localhost:4200).
+      - "4200:4200"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     # networks:
@@ -51,6 +60,8 @@ services:
     volumes:
       - ..:/workspace
     network_mode: service:db
+    # No "ports:" here -- with network_mode: service:db this service shares
+    # the db netns and Docker would ignore them. 4200 is published on db.
     # networks:
     #   - backend
     env_file:
