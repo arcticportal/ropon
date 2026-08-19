@@ -50,6 +50,10 @@ memory/
 
 #Coding agents
 AGENTS.md
+.agents/
+
+#Playwright
+.playwright/
 
 # Devcontainer
 .devcontainer/.env.*
