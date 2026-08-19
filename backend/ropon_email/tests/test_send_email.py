@@ -298,16 +298,71 @@ class SendContactEmailAPIViewTestCase(TestCase):
         DEFAULT_FROM_EMAIL='noreply@ropon.org'
     )
     @patch('ropon_email.views.EmailMessage')
-    def test_honeypot_filled_returns_silent_success(self, mock_email_message):
+    def test_honeypot_filled_slow_still_sends(self, mock_email_message):
         """
-        A submission that fills a honeypot candidate field is treated as a bot.
+        A submission that fills a honeypot candidate field but takes a human
+        amount of time is NOT treated as a bot: browser autofill can populate
+        the trap for genuine users, so the email is still sent (the trip is
+        logged server-side instead). Guards against losing real messages.
+        """
+        # Arrange: mock send; fill a honeypot candidate with an old _ts
+        mock_email_instance = MagicMock()
+        mock_email_message.return_value = mock_email_instance
+        data = dict(
+            self.valid_data,
+            fax_number='https://user-site.example',
+            _ts=int(time.time() * 1000) - 10000,  # 10s old -> human speed
+        )
 
-        Verifies the response is a silent HTTP 200 carrying the SAME success
-        body as a real submission (so the bot can't tell it was caught) and
-        that no email is actually sent.
+        # Act
+        response = self.client.post(self.url, data, format='json')
+
+        # Assert: real 200 and the email is actually sent
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"message": "Email sent successfully."})
+        mock_email_instance.send.assert_called_once_with(fail_silently=False)
+
+    @override_settings(
+        ROPON_ADMIN_EMAIL='admin@ropon.org',
+        DEFAULT_FROM_EMAIL='noreply@ropon.org'
+    )
+    @patch('ropon_email.views.EmailMessage')
+    def test_honeypot_filled_no_ts_still_sends(self, mock_email_message):
         """
-        # Arrange: fill one of the honeypot candidate fields
-        data = dict(self.valid_data, website='https://spam.example')
+        A filled honeypot with no _ts at all (timing fails open) is delivered:
+        the honeypot alone never blocks. Documents the fail-open combination.
+        """
+        # Arrange
+        mock_email_instance = MagicMock()
+        mock_email_message.return_value = mock_email_instance
+        data = dict(self.valid_data, fax_number='https://user-site.example')
+
+        # Act
+        response = self.client.post(self.url, data, format='json')
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"message": "Email sent successfully."})
+        mock_email_instance.send.assert_called_once_with(fail_silently=False)
+
+    @override_settings(
+        ROPON_ADMIN_EMAIL='admin@ropon.org',
+        DEFAULT_FROM_EMAIL='noreply@ropon.org'
+    )
+    @patch('ropon_email.views.EmailMessage')
+    def test_honeypot_filled_fast_returns_silent_success(self, mock_email_message):
+        """
+        A submission that fills a honeypot candidate AND arrives faster than
+        MIN_FORM_SECONDS is treated as a bot: silent HTTP 200 carrying the SAME
+        success body as a real submission (so the bot can't tell it was
+        caught) and no email is actually sent.
+        """
+        # Arrange: fill a honeypot candidate with a fresh _ts
+        data = dict(
+            self.valid_data,
+            fax_number='https://spam.example',
+            _ts=int(time.time() * 1000),
+        )
 
         # Act
         response = self.client.post(self.url, data, format='json')
