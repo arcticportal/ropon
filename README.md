@@ -45,7 +45,7 @@ consumes that API to render the public website.
 RoPON is deployed as a set of containerized services behind an external load balancer.
 
 | Component | Role |
-|-----------|------|
+| ----------- | ------ |
 | **Frontend** | Angular SPA served by NGINX. The public-facing website that lets users discover and browse observing networks. |
 | **Dashboard & API** | Wagtail CMS running headless, exposing an editorial admin dashboard **and** a versioned REST API (via Django REST Framework). |
 | **Database** | PostgreSQL for relational data storage (networks, vocabularies, users). |
@@ -109,7 +109,7 @@ using a common language, enabling consistent filtering and discovery on the publ
 ## Tech stack
 
 | | |
-|---|---|
+| --- | --- |
 | **Backend** | Python 3.12 · Django 5.1 · Wagtail 6.2 · Django REST Framework · drf-spectacular |
 | **Frontend** | Angular 18 · TypeScript · OpenLayers · RxJS |
 | **Data** | PostgreSQL · Redis |
@@ -144,10 +144,10 @@ docker compose -f deploy/docker-compose-test.yml run backend python manage.py in
 Once running, the services are available at:
 
 | Service | URL |
-|---------|-----|
-| Frontend | http://localhost:4200 |
-| Wagtail admin dashboard | http://localhost:8000/admin/ |
-| API | http://localhost:8000/api/v2/ |
+| --------- | ----- |
+| Frontend | <http://localhost:4200> |
+| Wagtail admin dashboard | <http://localhost:8000/admin/> |
+| API | <http://localhost:8000/api/v2/> |
 
 ### Run the backend only
 
@@ -173,7 +173,6 @@ All runtime configuration is environment-driven (loaded via `environs`, which au
 `.env` files). Key variables include database credentials, `DJANGO_SECRET_KEY`,
 `DJANGO_ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `CORS_ALLOWED_ORIGINS`, and `REDIS_HOST`.
 See the example env files under `deploy/backend/` and `deploy/frontend/` for the full list.
-
 
 ## Project structure
 
@@ -205,6 +204,21 @@ docker compose -f deploy/backend/docker-compose-test.yml run wagtail python mana
 docker compose -f deploy/backend/docker-compose-test.yml run wagtail python manage.py test
 ```
 
+## CI
+
+A single [`CI Gate`](./.github/workflows/ci.yml) workflow protects `main` and `dev`. It uses `dorny/paths-filter` to detect which area changed and runs only the matching reusable build:
+
+- `angular/**` or `deploy/frontend/**` → builds the Angular image
+- `backend/**` or `deploy/backend/**` → builds the backend image
+
+A final `gate` job aggregates the results into the single required check. On merges to `main`/`dev`, the built image is pushed to `arcticportal.azurecr.io`.
+
+### Branching and promotion flow
+
+- `dev` is the default branch. All work lands via PRs from feature branches off `dev`, **squash-merged** (enforced by the *Protect dev* ruleset).
+- `main` only receives promotions from `dev`, via PR merged with a **merge commit** (enforced by the *Protect main* ruleset), so the exact commits validated on `dev` land on `main` unchanged.
+- The `main-source-check` job in the CI gate is a required check on `main` and fails any PR whose head branch is not `dev`.
+- Direct pushes, force pushes, and deletions are blocked on both branches; merged feature branches are deleted automatically. After a promotion, `dev` showing as "out of sync" with `main` is expected and cosmetic.
 
 ## Resources
 
